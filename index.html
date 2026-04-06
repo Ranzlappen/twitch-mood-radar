@@ -9,6 +9,15 @@ DATE: 2026-04-02
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>MOOD RADAR - Twitch Chat Pulse</title>
+<!-- PWA meta tags -->
+<meta name="theme-color" content="#06060f"/>
+<meta name="description" content="Real-time Twitch chat mood analyzer with live visualizations"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Mood Radar"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
+<!-- End PWA meta tags -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="styles.css">
@@ -312,5 +321,14 @@ DATE: 2026-04-02
 </div><!-- .app -->
 
 <script src="app.js"></script>
+<!-- PWA: Service Worker registration + Install prompt -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+  });
+}
+</script>
+<script src="install-prompt.js"></script>
 </body>
 </html>
