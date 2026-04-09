@@ -855,7 +855,7 @@ body.preset-list { --gap:20px }
   display:flex; flex-wrap:wrap; gap:var(--gap); margin-bottom:var(--gap);
   align-items:flex-start;
 }
-.layout-row > * { flex:1 1 0; min-width:200px }
+.layout-row > * { flex:1 1 0; min-width:120px }
 /* Flexbox alignment options */
 .layout-row.layout-align-stretch { align-items:stretch }
 .layout-row.layout-align-start   { align-items:flex-start }
@@ -872,3 +872,5 @@ body.preset-custom .charts-top,
 body.preset-custom .section-divider { display:none }
 body.preset-custom #customLayoutContainer { display:block }
 #customLayoutContainer { display:none }
+/* Zero padding on bubble card in custom layout — canvas fills container */
+body.preset-custom .bubble-card { padding:0; padding-top:var(--card-pad) }

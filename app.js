@@ -206,7 +206,11 @@ function renderEmotes(escapedHtml) {
 const MOODS = ['hype','funny','love','toxic','sad','calm','angry','excited','cringe','wholesome','confused','neutral'];
 const MOOD_COLORS = {hype:'#00ffe5',funny:'#ffe600',love:'#ff2d78',toxic:'#ff4800',sad:'#9b6ef3',calm:'#4fc3f7',angry:'#ff1744',excited:'#76ff03',cringe:'#e040fb',wholesome:'#ffab40',confused:'#78909c',neutral:'#2e3d5e'};
 
-let HALF_LIFE_MS = 10_000;
+const HALFLIFE_KEY = 'moodradar_halflife_v1';
+let HALF_LIFE_MS = (() => {
+  try { const v = parseInt(localStorage.getItem(HALFLIFE_KEY)); return isNaN(v) ? 10_000 : Math.min(60_000, Math.max(1_000, v * 1000)); }
+  catch(e) { return 10_000; }
+})();
 const WINDOW_MS  = 120_000;
 const QUEUE_CAP  = 5000;
 
@@ -594,6 +598,22 @@ function updateLabelScale(v) {
 }
 
 // =============================================================
+//  BUBBLE SCALE — controls bubble radius in consensus bubbles
+//  Range 0.3–1.5, default 1.0. Persisted to localStorage.
+// =============================================================
+const BUBBLE_SCALE_KEY = 'moodradar_bubblescale_v1';
+let bubbleScale = (() => {
+  try { const v = parseFloat(localStorage.getItem(BUBBLE_SCALE_KEY)); return isNaN(v) ? 1.0 : Math.min(1.5, Math.max(0.3, v)); }
+  catch(e) { return 1.0; }
+})();
+
+function updateBubbleScale(v) {
+  bubbleScale = Math.min(1.5, Math.max(0.3, parseFloat(v)));
+  document.getElementById('bubbleScaleVal').textContent = bubbleScale.toFixed(2) + 'x';
+  try { localStorage.setItem(BUBBLE_SCALE_KEY, bubbleScale); } catch(e) {}
+}
+
+// =============================================================
 //  CHARTS
 // =============================================================
 let pieChart, radarChart, timelineLinearChart, timelineLogChart, approvalTimelineChart, throughputTimelineChart;
@@ -892,11 +912,11 @@ function updateBubbles(kwList) {
   if (!W || !H) return;
   const top = kwList.slice(0, 22);
   const maxScore = top[0]?.score || 1;
-  const maxR = Math.min(W, H) * 0.42; // never exceed ~42% of smallest dimension
+  const maxR = Math.min(W, H) * 0.42 * bubbleScale; // scale by bubble scale slider
   const existing = new Map(bubbles.map(b => [b.label, b]));
   const next = [];
   for (const { label, score, mood } of top) {
-    const targetR = Math.min(16 + (score / maxScore) * 55, maxR);
+    const targetR = Math.min((16 + (score / maxScore) * 55) * bubbleScale, maxR);
     if (existing.has(label)) {
       const b = existing.get(label);
       b.targetR = targetR; b.mood = mood; b.score = score;
@@ -931,7 +951,7 @@ function bubAnimLoop() {
     if (spd > 1.5) { b.vx = b.vx/spd*1.5; b.vy = b.vy/spd*1.5; }
     b.x += b.vx; b.y += b.vy;
     // Clamp radius to fit within canvas
-    const effR = Math.min(b.r, Math.min(W, H) * 0.48);
+    const effR = Math.min(b.r, Math.min(W, H) * 0.48 * bubbleScale);
     b.r = effR;
     const pad = 4;
     if (b.x-b.r<pad)    { b.x=b.r+pad;     b.vx= Math.abs(b.vx)*0.3; }
@@ -1501,6 +1521,7 @@ function disconnectChat() {
 function updateHalfLife(v) {
   HALF_LIFE_MS=parseInt(v)*1000;
   document.getElementById('hlVal').textContent=v+'s';
+  try { localStorage.setItem(HALFLIFE_KEY, v); } catch(e) {}
 }
 
 // =============================================================
@@ -1541,15 +1562,16 @@ function setStatus(html, cls) {
 const RESIZE_STORAGE_KEY = 'moodradar_sizes_v2';
 const RESIZE_DEBOUNCE_MS = 180;
 const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard'];
+let isRestoringLayout = false; // guard against ResizeObserver overwriting saved sizes during init/layout rebuild
 
 function saveSizes() {
+  if (isRestoringLayout) return; // don't overwrite saved sizes during init/layout rebuild
   const sizes = {};
   for (const id of RESIZABLE_IDS) {
     const el = document.getElementById(id);
-    if (el) {
-      sizes[id] = { h: el.offsetHeight };
-      if (el.style.width) sizes[id].w = el.offsetWidth;
-    }
+    if (!el) continue;
+    sizes[id] = { h: el.offsetHeight };
+    if (el.dataset.manualWidth) sizes[id].w = parseInt(el.style.width) || el.offsetWidth;
   }
   try { localStorage.setItem(RESIZE_STORAGE_KEY, JSON.stringify(sizes)); } catch(e) {}
 }
@@ -1566,7 +1588,11 @@ function restoreSizes() {
       el.style.height = sizes[id] + 'px';
     } else {
       if (sizes[id].h) el.style.height = sizes[id].h + 'px';
-      if (sizes[id].w) el.style.width = sizes[id].w + 'px';
+      if (sizes[id].w) {
+        el.style.width = sizes[id].w + 'px';
+        el.style.flex = 'none';
+        el.dataset.manualWidth = '1';
+      }
     }
   }
 }
@@ -1602,7 +1628,9 @@ function addResizeHandle(el) {
       const newW = Math.max(120, startW + (e.clientX - startX));
       el.style.height = newH + 'px';
       el.style.width = newW + 'px';
+      el.style.flex = 'none';
       el.style.maxWidth = '100%';
+      el.dataset.manualWidth = '1';
       notifyChartResize(el.id);
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
@@ -1631,7 +1659,9 @@ function addResizeHandle(el) {
       const newW = Math.max(120, startW + (t.clientX - startX));
       el.style.height = newH + 'px';
       el.style.width = newW + 'px';
+      el.style.flex = 'none';
       el.style.maxWidth = '100%';
+      el.dataset.manualWidth = '1';
       notifyChartResize(el.id);
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
@@ -1654,7 +1684,9 @@ function setupResizeObserver() {
       notifyChartResize(entry.target.id);
     }
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
+    debounceTimer = setTimeout(() => {
+      if (!isRestoringLayout) saveSizes();
+    }, RESIZE_DEBOUNCE_MS);
   });
   for (const id of RESIZABLE_IDS) {
     const el = document.getElementById(id);
@@ -2042,6 +2074,12 @@ function applyCustomLayout() {
   const container = document.getElementById('customLayoutContainer');
   container.innerHTML = '';
 
+  // Clear manual-width flags and flex overrides before rebuilding rows
+  for (const id of layoutOrder) {
+    const el = document.getElementById(id);
+    if (el) { el.style.flex = ''; delete el.dataset.manualWidth; }
+  }
+
   // Group sections into rows: consecutive items with inline=true are grouped together
   // The last inline item in a run pulls the next non-inline item into the same row
   let i = 0;
@@ -2073,6 +2111,9 @@ function applyCustomLayout() {
       i++;
     }
   }
+
+  // Re-apply saved sizes after DOM rebuild so heights/widths persist
+  restoreSizes();
 
   document.getElementById('settingsDropdown').classList.remove('open');
   setTimeout(() => {
@@ -2171,6 +2212,11 @@ window.onload = function() {
   if (slider) slider.value = labelScale;
   document.getElementById('labelScaleVal').textContent = labelScale.toFixed(1) + 'x';
 
+  // Init bubble scale slider with saved/default value
+  const bsSlider = document.getElementById('bubbleScaleSlider');
+  if (bsSlider) bsSlider.value = bubbleScale;
+  document.getElementById('bubbleScaleVal').textContent = bubbleScale.toFixed(2) + 'x';
+
   // Init feed font size slider
   const feedSlider = document.getElementById('feedFontSlider');
   if (feedSlider) feedSlider.value = feedFontSize;
@@ -2216,6 +2262,12 @@ window.onload = function() {
   if (tlIntSlider) tlIntSlider.value = TIMELINE_INTERVAL;
   document.getElementById('tlIntervalVal').textContent = TIMELINE_INTERVAL + 'ms';
 
+  // Init half-life slider with saved/default value
+  const savedHL = HALF_LIFE_MS / 1000;
+  const hlSlider = document.getElementById('hlSlider');
+  if (hlSlider) hlSlider.value = savedHL;
+  document.getElementById('hlVal').textContent = savedHL + 's';
+
   // Render dynamic mood legend
   renderMoodLegend();
 
@@ -2224,6 +2276,9 @@ window.onload = function() {
 
   initCharts();
   setupResizeObserver();
+
+  // Guard against ResizeObserver overwriting saved sizes during init
+  isRestoringLayout = true;
 
   // Restore saved preset (must happen after charts init and resize observer setup)
   if (currentPreset && currentPreset !== 'dashboard') {
@@ -2237,8 +2292,9 @@ window.onload = function() {
 
   // Restore sizes after preset is applied (preset may change layout)
   restoreSizes();
-  // Re-trigger chart resize after sizes restored
+  // Re-trigger chart resize after sizes restored, then release guard
   setTimeout(() => {
     for (const id of RESIZABLE_IDS) notifyChartResize(id);
+    setTimeout(() => { isRestoringLayout = false; }, 300);
   }, 100);
 };
