@@ -39,79 +39,88 @@ DATE: 2026-04-02
 <!-- ====================================================
      HEADER + SETTINGS MENU
      ==================================================== -->
-<header><
+<header>
   <div class="header-center">
     <div class="title">TWITCH CHAT MOOD Radar <a href='https://ko-fi.com/F1F1140LWT' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> </div>
     <div class="subtitle">Time Weighted - Live Twitch Consensus - still in development and experimental</div>
   </div>
 
-  <!-- Settings toggle — inline with title row, icon only -->
-  <div class="settings-wrap">
-    <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" aria-label="Appearance settings" title="Layout presets">
-      <svg viewBox="0 0 16 16"><path d="M8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm5.85-1.85-.01-.07a5.6 5.6 0 0 0 0-1.16l.01-.07 1.1-.95a.4.4 0 0 0 .08-.5l-1.05-1.82a.4.4 0 0 0-.49-.17l-1.29.52-.1-.06a5.7 5.7 0 0 0-1-.58l-.08-.03-.2-1.37A.4.4 0 0 0 10.4 2H8.6a.4.4 0 0 0-.4.33l-.2 1.37-.08.03a5.7 5.7 0 0 0-1 .58l-.1.06-1.29-.52a.4.4 0 0 0-.49.17L4 5.84a.4.4 0 0 0 .08.5l1.1.95-.01.07a5.6 5.6 0 0 0 0 1.16l.01.07-1.1.95a.4.4 0 0 0-.08.5L5.05 11.9a.4.4 0 0 0 .49.17l1.29-.52.1.06c.31.22.64.41 1 .58l.08.03.2 1.37c.05.19.22.33.4.33h1.8c.18 0 .35-.14.4-.33l.2-1.37.08-.03c.36-.17.69-.36 1-.58l.1-.06 1.29.52a.4.4 0 0 0 .49-.17l1.05-1.82a.4.4 0 0 0-.08-.5l-1.1-.95z"/></svg>
-    </button>
-    <div class="settings-dropdown" id="settingsDropdown">
-      <div class="settings-section-label">QUICK PRESETS</div>
-      <button class="preset-btn active" data-preset="dashboard" onclick="applyPreset('dashboard')">
-        <span class="preset-icon"></span>Dashboard
+  <div class="header-actions">
+    <!-- Settings toggle — quick presets -->
+    <div class="settings-wrap">
+      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" aria-label="Appearance settings" title="Layout presets">
+        <svg viewBox="0 0 16 16"><path d="M8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm5.85-1.85-.01-.07a5.6 5.6 0 0 0 0-1.16l.01-.07 1.1-.95a.4.4 0 0 0 .08-.5l-1.05-1.82a.4.4 0 0 0-.49-.17l-1.29.52-.1-.06a5.7 5.7 0 0 0-1-.58l-.08-.03-.2-1.37A.4.4 0 0 0 10.4 2H8.6a.4.4 0 0 0-.4.33l-.2 1.37-.08.03a5.7 5.7 0 0 0-1 .58l-.1.06-1.29-.52a.4.4 0 0 0-.49.17L4 5.84a.4.4 0 0 0 .08.5l1.1.95-.01.07a5.6 5.6 0 0 0 0 1.16l.01.07-1.1.95a.4.4 0 0 0-.08.5L5.05 11.9a.4.4 0 0 0 .49.17l1.29-.52.1.06c.31.22.64.41 1 .58l.08.03.2 1.37c.05.19.22.33.4.33h1.8c.18 0 .35-.14.4-.33l.2-1.37.08-.03c.36-.17.69-.36 1-.58l.1-.06 1.29.52a.4.4 0 0 0 .49-.17l1.05-1.82a.4.4 0 0 0-.08-.5l-1.1-.95z"/></svg>
       </button>
-      <button class="preset-btn" data-preset="list" onclick="applyPreset('list')">
-        <span class="preset-icon"></span>List
-      </button>
-      <button class="preset-btn" data-preset="custom" onclick="applyPreset('custom')">
-        <span class="preset-icon" style="position:relative"><span style="position:absolute;left:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;right:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;left:3px;bottom:3px;right:3px;height:3px;background:currentColor;border-radius:1px;opacity:.5"></span></span>Custom
-      </button>
-      <div class="settings-section-label" style="margin-top:6px">LABEL SIZE</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
-        <input type="range" id="labelScaleSlider" min="0.8" max="2.5" step="0.1"
-          style="flex:1;width:auto"
-          oninput="updateLabelScale(this.value)"/>
-        <span id="labelScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
-      </div>
-      <div class="settings-section-label" style="margin-top:6px">BUBBLE SCALE</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
-        <input type="range" id="bubbleScaleSlider" min="0.3" max="1.5" step="0.05"
-          style="flex:1;width:auto"
-          oninput="updateBubbleScale(this.value)"/>
-        <span id="bubbleScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
-      </div>
-      <div class="settings-section-label" style="margin-top:6px">DECAY</div>
-      <div style="padding:4px 10px 8px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">HALF-LIFE</span>
-          <input type="range" id="hlSlider" min="1" max="60" value="10" step="1" style="flex:1;width:auto" oninput="updateHalfLife(this.value)"/>
-          <span id="hlVal" style="font-size:.72em;color:var(--accent);min-width:26px;text-align:right">10s</span>
-          <button class="help-btn" id="decayInfoBtn" onclick="showDecayRecommendation()" title="Decay recommendations based on throughput">i</button>
-        </div>
-      </div>
-      <div class="settings-section-label" style="margin-top:6px">TIMELINE SETTINGS</div>
-      <div style="padding:4px 10px 2px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">MAX POINTS</span>
-          <input type="range" id="tlPointsSlider" min="50" max="1000" step="10"
+      <div class="settings-dropdown" id="settingsDropdown">
+        <div class="settings-section-label">QUICK PRESETS</div>
+        <button class="preset-btn active" data-preset="dashboard" onclick="applyPreset('dashboard')">
+          <span class="preset-icon"></span>Dashboard
+        </button>
+        <button class="preset-btn" data-preset="list" onclick="applyPreset('list')">
+          <span class="preset-icon"></span>List
+        </button>
+        <button class="preset-btn" data-preset="dense" onclick="applyPreset('dense')">
+          <span class="preset-icon" style="position:relative"><span style="position:absolute;inset:2px;border:1px solid currentColor;border-radius:1px;opacity:.6"></span></span>One-Screen
+        </button>
+        <button class="preset-btn" data-preset="custom" onclick="applyPreset('custom')">
+          <span class="preset-icon" style="position:relative"><span style="position:absolute;left:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;right:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;left:3px;bottom:3px;right:3px;height:3px;background:currentColor;border-radius:1px;opacity:.5"></span></span>Custom
+        </button>
+        <div class="settings-section-label" style="margin-top:6px">LABEL SIZE</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
+          <input type="range" id="labelScaleSlider" min="0.8" max="2.5" step="0.1"
             style="flex:1;width:auto"
-            oninput="updateTimelinePoints(this.value)"/>
-          <span id="tlPointsVal" style="font-size:.72em;color:var(--accent);min-width:32px;text-align:right"></span>
+            oninput="updateLabelScale(this.value)"/>
+          <span id="labelScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">INTERVAL</span>
-          <input type="range" id="tlIntervalSlider" min="200" max="5000" step="100"
+        <div class="settings-section-label" style="margin-top:6px">BUBBLE SCALE</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
+          <input type="range" id="bubbleScaleSlider" min="0.3" max="1.5" step="0.05"
             style="flex:1;width:auto"
-            oninput="updateTimelineInterval(this.value)"/>
-          <span id="tlIntervalVal" style="font-size:.72em;color:var(--accent);min-width:40px;text-align:right"></span>
+            oninput="updateBubbleScale(this.value)"/>
+          <span id="bubbleScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
         </div>
-      </div>
-      <div id="layoutManagerSection" style="display:none">
-        <div class="settings-section-label" style="margin-top:4px">ARRANGE SECTIONS</div>
-        <div style="padding:2px 10px 6px;font-size:.58em;color:var(--muted);line-height:1.5;letter-spacing:.03em">
-          Drag to reorder. <strong style="color:var(--text)">⬌ SIDE</strong> = side-by-side on same row. <strong style="color:var(--text)">⬍ STACK</strong> = on its own row.
+        <div class="settings-section-label" style="margin-top:6px">DECAY</div>
+        <div style="padding:4px 10px 8px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">HALF-LIFE</span>
+            <input type="range" id="hlSlider" min="1" max="60" value="10" step="1" style="flex:1;width:auto" oninput="updateHalfLife(this.value)"/>
+            <span id="hlVal" style="font-size:.72em;color:var(--accent);min-width:26px;text-align:right">10s</span>
+            <button class="help-btn" id="decayInfoBtn" onclick="showDecayRecommendation()" title="Decay recommendations based on throughput">i</button>
+          </div>
         </div>
-        <div class="layout-section" id="layoutItemList"></div>
-        <div style="padding:0 10px 6px">
-          <button class="layout-apply-btn" onclick="applyCustomLayout()">APPLY LAYOUT</button>
+        <div class="settings-section-label" style="margin-top:6px">TIMELINE SETTINGS</div>
+        <div style="padding:4px 10px 2px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">MAX POINTS</span>
+            <input type="range" id="tlPointsSlider" min="50" max="1000" step="10"
+              style="flex:1;width:auto"
+              oninput="updateTimelinePoints(this.value)"/>
+            <span id="tlPointsVal" style="font-size:.72em;color:var(--accent);min-width:32px;text-align:right"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">INTERVAL</span>
+            <input type="range" id="tlIntervalSlider" min="200" max="5000" step="100"
+              style="flex:1;width:auto"
+              oninput="updateTimelineInterval(this.value)"/>
+            <span id="tlIntervalVal" style="font-size:.72em;color:var(--accent);min-width:40px;text-align:right"></span>
+          </div>
+        </div>
+        <div id="layoutManagerSection" style="display:none">
+          <div class="settings-section-label" style="margin-top:4px">ARRANGE SECTIONS</div>
+          <div style="padding:2px 10px 6px;font-size:.58em;color:var(--muted);line-height:1.5;letter-spacing:.03em">
+            Drag to reorder. <strong style="color:var(--text)">⬌ SIDE</strong> = side-by-side on same row. <strong style="color:var(--text)">⬍ STACK</strong> = on its own row.
+          </div>
+          <div class="layout-section" id="layoutItemList"></div>
+          <div style="padding:0 10px 6px">
+            <button class="layout-apply-btn" onclick="applyCustomLayout()">APPLY LAYOUT</button>
+          </div>
         </div>
       </div>
     </div>
+    <!-- Options Drawer toggle -->
+    <button class="options-btn" id="optionsBtn" onclick="toggleOptionsDrawer()" aria-label="Options drawer" title="Customization options">
+      <svg viewBox="0 0 16 16"><rect x="1" y="2.5" width="14" height="1" rx=".5"/><rect x="1" y="7.5" width="14" height="1" rx=".5"/><rect x="1" y="12.5" width="14" height="1" rx=".5"/><circle cx="4.5" cy="3" r="1.8"/><circle cx="11.5" cy="8" r="1.8"/><circle cx="7" cy="13" r="1.8"/></svg>
+    </button>
   </div>
 </header>
 
@@ -327,6 +336,186 @@ DATE: 2026-04-02
 <div id="customLayoutContainer"></div>
 
 </div><!-- .app -->
+
+<!-- OPTIONS DRAWER — slide-in customization panel -->
+<div class="options-drawer-overlay" id="optionsOverlay" onclick="toggleOptionsDrawer()"></div>
+<div class="options-drawer" id="optionsDrawer">
+  <div class="options-drawer-header">
+    <span>OPTIONS</span>
+    <button class="options-drawer-close" onclick="toggleOptionsDrawer()">&#x2715;</button>
+  </div>
+  <div class="options-drawer-body">
+
+    <details class="opt-section" open>
+      <summary>Layout &amp; Density</summary>
+      <div class="opt-content">
+        <div class="opt-row">
+          <span class="opt-label">DENSITY</span>
+          <select id="optDensity" onchange="setOptDensity(this.value)">
+            <option value="loose">Loose</option>
+            <option value="normal" selected>Normal</option>
+            <option value="dense">Ultra Dense</option>
+          </select>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">GAP</span>
+          <input type="range" id="optGap" min="2" max="24" step="1" value="16" oninput="setOptGap(this.value)">
+          <span class="opt-val" id="optGapVal">16px</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">CARD PAD</span>
+          <input type="range" id="optCardPad" min="2" max="24" step="1" value="18" oninput="setOptCardPad(this.value)">
+          <span class="opt-val" id="optCardPadVal">18px</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">FONT SCALE</span>
+          <input type="range" id="optFontScale" min="0.6" max="1.4" step="0.05" value="1" oninput="setOptFontScale(this.value)">
+          <span class="opt-val" id="optFontScaleVal">1.00</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section" open>
+      <summary>Visual Effects</summary>
+      <div class="opt-content">
+        <div class="opt-row">
+          <span class="opt-label">SCANLINES</span>
+          <input type="range" id="optCrt" min="0" max="1" step="0.05" value="1" oninput="setOptCrt(this.value)">
+          <span class="opt-val" id="optCrtVal">100%</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">BG GRID</span>
+          <input type="range" id="optGrid" min="0" max="1" step="0.05" value="1" oninput="setOptGridBg(this.value)">
+          <span class="opt-val" id="optGridVal">100%</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Header &amp; Top Bar</summary>
+      <div class="opt-content">
+        <label class="opt-toggle">
+          <input type="checkbox" id="optShowSubtitle" checked onchange="setOptShowSubtitle(this.checked)">
+          <span class="opt-label">Show subtitle</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optShowLegend" checked onchange="setOptShowLegend(this.checked)">
+          <span class="opt-label">Show mood legend</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optShowDividers" checked onchange="setOptShowDividers(this.checked)">
+          <span class="opt-label">Show section dividers</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optCompactStats" onchange="setOptCompactStats(this.checked)">
+          <span class="opt-label">Compact stats row</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Consensus Bubbles</summary>
+      <div class="opt-content">
+        <div class="opt-row">
+          <span class="opt-label">MAX COUNT</span>
+          <input type="range" id="optBubbleCount" min="5" max="40" step="1" value="22" oninput="setOptBubbleCount(this.value)">
+          <span class="opt-val" id="optBubbleCountVal">22</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">SPEED</span>
+          <input type="range" id="optBubbleSpeed" min="0.1" max="3" step="0.1" value="1" oninput="setOptBubbleSpeed(this.value)">
+          <span class="opt-val" id="optBubbleSpeedVal">1.0x</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">OPACITY</span>
+          <input type="range" id="optBubbleOpacity" min="0.1" max="1" step="0.05" value="0.28" oninput="setOptBubbleOpacity(this.value)">
+          <span class="opt-val" id="optBubbleOpacityVal">28%</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">HEIGHT</span>
+          <input type="range" id="optBubbleHeight" min="80" max="500" step="10" value="260" oninput="setOptBubbleHeight(this.value)">
+          <span class="opt-val" id="optBubbleHeightVal">260px</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Charts</summary>
+      <div class="opt-content">
+        <label class="opt-toggle">
+          <input type="checkbox" id="optPieLabels" checked onchange="setOptPieLabels(this.checked)">
+          <span class="opt-label">Pie chart labels</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optPieAnimation" checked onchange="setOptPieAnimation(this.checked)">
+          <span class="opt-label">Pie animation</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optRadarAnimation" checked onchange="setOptRadarAnimation(this.checked)">
+          <span class="opt-label">Radar animation</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optRadarGrid" checked onchange="setOptRadarGrid(this.checked)">
+          <span class="opt-label">Radar grid lines</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Timelines</summary>
+      <div class="opt-content">
+        <div class="opt-row">
+          <span class="opt-label">HEIGHT</span>
+          <input type="range" id="optTimelineHeight" min="80" max="500" step="10" value="320" oninput="setOptTimelineHeight(this.value)">
+          <span class="opt-val" id="optTimelineHeightVal">320px</span>
+        </div>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optTlGrid" checked onchange="setOptTlGrid(this.checked)">
+          <span class="opt-label">Show grid lines</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optTlSmooth" checked onchange="setOptTlSmooth(this.checked)">
+          <span class="opt-label">Smooth lines (tension)</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Approval Meter</summary>
+      <div class="opt-content">
+        <label class="opt-toggle">
+          <input type="checkbox" id="optApprovalMini" checked onchange="setOptApprovalMini(this.checked)">
+          <span class="opt-label">Show mini bar chart</span>
+        </label>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optApprovalVerdict" checked onchange="setOptApprovalVerdict(this.checked)">
+          <span class="opt-label">Show verdict text</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Card Visibility</summary>
+      <div class="opt-content">
+        <label class="opt-toggle"><input type="checkbox" id="optShowPie" checked onchange="setOptCardVisibility('pieCard',this.checked)"><span class="opt-label">Mood Distribution</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowRadar" checked onchange="setOptCardVisibility('radarCard',this.checked)"><span class="opt-label">Mood Web</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowBubble" checked onchange="setOptCardVisibility('bubbleCard',this.checked)"><span class="opt-label">Consensus Bubbles</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowApproval" checked onchange="setOptCardVisibility('approvalCard',this.checked)"><span class="opt-label">Approval Meter</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowApprovalTL" checked onchange="setOptCardVisibility('approvalTimelineCard',this.checked)"><span class="opt-label">Approval Timeline</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowThroughputTL" checked onchange="setOptCardVisibility('throughputTimelineCard',this.checked)"><span class="opt-label">Throughput Timeline</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowLinearTL" checked onchange="setOptCardVisibility('timelineLinearCard',this.checked)"><span class="opt-label">Timeline (Linear)</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowLogTL" checked onchange="setOptCardVisibility('timelineLogCard',this.checked)"><span class="opt-label">Timeline (Log)</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowFeed" checked onchange="setOptCardVisibility('feedCard',this.checked)"><span class="opt-label">Live Feed</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowFilteredFeed" checked onchange="setOptCardVisibility('filteredFeedCard',this.checked)"><span class="opt-label">Filtered Feed</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowOutlier" checked onchange="setOptCardVisibility('outlierCard',this.checked)"><span class="opt-label">Standout Messages</span></label>
+      </div>
+    </details>
+
+    <div style="padding:12px 16px">
+      <button class="opt-reset-btn" onclick="resetAllOptions()">RESET ALL OPTIONS</button>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <!-- PWA: Service Worker registration + Install prompt -->

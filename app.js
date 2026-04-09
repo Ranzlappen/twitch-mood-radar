@@ -1,4 +1,293 @@
 // =============================================================
+//  OPTIONS DRAWER — comprehensive customization panel
+// =============================================================
+const OPTIONS_STORAGE_KEY = 'moodradar_options_v1';
+const DEFAULT_OPTIONS = {
+  density:'normal', gap:16, cardPad:18, fontScale:1,
+  crtOpacity:1, gridOpacity:1,
+  showSubtitle:true, showLegend:true, showDividers:true, compactStats:false,
+  bubbleCount:22, bubbleSpeed:1, bubbleOpacity:0.28, bubbleHeight:260,
+  pieLabels:true, pieAnimation:true, radarAnimation:true, radarGrid:true,
+  timelineHeight:320, tlGrid:true, tlSmooth:true,
+  approvalMini:true, approvalVerdict:true,
+  cardVisibility:{}
+};
+let drawerOptions = { ...DEFAULT_OPTIONS };
+
+function loadOptions() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY));
+    if (saved) drawerOptions = { ...DEFAULT_OPTIONS, ...saved };
+  } catch(e) {}
+}
+function saveOptions() {
+  try { localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(drawerOptions)); } catch(e) {}
+}
+
+function toggleOptionsDrawer() {
+  const d = document.getElementById('optionsDrawer');
+  const o = document.getElementById('optionsOverlay');
+  const open = !d.classList.contains('open');
+  d.classList.toggle('open', open);
+  o.classList.toggle('open', open);
+}
+
+// --- Individual live-preview setters ---
+function setOptDensity(val) {
+  drawerOptions.density = val;
+  document.body.classList.remove('preset-dense','preset-loose');
+  if (val === 'dense') document.body.classList.add('preset-dense');
+  else if (val === 'loose') document.body.classList.add('preset-loose');
+  saveOptions();
+  setTimeout(() => {
+    resizeBubbleCanvas();
+    [pieChart,radarChart,approvalTimelineChart,throughputTimelineChart,timelineLinearChart,timelineLogChart]
+      .filter(Boolean).forEach(c => c.resize());
+  }, 100);
+}
+function setOptGap(v) {
+  drawerOptions.gap = parseInt(v);
+  document.documentElement.style.setProperty('--gap', v + 'px');
+  document.getElementById('optGapVal').textContent = v + 'px';
+  saveOptions();
+}
+function setOptCardPad(v) {
+  drawerOptions.cardPad = parseInt(v);
+  document.documentElement.style.setProperty('--card-pad', v + 'px');
+  document.getElementById('optCardPadVal').textContent = v + 'px';
+  saveOptions();
+}
+function setOptFontScale(v) {
+  drawerOptions.fontScale = parseFloat(v);
+  document.documentElement.style.setProperty('--font-scale', v);
+  document.getElementById('optFontScaleVal').textContent = parseFloat(v).toFixed(2);
+  saveOptions();
+}
+function setOptCrt(v) {
+  drawerOptions.crtOpacity = parseFloat(v);
+  document.documentElement.style.setProperty('--crt-opacity', v);
+  document.getElementById('optCrtVal').textContent = Math.round(v * 100) + '%';
+  saveOptions();
+}
+function setOptGridBg(v) {
+  drawerOptions.gridOpacity = parseFloat(v);
+  document.documentElement.style.setProperty('--grid-opacity', v);
+  document.getElementById('optGridVal').textContent = Math.round(v * 100) + '%';
+  saveOptions();
+}
+function setOptShowSubtitle(c) {
+  drawerOptions.showSubtitle = c;
+  document.querySelector('.subtitle').style.display = c ? '' : 'none';
+  saveOptions();
+}
+function setOptShowLegend(c) {
+  drawerOptions.showLegend = c;
+  document.getElementById('moodLegend').style.display = c ? '' : 'none';
+  saveOptions();
+}
+function setOptShowDividers(c) {
+  drawerOptions.showDividers = c;
+  document.querySelectorAll('.section-divider').forEach(el => el.style.display = c ? '' : 'none');
+  saveOptions();
+}
+function setOptCompactStats(c) {
+  drawerOptions.compactStats = c;
+  document.querySelector('.stats-row').classList.toggle('compact', c);
+  saveOptions();
+}
+function setOptBubbleCount(v) {
+  drawerOptions.bubbleCount = parseInt(v);
+  document.getElementById('optBubbleCountVal').textContent = v;
+  saveOptions();
+}
+function setOptBubbleSpeed(v) {
+  drawerOptions.bubbleSpeed = parseFloat(v);
+  document.getElementById('optBubbleSpeedVal').textContent = parseFloat(v).toFixed(1) + 'x';
+  saveOptions();
+}
+function setOptBubbleOpacity(v) {
+  drawerOptions.bubbleOpacity = parseFloat(v);
+  document.getElementById('optBubbleOpacityVal').textContent = Math.round(v * 100) + '%';
+  saveOptions();
+}
+function setOptBubbleHeight(v) {
+  drawerOptions.bubbleHeight = parseInt(v);
+  document.documentElement.style.setProperty('--bubble-height', v + 'px');
+  document.getElementById('optBubbleHeightVal').textContent = v + 'px';
+  saveOptions();
+  setTimeout(resizeBubbleCanvas, 50);
+}
+function setOptPieLabels(c) {
+  drawerOptions.pieLabels = c;
+  if (pieChart) pieChart.update('none');
+  saveOptions();
+}
+function setOptPieAnimation(c) {
+  drawerOptions.pieAnimation = c;
+  if (pieChart) pieChart.options.animation.duration = c ? 350 : 0;
+  saveOptions();
+}
+function setOptRadarAnimation(c) {
+  drawerOptions.radarAnimation = c;
+  if (radarChart) radarChart.options.animation.duration = c ? 400 : 0;
+  saveOptions();
+}
+function setOptRadarGrid(c) {
+  drawerOptions.radarGrid = c;
+  if (radarChart) {
+    radarChart.options.scales.r.grid.display = c;
+    radarChart.options.scales.r.angleLines.display = c;
+    radarChart.update('none');
+  }
+  saveOptions();
+}
+function setOptTimelineHeight(v) {
+  drawerOptions.timelineHeight = parseInt(v);
+  document.documentElement.style.setProperty('--timeline-height', v + 'px');
+  document.getElementById('optTimelineHeightVal').textContent = v + 'px';
+  saveOptions();
+  [approvalTimelineChart,throughputTimelineChart,timelineLinearChart,timelineLogChart]
+    .filter(Boolean).forEach(c => c.resize());
+}
+function setOptTlGrid(c) {
+  drawerOptions.tlGrid = c;
+  [timelineLinearChart,timelineLogChart,approvalTimelineChart,throughputTimelineChart].filter(Boolean).forEach(ch => {
+    ch.options.scales.x.grid.display = c;
+    ch.options.scales.y.grid.display = c;
+    ch.update('none');
+  });
+  saveOptions();
+}
+function setOptTlSmooth(c) {
+  drawerOptions.tlSmooth = c;
+  const t = c ? 0.45 : 0;
+  [timelineLinearChart,timelineLogChart,approvalTimelineChart,throughputTimelineChart].filter(Boolean).forEach(ch => {
+    for (const ds of ch.data.datasets) ds.tension = t;
+    ch.update('none');
+  });
+  saveOptions();
+}
+function setOptApprovalMini(c) {
+  drawerOptions.approvalMini = c;
+  document.getElementById('approvalMini').style.display = c ? '' : 'none';
+  saveOptions();
+}
+function setOptApprovalVerdict(c) {
+  drawerOptions.approvalVerdict = c;
+  document.getElementById('approvalVerdict').style.display = c ? '' : 'none';
+  saveOptions();
+}
+function setOptCardVisibility(id, vis) {
+  if (!drawerOptions.cardVisibility) drawerOptions.cardVisibility = {};
+  drawerOptions.cardVisibility[id] = vis;
+  const el = document.getElementById(id);
+  if (el) el.style.display = vis ? '' : 'none';
+  saveOptions();
+  if (vis) setTimeout(() => notifyChartResize(id), 50);
+}
+function resetAllOptions() {
+  drawerOptions = { ...DEFAULT_OPTIONS };
+  saveOptions();
+  applyAllOptions();
+}
+
+function applyAllOptions() {
+  const o = drawerOptions;
+  // Density
+  document.body.classList.remove('preset-dense','preset-loose');
+  if (o.density === 'dense') document.body.classList.add('preset-dense');
+  else if (o.density === 'loose') document.body.classList.add('preset-loose');
+  const densityEl = document.getElementById('optDensity');
+  if (densityEl) densityEl.value = o.density;
+  // CSS variables
+  const root = document.documentElement.style;
+  root.setProperty('--gap', o.gap + 'px');
+  root.setProperty('--card-pad', o.cardPad + 'px');
+  root.setProperty('--font-scale', o.fontScale);
+  root.setProperty('--crt-opacity', o.crtOpacity);
+  root.setProperty('--grid-opacity', o.gridOpacity);
+  root.setProperty('--timeline-height', o.timelineHeight + 'px');
+  root.setProperty('--bubble-height', o.bubbleHeight + 'px');
+  // Slider values
+  const sync = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const text = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  sync('optGap', o.gap); text('optGapVal', o.gap + 'px');
+  sync('optCardPad', o.cardPad); text('optCardPadVal', o.cardPad + 'px');
+  sync('optFontScale', o.fontScale); text('optFontScaleVal', o.fontScale.toFixed(2));
+  sync('optCrt', o.crtOpacity); text('optCrtVal', Math.round(o.crtOpacity * 100) + '%');
+  sync('optGrid', o.gridOpacity); text('optGridVal', Math.round(o.gridOpacity * 100) + '%');
+  // Toggles
+  const chk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = val; };
+  chk('optShowSubtitle', o.showSubtitle);
+  document.querySelector('.subtitle').style.display = o.showSubtitle ? '' : 'none';
+  chk('optShowLegend', o.showLegend);
+  const legendEl = document.getElementById('moodLegend');
+  if (legendEl) legendEl.style.display = o.showLegend ? '' : 'none';
+  chk('optShowDividers', o.showDividers);
+  document.querySelectorAll('.section-divider').forEach(el => el.style.display = o.showDividers ? '' : 'none');
+  chk('optCompactStats', o.compactStats);
+  const statsEl = document.querySelector('.stats-row');
+  if (statsEl) statsEl.classList.toggle('compact', o.compactStats);
+  // Bubbles
+  sync('optBubbleCount', o.bubbleCount); text('optBubbleCountVal', o.bubbleCount);
+  sync('optBubbleSpeed', o.bubbleSpeed); text('optBubbleSpeedVal', o.bubbleSpeed.toFixed(1) + 'x');
+  sync('optBubbleOpacity', o.bubbleOpacity); text('optBubbleOpacityVal', Math.round(o.bubbleOpacity * 100) + '%');
+  sync('optBubbleHeight', o.bubbleHeight); text('optBubbleHeightVal', o.bubbleHeight + 'px');
+  // Charts
+  chk('optPieLabels', o.pieLabels);
+  chk('optPieAnimation', o.pieAnimation);
+  chk('optRadarAnimation', o.radarAnimation);
+  chk('optRadarGrid', o.radarGrid);
+  // Timelines
+  sync('optTimelineHeight', o.timelineHeight); text('optTimelineHeightVal', o.timelineHeight + 'px');
+  chk('optTlGrid', o.tlGrid);
+  chk('optTlSmooth', o.tlSmooth);
+  // Approval
+  chk('optApprovalMini', o.approvalMini);
+  const miniEl = document.getElementById('approvalMini');
+  if (miniEl) miniEl.style.display = o.approvalMini ? '' : 'none';
+  chk('optApprovalVerdict', o.approvalVerdict);
+  const verdEl = document.getElementById('approvalVerdict');
+  if (verdEl) verdEl.style.display = o.approvalVerdict ? '' : 'none';
+  // Card visibility
+  const visMap = {
+    pieCard:'optShowPie', radarCard:'optShowRadar', bubbleCard:'optShowBubble',
+    approvalCard:'optShowApproval', approvalTimelineCard:'optShowApprovalTL',
+    throughputTimelineCard:'optShowThroughputTL', timelineLinearCard:'optShowLinearTL',
+    timelineLogCard:'optShowLogTL', feedCard:'optShowFeed',
+    filteredFeedCard:'optShowFilteredFeed', outlierCard:'optShowOutlier'
+  };
+  for (const [cid, cbid] of Object.entries(visMap)) {
+    const vis = o.cardVisibility[cid] !== false;
+    chk(cbid, vis);
+    const cel = document.getElementById(cid);
+    if (cel) cel.style.display = vis ? '' : 'none';
+  }
+  // Apply to charts if ready
+  if (chartsReady) {
+    if (pieChart) pieChart.options.animation.duration = o.pieAnimation ? 350 : 0;
+    if (radarChart) {
+      radarChart.options.animation.duration = o.radarAnimation ? 400 : 0;
+      radarChart.options.scales.r.grid.display = o.radarGrid;
+      radarChart.options.scales.r.angleLines.display = o.radarGrid;
+      radarChart.update('none');
+    }
+    [timelineLinearChart,timelineLogChart,approvalTimelineChart,throughputTimelineChart].filter(Boolean).forEach(ch => {
+      ch.options.scales.x.grid.display = o.tlGrid;
+      ch.options.scales.y.grid.display = o.tlGrid;
+      for (const ds of ch.data.datasets) ds.tension = o.tlSmooth ? 0.45 : 0;
+      ch.update('none');
+    });
+  }
+  // Resize after all changes
+  setTimeout(() => {
+    resizeBubbleCanvas();
+    [pieChart,radarChart,approvalTimelineChart,throughputTimelineChart,timelineLinearChart,timelineLogChart]
+      .filter(Boolean).forEach(c => c.resize());
+  }, 100);
+}
+
+// =============================================================
 //  SETTINGS — preset and settings dropdown
 // =============================================================
 const PRESET_STORAGE_KEY = 'moodradar_preset_v1';
@@ -18,10 +307,16 @@ function toggleSettings() {
 function applyPreset(preset) {
   currentPreset = preset;
   savePreset(preset);
+  document.body.classList.remove('preset-list','preset-dense','preset-loose');
   if (preset === 'list') {
     document.body.classList.add('preset-list');
-  } else {
-    document.body.classList.remove('preset-list');
+  } else if (preset === 'dense') {
+    document.body.classList.add('preset-dense');
+    // Also sync drawer density option
+    drawerOptions.density = 'dense';
+    const densityEl = document.getElementById('optDensity');
+    if (densityEl) densityEl.value = 'dense';
+    saveOptions();
   }
   // Update active state on buttons
   document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -152,7 +447,7 @@ function showHelp(key) {
   document.getElementById('helpOverlay').classList.add('open');
 }
 function closeHelp() { document.getElementById('helpOverlay').classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeHelp(); document.getElementById('settingsDropdown').classList.remove('open'); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeHelp(); document.getElementById('settingsDropdown').classList.remove('open'); document.getElementById('optionsDrawer').classList.remove('open'); document.getElementById('optionsOverlay').classList.remove('open'); } });
 
 // =============================================================
 //  SANITIZATION
@@ -621,6 +916,7 @@ let pieChart, radarChart, timelineLinearChart, timelineLogChart, approvalTimelin
 const pieLabelPlugin = {
   id: 'pieLabels',
   afterDraw(chart) {
+    if (!drawerOptions.pieLabels) return;
     const { ctx } = chart;
     const meta = chart.getDatasetMeta(0);
     const data = chart.data.datasets[0].data;
@@ -910,7 +1206,7 @@ function onBubbleHover(e) {
 function updateBubbles(kwList) {
   const W = bubCanvas.offsetWidth, H = bubCanvas.offsetHeight;
   if (!W || !H) return;
-  const top = kwList.slice(0, 22);
+  const top = kwList.slice(0, drawerOptions.bubbleCount || 22);
   const maxScore = top[0]?.score || 1;
   const maxR = Math.min(W, H) * 0.42 * bubbleScale; // scale by bubble scale slider
   const existing = new Map(bubbles.map(b => [b.label, b]));
@@ -939,7 +1235,7 @@ function bubAnimLoop() {
   if (!W || !H) return;
   bubCtx.clearRect(0, 0, W, H);
   const cx = W/2, cy = H/2;
-  const SPRING_K = 0.004;
+  const SPRING_K = 0.004 * (drawerOptions.bubbleSpeed || 1);
 
   for (const b of bubbles) {
     b.r += (b.targetR - b.r) * 0.05;
@@ -988,7 +1284,7 @@ function bubAnimLoop() {
     const isHov = b === hoveredBubble;
     bubCtx.beginPath();
     bubCtx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-    bubCtx.fillStyle = hexAlpha(col, isHov?0.52:0.28);
+    bubCtx.fillStyle = hexAlpha(col, isHov ? 0.52 : (drawerOptions.bubbleOpacity || 0.28));
     bubCtx.fill();
     if (isHov) { bubCtx.shadowColor=col; bubCtx.shadowBlur=16; }
     bubCtx.strokeStyle = hexAlpha(col, isHov?1.0:0.65);
@@ -1034,7 +1330,7 @@ function updateVisuals() {
     radarChart.update('none');
   }
 
-  updateBubbles(kwList.slice(0,28).map((k,i)=>({...k,count:i+1})));
+  updateBubbles(kwList.slice(0, (drawerOptions.bubbleCount || 22) + 6).map((k,i)=>({...k,count:i+1})));
 
   const domEl = document.getElementById('dominantMood');
   domEl.textContent = dominant.toUpperCase() + ' DOMINANT';
@@ -2127,7 +2423,7 @@ function applyCustomLayout() {
   }, 50);
 }
 
-// Override applyPreset to handle 'custom' and restore default DOM for dashboard/list
+// Override applyPreset to handle 'custom', 'dense', and restore default DOM for dashboard/list
 const _origApplyPreset = applyPreset;
 applyPreset = function(preset) {
   if (preset === 'custom') {
@@ -2144,6 +2440,17 @@ applyPreset = function(preset) {
   restoreDefaultDOM();
 
   _origApplyPreset(preset);
+
+  // Sync density option in drawer when preset changes
+  if (preset === 'dense') {
+    drawerOptions.density = 'dense';
+  } else if (preset === 'dashboard' || preset === 'list') {
+    drawerOptions.density = 'normal';
+    document.body.classList.remove('preset-dense','preset-loose');
+  }
+  const dEl = document.getElementById('optDensity');
+  if (dEl) dEl.value = drawerOptions.density;
+  saveOptions();
 };
 
 function restoreDefaultDOM() {
@@ -2292,6 +2599,11 @@ window.onload = function() {
 
   // Restore sizes after preset is applied (preset may change layout)
   restoreSizes();
+
+  // Load and apply Options Drawer settings
+  loadOptions();
+  applyAllOptions();
+
   // Re-trigger chart resize after sizes restored, then release guard
   setTimeout(() => {
     for (const id of RESIZABLE_IDS) notifyChartResize(id);

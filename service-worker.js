@@ -4,10 +4,10 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '3' },
-    { url: '/index.html', revision: '3' },
-    { url: '/styles.css', revision: '3' },
-    { url: '/app.js', revision: '3' },
+    { url: '/', revision: '4' },
+    { url: '/index.html', revision: '4' },
+    { url: '/styles.css', revision: '4' },
+    { url: '/app.js', revision: '4' },
     { url: '/manifest.json', revision: '1' },
     { url: '/icons/icon-192x192.png', revision: '1' },
     { url: '/icons/icon-512x512.png', revision: '1' }
