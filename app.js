@@ -119,13 +119,19 @@ const HELP_CONTENT = {
   },
   filteredFeed: {
     title: 'FILTERED FEED',
-    body: `<p>A secondary live feed that shows only messages matching your regex filter in real time.</p>
+    body: `<p>A secondary live feed that shows only messages matching your regex filter in real time. The filter applies to each new incoming message as it arrives. Formatting is identical to the main Live Feed.</p>
+<p><strong>Regex Examples:</strong></p>
 <ul>
-  <li><strong>Regex input</strong> - Type a JavaScript-compatible regular expression. Messages whose text matches the pattern are shown.</li>
-  <li><strong>Real-time</strong> - The filter applies to each new incoming message as it arrives.</li>
-  <li><strong>Formatting</strong> - Identical to the main Live Feed: mood tag, approval bar, and bot detection are all shown.</li>
+  <li><code>\\?</code> — Messages containing a question mark (default filter)</li>
+  <li><code>^!</code> — Messages starting with !commands (e.g. !play, !song)</li>
+  <li><code>(lol|lmao|rofl)</code> — Messages containing any of these words</li>
+  <li><code>\\bgg\\b</code> — Match "gg" as a whole word (won't match "eggs")</li>
+  <li><code>^[A-Z\\s]+$</code> — ALL CAPS messages only</li>
+  <li><code>hype|pog</code> — Messages mentioning hype or pog</li>
+  <li><code>^\\w{1,5}$</code> — Very short messages (1-5 characters)</li>
+  <li><code>@\\w+</code> — Messages that @ mention someone</li>
 </ul>
-<p>Leave the filter empty to see all messages (same as the main feed).</p>`
+<p><strong>Tips:</strong> The regex is case-insensitive by default. Use <code>\\b</code> for word boundaries. Wrap alternations in <code>( )</code> groups. Backslash special characters like <code>? . * +</code> to match them literally.</p>`
   },
   outlier: {
     title: 'STANDOUT MESSAGES',
@@ -224,6 +230,9 @@ const TL_INTERVAL_KEY = 'moodradar_tlinterval_v1';
 let TIMELINE_POINTS   = (() => { try { const v=parseInt(localStorage.getItem(TL_POINTS_KEY)); return isNaN(v)?200:Math.min(1000,Math.max(50,v)); } catch(e){ return 200; } })();
 let TIMELINE_INTERVAL = (() => { try { const v=parseInt(localStorage.getItem(TL_INTERVAL_KEY)); return isNaN(v)?1000:Math.min(5000,Math.max(200,v)); } catch(e){ return 1000; } })();
 let lastTimelineTs = 0;
+const REGEX_STORAGE_KEY  = 'moodradar_regex_v1';
+const REGEX_HISTORY_KEY  = 'moodradar_regexhistory_v1';
+const REGEX_DEFAULT      = '\\?';
 
 // =============================================================
 //  SENTIMENT DATA
@@ -623,6 +632,26 @@ const pieLabelPlugin = {
   }
 };
 
+// Plugin: draws a dashed horizontal line at y=50 on the approval timeline
+const approvalMidlinePlugin = {
+  id: 'approvalMidline',
+  afterDraw(chart) {
+    const yScale = chart.scales.y;
+    if (!yScale) return;
+    const y = yScale.getPixelForValue(50);
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(chart.chartArea.left, y);
+    ctx.lineTo(chart.chartArea.right, y);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
 function initCharts() {
   if (chartsReady) return;
   chartsReady = true;
@@ -658,7 +687,7 @@ function initCharts() {
     options:{
       responsive:true, maintainAspectRatio:false,
       animation:{duration:400, easing:'easeOutCubic'},
-      scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(255,255,255,.055)'},angleLines:{color:'rgba(255,255,255,.065)'},pointLabels:{color:'#7a7aaa',font:{family:'Share Tech Mono',size:10,weight:'700'}}}},
+      scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,.055)'},angleLines:{color:'rgba(255,255,255,.065)'},pointLabels:{color:'#7a7aaa',font:{family:'Share Tech Mono',size:10,weight:'700'}}}},
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.chart.data.labels[c.dataIndex]}: ${c.parsed.r.toFixed(1)}%`}, backgroundColor:'#0d0d1f', borderColor:'#1a1a36', borderWidth:1}}
     }
   });
@@ -701,7 +730,7 @@ function initCharts() {
       scales:{
         x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2e2e58',maxRotation:0,font:{size:8}}},
         y:{
-          type:'linear', min:0, max:100,
+          type:'linear', min:0, max:10,
           grid:{color:'rgba(255,255,255,.04)'},
           ticks:{color:'#2e2e58',font:{size:8},callback:v=>v+'%'}
         }
@@ -744,6 +773,7 @@ function initCharts() {
   // Approval timeline — single line showing approval score over time
   approvalTimelineChart = new Chart(document.getElementById('approvalTimelineChart'), {
     type:'line',
+    plugins: [approvalMidlinePlugin],
     data:{ labels:Array(TIMELINE_POINTS).fill(''), datasets:[{
       label:'APPROVAL', data:Array(TIMELINE_POINTS).fill(null),
       borderColor:'#00ffe5', backgroundColor:'rgba(0,255,229,.08)',
@@ -973,7 +1003,10 @@ function updateVisuals() {
   // Update mood web (radar chart) with current weighted moods
   if (pct && radarChart) {
     const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-    radarChart.data.datasets[0].data = moodsForWeb.map(m => Math.round(pct[m]));
+    const radarData = moodsForWeb.map(m => Math.round(pct[m]));
+    radarChart.data.datasets[0].data = radarData;
+    const radarMax = Math.max(...radarData);
+    radarChart.options.scales.r.max = Math.max(10, Math.ceil(radarMax * 1.15));
     const rc = MOOD_COLORS[dominant];
     radarChart.data.datasets[0].borderColor = rc;
     radarChart.data.datasets[0].backgroundColor = hexAlpha(rc, 0.1);
@@ -1071,6 +1104,12 @@ function pushTimelineSnapshot() {
       timelineLinearChart.data.datasets[i].data.push(val);
       timelineLinearChart.data.datasets[i].data.shift();
     });
+    // Dynamic Y-axis: scale to highest currently displayed value
+    let tlMax = 0;
+    timelineLinearChart.data.datasets.forEach(ds => {
+      ds.data.forEach(v => { if (v !== null && v > tlMax) tlMax = v; });
+    });
+    timelineLinearChart.options.scales.y.max = Math.max(10, Math.ceil(tlMax * 1.15));
     timelineLinearChart.update('none');
   }
 
@@ -1699,15 +1738,70 @@ function updateFilteredFeedRegex(v) {
   if (!v.trim()) {
     filteredFeedRegex = null;
     input.classList.remove('regex-error');
+    try { localStorage.setItem(REGEX_STORAGE_KEY, ''); } catch(e) {}
     return;
   }
   try {
     filteredFeedRegex = new RegExp(v, 'i');
     input.classList.remove('regex-error');
+    try { localStorage.setItem(REGEX_STORAGE_KEY, v); } catch(e) {}
+    saveRegexToHistory(v);
   } catch(e) {
     filteredFeedRegex = null;
     input.classList.add('regex-error');
   }
+}
+
+// --- Regex history (dropdown of previously used patterns) ---
+function loadRegexHistory() {
+  try { return JSON.parse(localStorage.getItem(REGEX_HISTORY_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveRegexToHistory(pattern) {
+  let hist = loadRegexHistory();
+  hist = hist.filter(h => h !== pattern);
+  hist.unshift(pattern);
+  if (hist.length > 20) hist.length = 20;
+  try { localStorage.setItem(REGEX_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
+}
+function deleteRegexFromHistory(pattern) {
+  let hist = loadRegexHistory().filter(h => h !== pattern);
+  try { localStorage.setItem(REGEX_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
+  renderRegexHistory();
+}
+function renderRegexHistory() {
+  const dropdown = document.getElementById('regexHistoryDropdown');
+  if (!dropdown) return;
+  const hist = loadRegexHistory();
+  const input = document.getElementById('filteredFeedRegex');
+  const filter = (input.value || '').trim().toLowerCase();
+  const filtered = filter ? hist.filter(h => h.toLowerCase().includes(filter)) : hist;
+  if (filtered.length === 0) {
+    dropdown.innerHTML = '<div class="history-empty">No saved patterns</div>';
+    return;
+  }
+  dropdown.innerHTML = filtered.map(p =>
+    `<div class="history-item" onmousedown="selectRegexHistory('${p.replace(/'/g,"\\'")}')">` +
+      `<span class="history-item-name">${esc(p)}</span>` +
+      `<button class="history-delete" onmousedown="event.stopPropagation();deleteRegexFromHistory('${p.replace(/'/g,"\\'")}');event.preventDefault();" title="Remove">&times;</button>` +
+    `</div>`
+  ).join('');
+}
+function selectRegexHistory(pattern) {
+  const input = document.getElementById('filteredFeedRegex');
+  input.value = pattern;
+  updateFilteredFeedRegex(pattern);
+  closeRegexHistory();
+}
+function openRegexHistory() {
+  const dropdown = document.getElementById('regexHistoryDropdown');
+  if (!dropdown) return;
+  renderRegexHistory();
+  dropdown.classList.add('open');
+}
+function closeRegexHistory() {
+  const dropdown = document.getElementById('regexHistoryDropdown');
+  if (dropdown) dropdown.classList.remove('open');
 }
 
 const filteredFeedPending = [];
@@ -1818,6 +1912,8 @@ const LAYOUT_SECTIONS = [
 
 let layoutOrder = LAYOUT_SECTIONS.map(s => s.id);
 let layoutInline = {}; // id -> true means "inline with next"
+let layoutAlignItems = 'start';     // flex-start | center | stretch
+let layoutJustifyContent = 'start'; // flex-start | center | between
 
 function loadLayout() {
   try {
@@ -1831,11 +1927,16 @@ function loadLayout() {
       layoutOrder = filtered;
       layoutInline = saved.inline || {};
     }
+    if (saved && saved.alignItems) layoutAlignItems = saved.alignItems;
+    if (saved && saved.justifyContent) layoutJustifyContent = saved.justifyContent;
   } catch(e) {}
 }
 
 function saveLayout() {
-  try { localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify({ order:layoutOrder, inline:layoutInline })); } catch(e) {}
+  try { localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify({
+    order:layoutOrder, inline:layoutInline,
+    alignItems:layoutAlignItems, justifyContent:layoutJustifyContent
+  })); } catch(e) {}
 }
 
 function renderLayoutManager() {
@@ -1874,6 +1975,49 @@ function renderLayoutManager() {
     });
     container.appendChild(item);
   }
+
+  // Render flexbox alignment options
+  renderFlexOptions();
+}
+
+function renderFlexOptions() {
+  let wrap = document.getElementById('layoutFlexOptions');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'layoutFlexOptions';
+    wrap.className = 'layout-flex-options';
+    const itemList = document.getElementById('layoutItemList');
+    itemList.parentNode.insertBefore(wrap, itemList.nextSibling);
+  }
+  const alignOpts = [
+    { val:'start', label:'TOP' },
+    { val:'center', label:'CENTER' },
+    { val:'stretch', label:'STRETCH' }
+  ];
+  const justifyOpts = [
+    { val:'start', label:'LEFT' },
+    { val:'center', label:'CENTER' },
+    { val:'between', label:'SPREAD' }
+  ];
+  wrap.innerHTML =
+    `<div class="flex-opt-group"><span class="flex-opt-label">ALIGN</span>` +
+    alignOpts.map(o => `<button class="flex-opt-btn${layoutAlignItems===o.val?' active':''}" onclick="setLayoutAlign('${o.val}')">${o.label}</button>`).join('') +
+    `</div>` +
+    `<div class="flex-opt-group"><span class="flex-opt-label">JUSTIFY</span>` +
+    justifyOpts.map(o => `<button class="flex-opt-btn${layoutJustifyContent===o.val?' active':''}" onclick="setLayoutJustify('${o.val}')">${o.label}</button>`).join('') +
+    `</div>`;
+}
+
+function setLayoutAlign(val) {
+  layoutAlignItems = val;
+  saveLayout();
+  renderFlexOptions();
+}
+
+function setLayoutJustify(val) {
+  layoutJustifyContent = val;
+  saveLayout();
+  renderFlexOptions();
 }
 
 function toggleLayoutInline(id, btn) {
@@ -1917,14 +2061,13 @@ function applyCustomLayout() {
         if (!layoutInline[layoutOrder[i]]) { i++; break; }
         i++;
       }
-      const cols = Math.min(rowEls.length, 8);
       const row = document.createElement('div');
-      row.className = 'layout-row cols-' + cols;
+      row.className = 'layout-row layout-align-' + layoutAlignItems + ' layout-justify-' + layoutJustifyContent;
       for (const re of rowEls) row.appendChild(re);
       container.appendChild(row);
     } else {
       const row = document.createElement('div');
-      row.className = 'layout-row cols-1';
+      row.className = 'layout-row layout-align-' + layoutAlignItems + ' layout-justify-' + layoutJustifyContent;
       row.appendChild(el);
       container.appendChild(row);
       i++;
@@ -2039,6 +2182,25 @@ window.onload = function() {
   if (filteredFeedSlider) filteredFeedSlider.value = filteredFeedFontSize;
   document.getElementById('filteredFeedFontVal').textContent = filteredFeedFontSize.toFixed(2);
   applyFilteredFeedFontSize();
+
+  // Init regex filter from storage (default: \?)
+  const savedRegex = localStorage.getItem(REGEX_STORAGE_KEY) ?? REGEX_DEFAULT;
+  if (savedRegex) {
+    const regexInput = document.getElementById('filteredFeedRegex');
+    if (regexInput) {
+      regexInput.value = savedRegex;
+      updateFilteredFeedRegex(savedRegex);
+    }
+  }
+
+  // Wire regex history dropdown open/close
+  {
+    const regexInput = document.getElementById('filteredFeedRegex');
+    if (regexInput) {
+      regexInput.addEventListener('focus', openRegexHistory);
+      regexInput.addEventListener('blur', () => setTimeout(closeRegexHistory, 150));
+    }
+  }
 
   // Init outlier font size slider
   const outlierSlider = document.getElementById('outlierFontSlider');
