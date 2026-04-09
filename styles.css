@@ -534,6 +534,7 @@ body:not(.disconnected) {
   background:var(--panel); border:1px solid var(--border);
   border-radius:var(--card-radius); padding:14px;
   max-height:200px; overflow-y:auto;
+  margin-bottom:var(--gap);
 }
 .feed-title { font-family:'Orbitron',sans-serif; font-size:.58em; letter-spacing:.2em; color:var(--muted); margin-bottom:7px; display:flex; align-items:center; gap:4px }
 .feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:auto 1fr 62px 80px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }
@@ -594,6 +595,7 @@ body:not(.disconnected) {
   font-size:.62em; color:var(--accent); min-width:22px; text-align:right;
 }
 
+.filtered-feed-filter-wrap { position:relative }
 .filtered-feed-filter-wrap input[type=text] {
   background:#080814; border:1px solid var(--border); border-radius:6px;
   color:var(--text); font-family:'Share Tech Mono',monospace;
@@ -601,6 +603,34 @@ body:not(.disconnected) {
 }
 .filtered-feed-filter-wrap input[type=text]:focus { border-color:var(--accent); box-shadow:0 0 8px rgba(0,255,229,.15) }
 .filtered-feed-filter-wrap input[type=text].regex-error { border-color:var(--accent2); box-shadow:0 0 8px rgba(255,45,120,.2) }
+
+/* Regex history dropdown */
+.regex-history-dropdown {
+  display:none; position:absolute; top:calc(100% + 4px); left:0; right:0;
+  background:#0d0d1f; border:1px solid var(--border); border-radius:8px;
+  max-height:200px; overflow-y:auto; z-index:600;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+}
+.regex-history-dropdown.open { display:block }
+.regex-history-dropdown::-webkit-scrollbar { width:3px }
+.regex-history-dropdown::-webkit-scrollbar-thumb { background:var(--border) }
+.regex-history-dropdown .history-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:5px 10px; cursor:pointer; transition:background .15s;
+}
+.regex-history-dropdown .history-item:hover { background:rgba(0,255,229,.07) }
+.regex-history-dropdown .history-item-name {
+  color:var(--accent); font-family:'Share Tech Mono',monospace; font-size:.75em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.regex-history-dropdown .history-delete {
+  background:none; border:none; color:var(--muted); cursor:pointer;
+  font-size:.9em; padding:2px 4px; line-height:1; opacity:.6; transition:opacity .15s,color .15s;
+}
+.regex-history-dropdown .history-delete:hover { opacity:1; color:var(--accent2) }
+.regex-history-dropdown .history-empty {
+  padding:8px 10px; color:var(--muted); font-size:.7em; text-align:center;
+}
 
 /* Inside resizable cards, collapsible-body must participate in flex so charts fill remaining space */
 .collapsible-body { display:flex; flex-direction:column }
@@ -649,6 +679,24 @@ body:not(.disconnected) {
   margin:1px 0; opacity:0; transition:opacity .1s;
 }
 .layout-drop-indicator.active { opacity:1 }
+
+/* Flex alignment options in layout manager */
+.layout-flex-options {
+  display:flex; flex-wrap:wrap; gap:8px; padding:6px 10px 4px; align-items:center;
+}
+.flex-opt-group {
+  display:flex; align-items:center; gap:4px;
+}
+.flex-opt-label {
+  font-size:.52em; color:var(--muted); letter-spacing:.1em; margin-right:2px;
+}
+.flex-opt-btn {
+  background:transparent; border:1px solid var(--border); border-radius:4px;
+  color:var(--muted); font-size:.55em; padding:2px 6px; cursor:pointer;
+  letter-spacing:.06em; transition:all .15s; white-space:nowrap;
+}
+.flex-opt-btn:hover { border-color:var(--accent); color:var(--accent) }
+.flex-opt-btn.active { background:rgba(0,255,229,.1); border-color:var(--accent); color:var(--accent) }
 
 /* Section card title */
 .card-title { font-family:'Orbitron',sans-serif; font-size:clamp(.52em,.6em,1em); letter-spacing:.18em; color:var(--muted); margin-bottom:10px; text-transform:uppercase; display:flex; align-items:center; gap:5px }
@@ -801,23 +849,22 @@ body.preset-list .stat-box {
 body.preset-list { --gap:20px }
 
 /* ============================================================
-   CUSTOM LAYOUT — dynamic container arrangement
+   CUSTOM LAYOUT — flexbox-based container arrangement
    ============================================================ */
 .layout-row {
-  display:grid; gap:var(--gap); margin-bottom:var(--gap);
+  display:flex; flex-wrap:wrap; gap:var(--gap); margin-bottom:var(--gap);
+  align-items:flex-start;
 }
-.layout-row.cols-1 { grid-template-columns:1fr }
-.layout-row.cols-2 { grid-template-columns:repeat(2,1fr) }
-.layout-row.cols-3 { grid-template-columns:repeat(3,1fr) }
-.layout-row.cols-4 { grid-template-columns:repeat(4,1fr) }
-.layout-row.cols-5 { grid-template-columns:repeat(5,1fr) }
-.layout-row.cols-6 { grid-template-columns:repeat(6,1fr) }
-.layout-row.cols-7 { grid-template-columns:repeat(7,1fr) }
-.layout-row.cols-8 { grid-template-columns:repeat(8,1fr) }
+.layout-row > * { flex:1 1 0; min-width:200px }
+/* Flexbox alignment options */
+.layout-row.layout-align-stretch { align-items:stretch }
+.layout-row.layout-align-start   { align-items:flex-start }
+.layout-row.layout-align-center  { align-items:center }
+.layout-row.layout-justify-start   { justify-content:flex-start }
+.layout-row.layout-justify-center  { justify-content:center }
+.layout-row.layout-justify-between { justify-content:space-between }
 @media(max-width:660px) {
-  .layout-row.cols-2, .layout-row.cols-3, .layout-row.cols-4,
-  .layout-row.cols-5, .layout-row.cols-6, .layout-row.cols-7,
-  .layout-row.cols-8 { grid-template-columns:1fr }
+  .layout-row > * { flex-basis:100% }
 }
 
 /* When using custom layout, hide the default structure wrappers */
