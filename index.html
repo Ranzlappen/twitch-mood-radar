@@ -68,6 +68,13 @@ DATE: 2026-04-02
           oninput="updateLabelScale(this.value)"/>
         <span id="labelScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
       </div>
+      <div class="settings-section-label" style="margin-top:6px">BUBBLE SCALE</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
+        <input type="range" id="bubbleScaleSlider" min="0.3" max="1.5" step="0.05"
+          style="flex:1;width:auto"
+          oninput="updateBubbleScale(this.value)"/>
+        <span id="bubbleScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
+      </div>
       <div class="settings-section-label" style="margin-top:6px">DECAY</div>
       <div style="padding:4px 10px 8px">
         <div style="display:flex;align-items:center;gap:6px">
