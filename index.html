@@ -333,6 +333,37 @@ DATE: 2026-04-02
   </div>
 </div>
 
+<div class="feed-card resizable" id="chatInputCard">
+  <div class="feed-title-row">
+    <div class="feed-title" style="margin-bottom:0">CHAT INPUT</div>
+    <div class="chat-auth-wrap">
+      <input type="password" id="oauthTokenInput" placeholder="OAuth token" spellcheck="false" autocomplete="off" />
+      <button class="btn btn-sm" onclick="setOAuthToken()">Set</button>
+      <span id="chatAuthStatus" class="chat-auth-status"></span>
+    </div>
+  </div>
+  <div class="collapsible-body" id="chatInputCard-body">
+    <div class="chat-input-row">
+      <button class="emote-picker-btn" onclick="toggleEmotePicker()" title="Pick an emote">&#x1F600;</button>
+      <input type="text" id="chatMessageInput" placeholder="Send a message..."
+        onkeydown="if(event.key==='Enter')sendChatMessage()" autocomplete="off" spellcheck="false" />
+      <button class="btn btn-send" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
+    </div>
+    <div class="emote-picker-modal" id="emotePickerModal">
+      <div class="emote-picker-header">
+        <input type="text" id="emoteSearch" placeholder="Search emotes..." oninput="filterEmotePicker(this.value)" autocomplete="off" />
+        <button class="emote-picker-close" onclick="toggleEmotePicker()">&#x2715;</button>
+      </div>
+      <div class="emote-picker-tabs">
+        <button class="emote-tab active" data-source="bttv" onclick="switchEmoteTab('bttv')">BTTV</button>
+        <button class="emote-tab" data-source="7tv" onclick="switchEmoteTab('7tv')">7TV</button>
+        <button class="emote-tab" data-source="ffz" onclick="switchEmoteTab('ffz')">FFZ</button>
+      </div>
+      <div class="emote-picker-grid" id="emotePickerGrid"></div>
+    </div>
+  </div>
+</div>
+
 <div id="customLayoutContainer"></div>
 
 </div><!-- .app -->

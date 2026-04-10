@@ -556,6 +556,7 @@ body:not(.disconnected) {
 @keyframes fadeIn { from { opacity:0; transform:translateY(3px) } }
 .feed-user { color:var(--accent); min-width:66px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .feed-msg { color:#6a6a8e; word-break:break-word; white-space:normal }
+.chat-emote { display:inline-block; height:1.5em; vertical-align:middle; margin:0 1px; }
 .feed-meta { display:flex; align-items:center; gap:5px; flex-shrink:0 }
 .feed-mood { font-size:.68em; padding:1px 4px; border-radius:4px; white-space:nowrap; text-align:center; display:inline-block; min-width:52px; max-width:72px; overflow:hidden; text-overflow:ellipsis }
 .feed-apv { display:flex; align-items:center; gap:3px }
@@ -1126,4 +1127,93 @@ body.preset-dense .help-btn { width:13px; height:13px; font-size:.5em }
     border-radius:16px 16px 0 0;
   }
   .options-drawer.open { transform:translateY(0) }
+}
+
+/* ============================================================
+   CHAT INPUT CONTAINER & EMOTE PICKER
+   ============================================================ */
+.chat-auth-wrap {
+  display:flex; align-items:center; gap:6px; margin-left:auto;
+}
+.chat-auth-wrap input {
+  background:var(--panel); border:1px solid var(--border); color:var(--fg);
+  font-family:'Share Tech Mono',monospace; font-size:.72em;
+  padding:4px 8px; border-radius:6px; width:140px;
+}
+.chat-auth-status {
+  font-size:.68em; font-family:'Share Tech Mono',monospace;
+  white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis;
+}
+.btn-sm {
+  background:var(--accent); color:#06060f; border:none; cursor:pointer;
+  font-family:'Orbitron',sans-serif; font-size:.6em; letter-spacing:.1em;
+  padding:4px 10px; border-radius:6px; font-weight:700;
+}
+.btn-sm:hover { filter:brightness(1.2) }
+.chat-input-row {
+  display:flex; align-items:center; gap:6px; margin-top:6px;
+}
+.chat-input-row input {
+  flex:1; background:var(--panel); border:1px solid var(--border); color:var(--fg);
+  font-family:'Share Tech Mono',monospace; font-size:.82em;
+  padding:8px 12px; border-radius:8px; outline:none;
+}
+.chat-input-row input:focus { border-color:var(--accent) }
+.emote-picker-btn {
+  background:none; border:1px solid var(--border); border-radius:8px;
+  font-size:1.1em; cursor:pointer; padding:5px 8px; line-height:1;
+  transition:border-color .15s;
+}
+.emote-picker-btn:hover { border-color:var(--accent) }
+.btn-send {
+  background:var(--accent); color:#06060f; border:none; cursor:pointer;
+  font-family:'Orbitron',sans-serif; font-size:.65em; letter-spacing:.12em;
+  padding:8px 16px; border-radius:8px; font-weight:700;
+}
+.btn-send:hover { filter:brightness(1.2) }
+.btn-send:disabled { opacity:.4; cursor:default; filter:none }
+
+/* Emote picker modal */
+.emote-picker-modal {
+  display:none; flex-direction:column;
+  background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  margin-top:8px; max-height:280px; overflow:hidden;
+}
+.emote-picker-header {
+  display:flex; align-items:center; gap:6px; padding:8px 10px;
+  border-bottom:1px solid var(--border);
+}
+.emote-picker-header input {
+  flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border);
+  color:var(--fg); font-family:'Share Tech Mono',monospace; font-size:.75em;
+  padding:5px 8px; border-radius:6px; outline:none;
+}
+.emote-picker-close {
+  background:none; border:none; color:var(--muted); font-size:1em;
+  cursor:pointer; padding:2px 6px; line-height:1;
+}
+.emote-picker-close:hover { color:var(--fg) }
+.emote-picker-tabs {
+  display:flex; gap:0; border-bottom:1px solid var(--border);
+}
+.emote-tab {
+  flex:1; background:none; border:none; color:var(--muted);
+  font-family:'Orbitron',sans-serif; font-size:.55em; letter-spacing:.15em;
+  padding:6px 0; cursor:pointer; text-align:center;
+  border-bottom:2px solid transparent; transition:color .15s, border-color .15s;
+}
+.emote-tab:hover { color:var(--fg) }
+.emote-tab.active { color:var(--accent); border-bottom-color:var(--accent) }
+.emote-picker-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(36px, 1fr));
+  gap:4px; padding:8px; overflow-y:auto; flex:1;
+}
+.emote-pick {
+  width:32px; height:32px; object-fit:contain; cursor:pointer;
+  border-radius:4px; padding:2px; transition:background .12s;
+}
+.emote-pick:hover { background:rgba(0,255,229,.15) }
+.emote-picker-empty {
+  padding:20px; text-align:center; color:var(--muted); font-size:.72em;
+  font-family:'Share Tech Mono',monospace;
 }

@@ -4,10 +4,10 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '4' },
-    { url: '/index.html', revision: '4' },
-    { url: '/styles.css', revision: '4' },
-    { url: '/app.js', revision: '4' },
+    { url: '/', revision: '5' },
+    { url: '/index.html', revision: '5' },
+    { url: '/styles.css', revision: '5' },
+    { url: '/app.js', revision: '5' },
     { url: '/manifest.json', revision: '1' },
     { url: '/icons/icon-192x192.png', revision: '1' },
     { url: '/icons/icon-512x512.png', revision: '1' }
@@ -73,6 +73,21 @@ if (workbox) {
       cacheName: 'cdn-cache',
       plugins: [
         new workbox.expiration.ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+        new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] })
+      ]
+    })
+  );
+
+  // Emote CDNs (BTTV, 7TV, FFZ) — Cache-first
+  workbox.routing.registerRoute(
+    ({ url }) =>
+      url.origin === 'https://cdn.betterttv.net' ||
+      url.origin === 'https://cdn.7tv.app' ||
+      url.origin === 'https://cdn.frankerfacez.com',
+    new workbox.strategies.CacheFirst({
+      cacheName: 'emote-cache',
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({ maxEntries: 500, maxAgeSeconds: 30 * 24 * 60 * 60 }),
         new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] })
       ]
     })
