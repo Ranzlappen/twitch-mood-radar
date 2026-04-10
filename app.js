@@ -489,10 +489,292 @@ const EMOTE_REGEX = new RegExp(
 );
 
 function renderEmotes(escapedHtml) {
-  return escapedHtml.replace(EMOTE_REGEX, match => {
+  // Pass 1: replace hardcoded text emotes with Unicode emoji (fallback)
+  let html = escapedHtml.replace(EMOTE_REGEX, match => {
     const emoji = EMOTE_MAP.get(match);
     return emoji ? `<span title="${match}">${emoji}</span>` : match;
   });
+  // Pass 2: replace third-party emote codes with actual emote images
+  if (thirdPartyEmotes.size > 0) {
+    html = html.replace(/(?:^|\s)(\S+)(?=\s|$)/g, (full, word) => {
+      const emote = thirdPartyEmotes.get(word);
+      if (!emote) return full;
+      const img = `<img class="chat-emote" src="${emote.url}" alt="${word}" title="${word} (${emote.source})" loading="lazy">`;
+      return full.replace(word, img);
+    });
+  }
+  return html;
+}
+
+// =============================================================
+//  THIRD-PARTY EMOTES — BTTV, 7TV, FrankerFaceZ
+// =============================================================
+let currentRoomId = null;
+let currentChannelName = '';
+const bttvEmotes = new Map();
+const seventvEmotes = new Map();
+const ffzEmotes = new Map();
+const thirdPartyEmotes = new Map(); // merged: code → { url, source, id }
+
+async function fetchBTTVEmotes(roomId) {
+  bttvEmotes.clear();
+  try {
+    const [globalRes, channelRes] = await Promise.all([
+      fetch('https://api.betterttv.net/3/cached/emotes/global'),
+      fetch('https://api.betterttv.net/3/cached/users/twitch/' + roomId)
+    ]);
+    if (globalRes.ok) {
+      const global = await globalRes.json();
+      for (const e of global) {
+        bttvEmotes.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
+      }
+    }
+    if (channelRes.ok) {
+      const data = await channelRes.json();
+      const channelEmotes = (data.channelEmotes || []).concat(data.sharedEmotes || []);
+      for (const e of channelEmotes) {
+        bttvEmotes.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
+      }
+    }
+  } catch(e) { /* silently fail — emotes are optional */ }
+}
+
+async function fetch7TVEmotes(roomId) {
+  seventvEmotes.clear();
+  try {
+    const [globalRes, channelRes] = await Promise.all([
+      fetch('https://7tv.io/v3/emote-sets/global'),
+      fetch('https://7tv.io/v3/users/twitch/' + roomId)
+    ]);
+    if (globalRes.ok) {
+      const data = await globalRes.json();
+      const emotes = data.emotes || [];
+      for (const e of emotes) {
+        const fileHost = e.data && e.data.host;
+        if (!fileHost) continue;
+        const baseUrl = 'https:' + fileHost.url;
+        const file = (fileHost.files || []).find(f => f.name === '1x.webp') || (fileHost.files || [])[0];
+        if (!file) continue;
+        seventvEmotes.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
+      }
+    }
+    if (channelRes.ok) {
+      const user = await channelRes.json();
+      const emoteSet = user.emote_set;
+      if (emoteSet && emoteSet.emotes) {
+        for (const e of emoteSet.emotes) {
+          const fileHost = e.data && e.data.host;
+          if (!fileHost) continue;
+          const baseUrl = 'https:' + fileHost.url;
+          const file = (fileHost.files || []).find(f => f.name === '1x.webp') || (fileHost.files || [])[0];
+          if (!file) continue;
+          seventvEmotes.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
+        }
+      }
+    }
+  } catch(e) { /* silently fail */ }
+}
+
+async function fetchFFZEmotes(channelName) {
+  ffzEmotes.clear();
+  try {
+    const [globalRes, channelRes] = await Promise.all([
+      fetch('https://api.frankerfacez.com/v1/set/global'),
+      fetch('https://api.frankerfacez.com/v1/room/' + channelName)
+    ]);
+    function extractFFZ(data) {
+      const sets = data.sets || {};
+      for (const setId of Object.keys(sets)) {
+        const emotes = sets[setId].emoticons || [];
+        for (const e of emotes) {
+          const url = e.urls && (e.urls['1'] || e.urls['2'] || e.urls['4']);
+          if (!url) continue;
+          const fullUrl = url.startsWith('//') ? 'https:' + url : url;
+          ffzEmotes.set(e.name, { url: fullUrl, id: e.id, source: 'ffz' });
+        }
+      }
+    }
+    if (globalRes.ok) extractFFZ(await globalRes.json());
+    if (channelRes.ok) extractFFZ(await channelRes.json());
+  } catch(e) { /* silently fail */ }
+}
+
+async function loadAllEmotes(roomId, channelName) {
+  await Promise.all([
+    fetchBTTVEmotes(roomId),
+    fetch7TVEmotes(roomId),
+    fetchFFZEmotes(channelName)
+  ]);
+  // Merge: FFZ first (lowest priority), then 7TV, then BTTV (highest priority)
+  thirdPartyEmotes.clear();
+  for (const [k, v] of ffzEmotes) thirdPartyEmotes.set(k, v);
+  for (const [k, v] of seventvEmotes) thirdPartyEmotes.set(k, v);
+  for (const [k, v] of bttvEmotes) thirdPartyEmotes.set(k, v);
+  console.log('[MoodRadar] Loaded ' + thirdPartyEmotes.size + ' third-party emotes (BTTV: ' + bttvEmotes.size + ', 7TV: ' + seventvEmotes.size + ', FFZ: ' + ffzEmotes.size + ')');
+}
+
+// =============================================================
+//  CHAT INPUT — OAuth, send messages, emote picker
+// =============================================================
+const OAUTH_STORAGE_KEY = 'moodradar_oauth_v1';
+let twitchOAuthToken = '';
+let twitchClientId = '';
+let twitchUserId = '';
+let twitchUserLogin = '';
+let emotePickerOpen = false;
+let emotePickerTab = 'bttv';
+
+// Restore saved token on load
+(function restoreOAuth() {
+  const saved = localStorage.getItem(OAUTH_STORAGE_KEY);
+  if (saved) {
+    twitchOAuthToken = saved;
+    validateToken(saved).then(ok => {
+      if (ok) updateAuthStatus(twitchUserLogin);
+    });
+  }
+})();
+
+async function validateToken(token) {
+  try {
+    const clean = token.replace(/^oauth:/i, '');
+    const res = await fetch('https://id.twitch.tv/oauth2/validate', {
+      headers: { 'Authorization': 'OAuth ' + clean }
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    twitchClientId = data.client_id || '';
+    twitchUserId = data.user_id || '';
+    twitchUserLogin = data.login || '';
+    twitchOAuthToken = clean;
+    return true;
+  } catch(e) { return false; }
+}
+
+function updateAuthStatus(login) {
+  const el = document.getElementById('chatAuthStatus');
+  if (!el) return;
+  if (login) {
+    el.textContent = login;
+    el.style.color = 'var(--accent)';
+  } else {
+    el.textContent = 'not connected';
+    el.style.color = 'var(--muted)';
+  }
+}
+
+async function setOAuthToken() {
+  const input = document.getElementById('oauthTokenInput');
+  const raw = (input.value || '').trim();
+  if (!raw) return;
+  const ok = await validateToken(raw);
+  if (ok) {
+    try { localStorage.setItem(OAUTH_STORAGE_KEY, twitchOAuthToken); } catch(e) {}
+    updateAuthStatus(twitchUserLogin);
+    input.value = '';
+  } else {
+    updateAuthStatus('');
+    const el = document.getElementById('chatAuthStatus');
+    if (el) { el.textContent = 'invalid token'; el.style.color = '#ff4800'; }
+  }
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatMessageInput');
+  const msg = (input.value || '').trim();
+  if (!msg) return;
+  if (!twitchOAuthToken || !twitchClientId) {
+    const el = document.getElementById('chatAuthStatus');
+    if (el) { el.textContent = 'set token first'; el.style.color = '#ff4800'; }
+    return;
+  }
+  if (!currentRoomId) {
+    const el = document.getElementById('chatAuthStatus');
+    if (el) { el.textContent = 'connect to channel first'; el.style.color = '#ff4800'; }
+    return;
+  }
+  const btn = document.getElementById('chatSendBtn');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch('https://api.twitch.tv/helix/chat/messages', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + twitchOAuthToken,
+        'Client-Id': twitchClientId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        broadcaster_id: currentRoomId,
+        sender_id: twitchUserId,
+        message: msg
+      })
+    });
+    if (res.ok) {
+      input.value = '';
+    } else {
+      const err = await res.json().catch(() => ({}));
+      const el = document.getElementById('chatAuthStatus');
+      if (el) { el.textContent = err.message || 'send failed'; el.style.color = '#ff4800'; }
+    }
+  } catch(e) {
+    const el = document.getElementById('chatAuthStatus');
+    if (el) { el.textContent = 'network error'; el.style.color = '#ff4800'; }
+  }
+  setTimeout(() => { if (btn) btn.disabled = false; }, 1500);
+}
+
+// --- Emote Picker ---
+function toggleEmotePicker() {
+  emotePickerOpen = !emotePickerOpen;
+  const modal = document.getElementById('emotePickerModal');
+  if (!modal) return;
+  modal.style.display = emotePickerOpen ? 'flex' : 'none';
+  if (emotePickerOpen) renderEmotePickerGrid(emotePickerTab, '');
+}
+
+function switchEmoteTab(source) {
+  emotePickerTab = source;
+  document.querySelectorAll('.emote-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.source === source);
+  });
+  const search = document.getElementById('emoteSearch');
+  renderEmotePickerGrid(source, search ? search.value : '');
+}
+
+function filterEmotePicker(query) {
+  renderEmotePickerGrid(emotePickerTab, query);
+}
+
+function renderEmotePickerGrid(source, filter) {
+  const grid = document.getElementById('emotePickerGrid');
+  if (!grid) return;
+  let sourceMap;
+  if (source === 'bttv') sourceMap = bttvEmotes;
+  else if (source === '7tv') sourceMap = seventvEmotes;
+  else sourceMap = ffzEmotes;
+  const lowerFilter = (filter || '').toLowerCase();
+  let html = '';
+  let count = 0;
+  for (const [code, emote] of sourceMap) {
+    if (lowerFilter && !code.toLowerCase().includes(lowerFilter)) continue;
+    if (count++ > 300) break; // cap for performance
+    html += '<img class="emote-pick" src="' + emote.url + '" alt="' + esc(code) + '" title="' + esc(code) + '" onclick="insertEmote(\'' + esc(code).replace(/'/g, "\\'") + '\')" loading="lazy">';
+  }
+  if (!html) html = '<div class="emote-picker-empty">No emotes loaded — connect to a channel first</div>';
+  grid.innerHTML = html;
+}
+
+function insertEmote(code) {
+  const input = document.getElementById('chatMessageInput');
+  if (!input) return;
+  const start = input.selectionStart || input.value.length;
+  const before = input.value.slice(0, start);
+  const after = input.value.slice(start);
+  const space = before.length > 0 && !before.endsWith(' ') ? ' ' : '';
+  input.value = before + space + code + ' ' + after;
+  input.focus();
+  const pos = start + space.length + code.length + 1;
+  input.setSelectionRange(pos, pos);
 }
 
 // =============================================================
@@ -1770,6 +2052,15 @@ function connectChat(isReconnect) {
       const line = lines[i];
       if (!line) continue;
       if (line.startsWith('PING')) { ws.send('PONG :tmi.twitch.tv'); continue; }
+      // Parse ROOMSTATE for room-id (Twitch user ID) to load third-party emotes
+      if (line.includes('ROOMSTATE') && !currentRoomId) {
+        const roomMatch = line.match(/room-id=(\d+)/);
+        if (roomMatch) {
+          currentRoomId = roomMatch[1];
+          currentChannelName = channel.replace('#','');
+          loadAllEmotes(currentRoomId, currentChannelName);
+        }
+      }
       if (line.includes('366')||(line.includes('JOIN')&&line.includes(channel))) {
         // Successful join — reset reconnect counter, save to history
         reconnectAttempt = 0;
@@ -1806,6 +2097,7 @@ function disconnectChat() {
   loggingActive = false;                        // user intentionally stopped
   clearTimeout(reconnectTimer);
   reconnectAttempt = 0;
+  currentRoomId = null; // reset so emotes reload for next channel
   document.body.classList.remove('disconnected');
   if (ws) { ws.close(); ws=null; }
   if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle=null; }
@@ -1857,7 +2149,7 @@ function setStatus(html, cls) {
 // =============================================================
 const RESIZE_STORAGE_KEY = 'moodradar_sizes_v2';
 const RESIZE_DEBOUNCE_MS = 180;
-const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard'];
+const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','chatInputCard'];
 let isRestoringLayout = false; // guard against ResizeObserver overwriting saved sizes during init/layout rebuild
 
 function saveSizes() {
@@ -1866,8 +2158,8 @@ function saveSizes() {
   for (const id of RESIZABLE_IDS) {
     const el = document.getElementById(id);
     if (!el) continue;
-    sizes[id] = { h: el.offsetHeight };
-    if (el.dataset.manualWidth) sizes[id].w = parseInt(el.style.width) || el.offsetWidth;
+    sizes[id] = { h: el.offsetHeight, w: el.offsetWidth };
+    if (el.dataset.manualWidth) sizes[id].mw = 1; // flag: user explicitly resized width
   }
   try { localStorage.setItem(RESIZE_STORAGE_KEY, JSON.stringify(sizes)); } catch(e) {}
 }
@@ -1876,15 +2168,17 @@ function restoreSizes() {
   let sizes;
   try { sizes = JSON.parse(localStorage.getItem(RESIZE_STORAGE_KEY) || 'null'); } catch(e) {}
   if (!sizes) return;
+  const isCustom = document.body.classList.contains('preset-custom');
   for (const id of RESIZABLE_IDS) {
     const el = document.getElementById(id);
     if (!el || !sizes[id]) continue;
-    // Support both old format (number) and new format ({h,w})
+    // Support both old format (number) and new format ({h,w,mw})
     if (typeof sizes[id] === 'number') {
       el.style.height = sizes[id] + 'px';
     } else {
       if (sizes[id].h) el.style.height = sizes[id].h + 'px';
-      if (sizes[id].w) {
+      // Only restore width in custom layout where cards live inside flex rows
+      if (sizes[id].mw && isCustom && sizes[id].w) {
         el.style.width = sizes[id].w + 'px';
         el.style.flex = 'none';
         el.dataset.manualWidth = '1';
@@ -2236,6 +2530,7 @@ const LAYOUT_SECTIONS = [
   { id:'feedCard',            label:'Live Feed' },
   { id:'filteredFeedCard',    label:'Filtered Feed' },
   { id:'outlierCard',         label:'Standout Messages' },
+  { id:'chatInputCard',       label:'Chat Input' },
 ];
 
 let layoutOrder = LAYOUT_SECTIONS.map(s => s.id);
@@ -2359,6 +2654,7 @@ function toggleLayoutInline(id, btn) {
 }
 
 function applyCustomLayout() {
+  isRestoringLayout = true; // guard against ResizeObserver during DOM rebuild
   document.body.classList.remove('preset-list');
   document.body.classList.add('preset-custom');
   currentPreset = 'custom';
@@ -2420,6 +2716,7 @@ function applyCustomLayout() {
     if (throughputTimelineChart) throughputTimelineChart.resize();
     if (timelineLinearChart) timelineLinearChart.resize();
     if (timelineLogChart) timelineLogChart.resize();
+    isRestoringLayout = false; // release guard after layout is stable
   }, 50);
 }
 
@@ -2433,6 +2730,7 @@ applyPreset = function(preset) {
     savePreset('custom');
     return;
   }
+  isRestoringLayout = true; // guard against ResizeObserver during DOM rebuild
   document.getElementById('layoutManagerSection').style.display = 'none';
   document.body.classList.remove('preset-custom');
 
@@ -2440,6 +2738,9 @@ applyPreset = function(preset) {
   restoreDefaultDOM();
 
   _origApplyPreset(preset);
+
+  // Re-apply persisted sizes after DOM rearrangement
+  restoreSizes();
 
   // Sync density option in drawer when preset changes
   if (preset === 'dense') {
@@ -2451,6 +2752,7 @@ applyPreset = function(preset) {
   const dEl = document.getElementById('optDensity');
   if (dEl) dEl.value = drawerOptions.density;
   saveOptions();
+  setTimeout(() => { isRestoringLayout = false; }, 200);
 };
 
 function restoreDefaultDOM() {
@@ -2459,7 +2761,7 @@ function restoreDefaultDOM() {
   const chartsTop = document.querySelector('.charts-top');
 
   // Collect all card elements by ID (safe references survive DOM moves)
-  const allCardIds = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard'];
+  const allCardIds = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','chatInputCard'];
   const cards = {};
   for (const id of allCardIds) {
     const el = document.getElementById(id);
@@ -2505,6 +2807,7 @@ function restoreDefaultDOM() {
     cards.feedCard,
     cards.filteredFeedCard,
     cards.outlierCard,
+    cards.chatInputCard,
   ].filter(Boolean);
 
   for (const el of defaultOrderEls) {
