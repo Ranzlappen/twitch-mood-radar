@@ -335,7 +335,10 @@ DATE: 2026-04-02
 
 <div class="feed-card resizable" id="chatInputCard">
   <div class="feed-title-row">
-    <div class="feed-title" style="margin-bottom:0">CHAT INPUT</div>
+    <div class="feed-title" style="margin-bottom:0">
+      CHAT INPUT
+      <button class="help-btn" onclick="showHelp('chatAuth')" title="How to get your OAuth token">?</button>
+    </div>
     <div class="chat-auth-wrap">
       <input type="password" id="oauthTokenInput" placeholder="OAuth token" spellcheck="false" autocomplete="off" />
       <button class="btn btn-sm" onclick="setOAuthToken()">Set</button>

@@ -436,6 +436,37 @@ const HELP_CONTENT = {
   <li><strong>Why it matters</strong> - These messages go against the grain of chat. They can reveal emerging mood shifts, contrarian opinions, or notable reactions before they become mainstream.</li>
   <li><strong>Formatting</strong> - Identical to the Live Feed. Mood tag and approval bar are shown for each standout message.</li>
 </ul>`
+  },
+  chatAuth: {
+    title: 'CHAT INPUT — HOW TO GET YOUR TOKEN',
+    body: `<p>To send messages you need a Twitch <strong>OAuth token</strong> with chat permissions. Here's how to get one:</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">OPTION A — Twitch Token Generator (easiest)</h4>
+<ol>
+  <li>Go to <a href="https://twitchtokengenerator.com" target="_blank" rel="noopener" style="color:var(--accent)">twitchtokengenerator.com</a></li>
+  <li>Click <strong>"Custom Scope Token"</strong></li>
+  <li>Under <em>Chat</em> scopes, enable <strong>user:write:chat</strong> (and optionally <strong>chat:edit</strong>)</li>
+  <li>Click <strong>"Generate Token"</strong> and authorize with your Twitch account</li>
+  <li>Copy the <strong>Access Token</strong> and paste it into the token field here</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">OPTION B — Twitch Developer Console (advanced)</h4>
+<ol>
+  <li>Go to <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener" style="color:var(--accent)">dev.twitch.tv/console/apps</a> and log in</li>
+  <li>Click <strong>"Register Your Application"</strong></li>
+  <li>Set Name to anything (e.g. "My Chat Token"), set OAuth Redirect URL to <code>https://localhost</code>, set Category to <em>Chat Bot</em></li>
+  <li>Copy your <strong>Client ID</strong> from the app page</li>
+  <li>Open this URL in your browser (replace YOUR_CLIENT_ID):<br>
+    <code style="font-size:.85em;word-break:break-all">https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=YOUR_CLIENT_ID&redirect_uri=https://localhost&scope=user:write:chat+chat:edit</code></li>
+  <li>Authorize with your Twitch account — you'll be redirected to localhost with the token in the URL fragment:<br>
+    <code>https://localhost/#access_token=abc123def456&...</code></li>
+  <li>Copy the <strong>access_token</strong> value and paste it here</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:#ff4800">SECURITY NOTES</h4>
+<ul>
+  <li>Your token is stored <strong>locally in your browser</strong> (localStorage) — it is never sent to any server other than Twitch.</li>
+  <li>Treat your token like a password. Never share it publicly.</li>
+  <li>Tokens expire — if sending fails, generate a new one.</li>
+  <li>You can revoke tokens at <a href="https://www.twitch.tv/settings/connections" target="_blank" rel="noopener" style="color:var(--accent)">twitch.tv/settings/connections</a></li>
+</ul>`
   }
 };
 
