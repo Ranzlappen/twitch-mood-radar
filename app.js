@@ -2972,8 +2972,8 @@ window.onload = function() {
     // Default card heights: 400px for top 4 cards
     try {
       localStorage.setItem(RESIZE_STORAGE_KEY, JSON.stringify({
-        pieCard: { h: 400 }, radarCard: { h: 400 },
-        bubbleCard: { h: 400 }, approvalCard: { h: 400 }
+        pieCard: { h: 200 }, radarCard: { h: 200 },
+        bubbleCard: { h: 200 }, approvalCard: { h: 200 }
       }));
     } catch(e) {}
 
