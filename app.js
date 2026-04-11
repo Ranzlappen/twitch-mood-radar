@@ -685,6 +685,8 @@ async function validateToken(token) {
 function updateAuthStatus(login) {
   const el = document.getElementById('chatAuthStatus');
   if (!el) return;
+  const copyBtn = document.getElementById('copyErrorBtn');
+  if (copyBtn) copyBtn.style.display = 'none';
   if (login) {
     el.textContent = login;
     el.style.color = 'var(--accent)';
@@ -692,6 +694,20 @@ function updateAuthStatus(login) {
     el.textContent = 'not connected';
     el.style.color = 'var(--muted)';
   }
+}
+
+function copyAuthError() {
+  const el = document.getElementById('chatAuthStatus');
+  if (!el || !el.textContent) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = document.getElementById('copyErrorBtn');
+    if (btn) { btn.textContent = 'COPIED'; setTimeout(() => btn.textContent = 'COPY', 1500); }
+  }).catch(() => {});
+}
+
+function showCopyErrorBtn() {
+  const btn = document.getElementById('copyErrorBtn');
+  if (btn) btn.style.display = '';
 }
 
 async function setOAuthToken() {
@@ -707,6 +723,7 @@ async function setOAuthToken() {
     updateAuthStatus('');
     const el = document.getElementById('chatAuthStatus');
     if (el) { el.textContent = 'invalid token'; el.style.color = '#ff4800'; }
+    showCopyErrorBtn();
   }
 }
 
@@ -717,11 +734,13 @@ async function sendChatMessage() {
   if (!twitchOAuthToken || !twitchClientId) {
     const el = document.getElementById('chatAuthStatus');
     if (el) { el.textContent = 'set token first'; el.style.color = '#ff4800'; }
+    showCopyErrorBtn();
     return;
   }
   if (!currentRoomId) {
     const el = document.getElementById('chatAuthStatus');
     if (el) { el.textContent = 'connect to channel first'; el.style.color = '#ff4800'; }
+    showCopyErrorBtn();
     return;
   }
   const btn = document.getElementById('chatSendBtn');
@@ -746,10 +765,12 @@ async function sendChatMessage() {
       const err = await res.json().catch(() => ({}));
       const el = document.getElementById('chatAuthStatus');
       if (el) { el.textContent = err.message || 'send failed'; el.style.color = '#ff4800'; }
+      showCopyErrorBtn();
     }
   } catch(e) {
     const el = document.getElementById('chatAuthStatus');
     if (el) { el.textContent = 'network error'; el.style.color = '#ff4800'; }
+    showCopyErrorBtn();
   }
   setTimeout(() => { if (btn) btn.disabled = false; }, 1500);
 }
@@ -1193,12 +1214,12 @@ function enqueue(user, msg, ts) {
 // =============================================================
 const LABEL_SCALE_KEY = 'moodradar_labelscale_v1';
 let labelScale = (() => {
-  try { const v = parseFloat(localStorage.getItem(LABEL_SCALE_KEY)); return isNaN(v) ? 1.4 : Math.min(2.5, Math.max(0.8, v)); }
+  try { const v = parseFloat(localStorage.getItem(LABEL_SCALE_KEY)); return isNaN(v) ? 1.4 : Math.min(2.5, Math.max(0.4, v)); }
   catch(e) { return 1.4; }
 })();
 
 function updateLabelScale(v) {
-  labelScale = Math.min(2.5, Math.max(0.8, parseFloat(v)));
+  labelScale = Math.min(2.5, Math.max(0.4, parseFloat(v)));
   document.getElementById('labelScaleVal').textContent = labelScale.toFixed(1) + 'x';
   try { localStorage.setItem(LABEL_SCALE_KEY, labelScale); } catch(e) {}
   // Pie redraws on next update cycle; bubble redraws on next animation frame
@@ -2914,6 +2935,57 @@ window.onload = function() {
 
   // Load layout config
   loadLayout();
+
+  // Tablet viewport defaults on first visit (no saved preset = first visit)
+  const isFirstVisit = localStorage.getItem(PRESET_STORAGE_KEY) === null;
+  const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1366;
+  if (isFirstVisit && isTablet) {
+    currentPreset = 'custom';
+
+    // Row 1: pie + radar + bubble + approval (SIDE pulls next STACK into same row)
+    // Row 2: 4 timelines (SIDE pulls logTL STACK into same row)
+    // Feeds + chat: each stacked on own row
+    layoutInline = {
+      pieCard: true, radarCard: true, bubbleCard: true,
+      approvalTimelineCard: true, throughputTimelineCard: true, timelineLinearCard: true
+    };
+
+    // Set parameters
+    labelScale = 0.6;
+    bubbleScale = 0.4;
+    TIMELINE_POINTS = 100;
+    TIMELINE_INTERVAL = 500;
+
+    // Update sliders to reflect new values
+    if (slider) slider.value = labelScale;
+    document.getElementById('labelScaleVal').textContent = labelScale.toFixed(1) + 'x';
+    if (bsSlider) bsSlider.value = bubbleScale;
+    document.getElementById('bubbleScaleVal').textContent = bubbleScale.toFixed(2) + 'x';
+    if (tlPtsSlider) tlPtsSlider.value = TIMELINE_POINTS;
+    document.getElementById('tlPointsVal').textContent = TIMELINE_POINTS;
+    if (tlIntSlider) tlIntSlider.value = TIMELINE_INTERVAL;
+    document.getElementById('tlIntervalVal').textContent = TIMELINE_INTERVAL + 'ms';
+
+    // Ultra dense density
+    drawerOptions.density = 'dense';
+
+    // Default card heights: 400px for top 4 cards
+    try {
+      localStorage.setItem(RESIZE_STORAGE_KEY, JSON.stringify({
+        pieCard: { h: 400 }, radarCard: { h: 400 },
+        bubbleCard: { h: 400 }, approvalCard: { h: 400 }
+      }));
+    } catch(e) {}
+
+    // Persist all state so layout survives reload
+    saveLayout();
+    savePreset('custom');
+    try { localStorage.setItem(LABEL_SCALE_KEY, labelScale); } catch(e) {}
+    try { localStorage.setItem(BUBBLE_SCALE_KEY, bubbleScale); } catch(e) {}
+    try { localStorage.setItem(TL_POINTS_KEY, TIMELINE_POINTS); } catch(e) {}
+    try { localStorage.setItem(TL_INTERVAL_KEY, TIMELINE_INTERVAL); } catch(e) {}
+    saveOptions();
+  }
 
   initCharts();
   setupResizeObserver();
