@@ -1,0 +1,119 @@
+/* ============================================================
+   HEADER — flex row containing title block + settings button
+   ============================================================ */
+header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:22px;
+  /* Prevent the settings button from pushing title off-center
+     by using a symmetrical padding trick: the button's width is
+     mirrored on the left as invisible space */
+  position:relative;
+}
+
+/* Title + subtitle stacked, centered in available space */
+.header-center {
+  text-align:center;
+  flex:1;               /* grows to fill space */
+  min-width:0;          /* allows text to shrink/wrap safely */
+}
+
+.title {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.7rem,5vw,3.4rem);
+  font-weight:900; letter-spacing:.1em;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent));
+  background-size:300% 100%;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:titleShift 6s linear infinite;
+}
+@keyframes titleShift { to { background-position:-300% 0 } }
+
+.subtitle {
+  color:var(--muted); font-size:.76em;
+  letter-spacing:.22em; margin-top:5px;
+}
+
+/* ============================================================
+   SETTINGS MENU — inline with the title row, icon-only button
+   ============================================================ */
+.settings-wrap {
+  /* No longer absolute — it's a natural flex item in the header row */
+  position:relative;
+  flex-shrink:0;
+}
+
+.settings-btn {
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  /* Square-ish, icon-only: removed letter-spacing and white-space */
+  padding:7px 8px;
+  cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.settings-btn:hover { color:var(--accent); border-color:var(--accent); background:rgba(0,255,229,.05) }
+.settings-btn svg { width:15px; height:15px; fill:currentColor; flex-shrink:0; display:block }
+
+.settings-dropdown {
+  position:absolute;
+  top:calc(100% + 6px); right:0;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:6px;
+  min-width:220px;
+  z-index:500;
+  display:none;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  max-height:70vh;
+  overflow-y:auto;
+}
+.settings-dropdown.open { display:block }
+
+.settings-section-label {
+  font-family:'Orbitron',sans-serif;
+  font-size:.55em; letter-spacing:.2em;
+  color:var(--muted);
+  padding:6px 10px 4px;
+  text-transform:uppercase;
+}
+
+.preset-btn {
+  display:flex; align-items:center; gap:8px;
+  width:100%; background:transparent; border:none;
+  color:var(--text); font-family:'Share Tech Mono',monospace;
+  font-size:.78em; letter-spacing:.06em;
+  padding:8px 10px; border-radius:6px;
+  cursor:pointer; transition:background .15s,color .15s;
+  text-align:left;
+}
+.preset-btn:hover { background:rgba(0,255,229,.07); color:var(--accent) }
+.preset-btn.active { color:var(--accent) }
+.preset-btn .preset-icon {
+  width:24px; height:18px; border-radius:3px;
+  border:1px solid currentColor; opacity:.6; flex-shrink:0;
+  position:relative;
+}
+/* Dashboard icon — two-column grid visual */
+.preset-btn[data-preset="dashboard"] .preset-icon::before,
+.preset-btn[data-preset="dashboard"] .preset-icon::after {
+  content:''; position:absolute;
+  top:3px; bottom:3px; width:8px;
+  background:currentColor; border-radius:1px; opacity:.5;
+}
+.preset-btn[data-preset="dashboard"] .preset-icon::before { left:3px }
+.preset-btn[data-preset="dashboard"] .preset-icon::after  { right:3px }
+/* List icon — stacked rows visual */
+.preset-btn[data-preset="list"] .preset-icon::before {
+  content:''; position:absolute;
+  left:3px; right:3px;
+  top:3px; height:3px;
+  background:currentColor; border-radius:1px; opacity:.5;
+  box-shadow:0 5px 0 currentColor, 0 10px 0 currentColor;
+}
+

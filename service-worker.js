@@ -6,7 +6,17 @@ if (workbox) {
   workbox.precaching.precacheAndRoute([
     { url: '/', revision: '8' },
     { url: '/index.html', revision: '8' },
-    { url: '/styles.css', revision: '8' },
+    { url: '/css/main.css', revision: '1' },
+    { url: '/css/tokens.css', revision: '1' },
+    { url: '/css/layout.css', revision: '1' },
+    { url: '/css/header.css', revision: '1' },
+    { url: '/css/connect.css', revision: '1' },
+    { url: '/css/cards.css', revision: '1' },
+    { url: '/css/feeds.css', revision: '1' },
+    { url: '/css/layout-mgr.css', revision: '1' },
+    { url: '/css/presets.css', revision: '1' },
+    { url: '/css/options-drawer.css', revision: '1' },
+    { url: '/css/chat-input.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '1' },
     { url: '/js/config.js', revision: '1' },

@@ -1,0 +1,58 @@
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg:#06060f; --panel:#0d0d1f; --border:#1a1a36;
+  --accent:#00ffe5; --accent2:#ff2d78; --accent3:#ffe600;
+  --text:#d8d8f8; --muted:#4a4a7a;
+  --hype:#00ffe5; --funny:#ffe600; --love:#ff2d78;
+  --toxic:#ff4800; --sad:#9b6ef3; --neutral:#2e3d5e;
+  --calm:#4fc3f7; --angry:#ff1744; --excited:#76ff03;
+  --cringe:#e040fb; --wholesome:#ffab40; --confused:#78909c;
+
+  /* Layout rhythm — one place to tune spacing across all sections */
+  --gap:16px;
+  --card-radius:14px;
+  --card-pad:18px;
+
+  /* Density & effects — controlled by Options Drawer */
+  --crt-opacity:1;
+  --grid-opacity:1;
+  --font-scale:1;
+  --timeline-height:320px;
+  --bubble-height:260px;
+
+  /* App container visual frame */
+  --frame-glow: 0 0 0 1px rgba(0,255,229,.06), 0 0 60px rgba(0,255,229,.04);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+
+body {
+  font-family:'Share Tech Mono',monospace;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Scanline overlay */
+body::before {
+  content:''; position:fixed; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,229,.011) 2px,rgba(0,255,229,.011) 4px);
+  pointer-events:none; z-index:999;
+  opacity:var(--crt-opacity); transition:opacity .3s;
+}
+
+/* Background grid */
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,255,229,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,229,.028) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none; z-index:0;
+  animation:gridScroll 25s linear infinite;
+  opacity:var(--grid-opacity); transition:opacity .3s;
+}
+@keyframes gridScroll { to { background-position:48px 48px } }
