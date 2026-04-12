@@ -7,6 +7,9 @@
 import { state, initState } from './state.js';
 import * as config from './config.js';
 import { createTwitchAdapter } from './platform/TwitchAdapter.js';
+import { createKickAdapter } from './platform/KickAdapter.js';
+import { createYouTubeAdapter } from './platform/YouTubeAdapter.js';
+import { createRumbleAdapter } from './platform/RumbleAdapter.js';
 import { renderEmotes } from './platform/emotes.js';
 import { classifyMessage } from './analysis/sentiment.js';
 import { detectBot } from './analysis/botDetector.js';
@@ -35,13 +38,48 @@ import {
 } from './ui/options.js';
 
 // =============================================================
-//  Platform Adapter Setup
+//  Platform Adapter Setup — supports runtime switching
 // =============================================================
-const adapter = createTwitchAdapter();
+const adapters = {
+  twitch: createTwitchAdapter,
+  kick: createKickAdapter,
+  youtube: createYouTubeAdapter,
+  rumble: createRumbleAdapter,
+};
+
+let currentPlatform = 'twitch';
+let adapter = adapters.twitch();
+
+const platformPlaceholders = {
+  twitch: 'channel name',
+  kick: 'channel name',
+  youtube: 'video ID or URL',
+  rumble: 'stream ID or channel',
+};
+const platformPrefixes = {
+  twitch: '#',
+  kick: '#',
+  youtube: '▶',
+  rumble: '▶',
+};
+
+function switchPlatform(platform) {
+  if (adapter && adapter.isConnected) adapter.disconnect();
+  currentPlatform = platform;
+  adapter = adapters[platform]();
+  // Update input placeholder and prefix
+  const input = document.getElementById('channelInput');
+  const prefix = document.getElementById('inputPrefix');
+  if (input) input.placeholder = platformPlaceholders[platform] || 'channel name';
+  if (prefix) prefix.textContent = platformPrefixes[platform] || '#';
+}
 
 // =============================================================
 //  Window assignments — expose functions for inline HTML handlers
 // =============================================================
+
+// Platform switching
+window.switchPlatform = switchPlatform;
 
 // Connection
 window.connectChat = (isReconnect) => adapter.connect(isReconnect);
@@ -144,19 +182,19 @@ window.closeRegexHistory = closeRegexHistory;
 window.selectRegexHistory = selectRegexHistory;
 window.deleteRegexFromHistory = deleteRegexFromHistory;
 
-// Twitch adapter methods exposed to window
-window.setOAuthToken = () => adapter.setOAuthToken();
-window.sendChatMessage = () => adapter.sendMessage();
-window.toggleEmotePicker = () => adapter.toggleEmotePicker();
-window.switchEmoteTab = (s) => adapter.switchEmoteTab(s);
-window.filterEmotePicker = (q) => adapter.filterEmotePicker(q);
-window.insertEmote = (c) => adapter.insertEmote(c);
-window.selectChannel = (n) => adapter.selectChannel(n);
-window.deleteChannelFromHistory = (n) => adapter.deleteChannelFromHistory(n);
-window.handleChannelKey = (e) => adapter.handleChannelKey(e);
-window.openChannelHistory = () => adapter.openChannelHistory();
-window.closeChannelHistory = () => adapter.closeChannelHistory();
-window.copyAuthError = () => adapter.copyAuthError();
+// Platform adapter methods exposed to window (safe: checks if method exists)
+window.setOAuthToken = () => adapter.setOAuthToken?.();
+window.sendChatMessage = () => adapter.sendMessage?.();
+window.toggleEmotePicker = () => adapter.toggleEmotePicker?.();
+window.switchEmoteTab = (s) => adapter.switchEmoteTab?.(s);
+window.filterEmotePicker = (q) => adapter.filterEmotePicker?.(q);
+window.insertEmote = (c) => adapter.insertEmote?.(c);
+window.selectChannel = (n) => adapter.selectChannel?.(n);
+window.deleteChannelFromHistory = (n) => adapter.deleteChannelFromHistory?.(n);
+window.handleChannelKey = (e) => adapter.handleChannelKey?.(e);
+window.openChannelHistory = () => adapter.openChannelHistory?.();
+window.closeChannelHistory = () => adapter.closeChannelHistory?.();
+window.copyAuthError = () => adapter.copyAuthError?.();
 
 // Utility exposed for inline handlers
 window.sanitize = sanitize;
