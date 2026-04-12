@@ -2168,7 +2168,7 @@ function connectSlot(slotId, isReconnect) {
 
   // Close existing connection for this slot
   if (conn.ws) { conn.ws.close(); conn.ws = null; }
-  if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
+  if (conn.pollTimer) { clearTimeout(conn.pollTimer); conn.pollTimer = null; }
 
   if (!isReconnect) {
     conn.reconnectAttempt = 0;
@@ -2254,7 +2254,19 @@ async function connectKick(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
   let chatroomId;
   try {
-    const res = await fetch('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
+    // Try direct API first, then CORS proxy fallback
+    let res;
+    try {
+      res = await fetch('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
+    } catch (corsErr) {
+      // Direct fetch blocked by CORS — try proxy fallback
+      res = null;
+    }
+    if (!res || !res.ok) {
+      // Fallback: try CORS proxy
+      const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
+      res = await fetch(proxyUrl);
+    }
     if (!res.ok) throw new Error('not found');
     const data = await res.json();
     chatroomId = data.chatroom && data.chatroom.id;
@@ -2320,30 +2332,168 @@ async function connectKick(conn) {
 // --- YouTube Data API polling ---
 async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  const btn = document.getElementById('slotConnectBtn_' + conn.id);
+
   // Parse video ID from URL or raw input
   let videoId = conn.channelName;
-  const urlMatch = videoId.match(/(?:v=|youtu\.be\/|\/live\/)([a-zA-Z0-9_-]{11})/);
-  if (urlMatch) videoId = urlMatch[1];
+  if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) { /* already a bare ID */ }
+  else {
+    const m = videoId.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
+              videoId.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/) ||
+              videoId.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
+    if (m) videoId = m[1];
+  }
 
-  // Try to resolve liveChatId
-  const apiKey = ''; // requires user-provided API key or proxy
+  // Check for API key in localStorage
+  const YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
+  let apiKey = '';
+  try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
   if (!apiKey) {
+    apiKey = (prompt('YouTube requires a Data API v3 key.\nEnter your API key (saved to localStorage):') || '').trim();
+    if (!apiKey) {
+      conn.loggingActive = false;
+      conn.status = 'error';
+      setSlotStatus(conn.id, 'No API key', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
+    try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch(e) {}
+  }
+
+  // Resolve liveChatId
+  let liveChatId;
+  try {
+    const res = await fetch('https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const items = data.items || [];
+    liveChatId = items[0] && items[0].liveStreamingDetails && items[0].liveStreamingDetails.activeLiveChatId;
+  } catch (e) {
     conn.loggingActive = false;
     conn.status = 'error';
-    setSlotStatus(conn.id, 'No API key', 'error');
-    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    setSlotStatus(conn.id, 'Resolve failed', 'error');
     if (btn) btn.disabled = false;
     return;
   }
+
+  if (!liveChatId) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'No live chat', 'error');
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  conn.status = 'live';
+  conn.reconnectAttempt = 0;
+  saveChannelToHistory(conn.channelName);
+  setSlotStatus(conn.id, 'LIVE', 'live');
+  if (btn) btn.disabled = false;
+  if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
+
+  // Start polling loop
+  let nextPageToken = null;
+  let ytPollAttempt = 0;
+  async function pollYouTube() {
+    if (!conn.loggingActive) return;
+    const params = 'liveChatId=' + liveChatId + '&part=snippet,authorDetails&maxResults=200&key=' + apiKey +
+      (nextPageToken ? '&pageToken=' + nextPageToken : '');
+    try {
+      const res = await fetch('https://www.googleapis.com/youtube/v3/liveChat/messages?' + params);
+      if (!res.ok) {
+        if (res.status === 403) {
+          conn.status = 'error';
+          setSlotStatus(conn.id, 'Quota exceeded', 'error');
+          conn.loggingActive = false;
+          return;
+        }
+        throw new Error('HTTP ' + res.status);
+      }
+      const data = await res.json();
+      nextPageToken = data.nextPageToken || null;
+      const interval = data.pollingIntervalMillis || 3000;
+      const ts = Date.now();
+      for (const item of (data.items || [])) {
+        const user = (item.authorDetails && item.authorDetails.displayName) || 'unknown';
+        const msg = (item.snippet && item.snippet.displayMessage) || '';
+        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+      }
+      ytPollAttempt = 0;
+      if (conn.loggingActive) conn.pollTimer = setTimeout(pollYouTube, Math.max(interval, 2000));
+    } catch (e) {
+      ytPollAttempt++;
+      if (ytPollAttempt < 5 && conn.loggingActive) {
+        conn.pollTimer = setTimeout(pollYouTube, 5000);
+      } else {
+        conn.status = 'error';
+        setSlotStatus(conn.id, 'Poll failed', 'error');
+        conn.loggingActive = false;
+      }
+    }
+  }
+  pollYouTube();
 }
 
 // --- Rumble REST polling ---
 async function connectRumble(conn) {
-  conn.loggingActive = false;
-  conn.status = 'error';
-  setSlotStatus(conn.id, 'Not yet supported', 'error');
+  setSlotStatus(conn.id, 'Resolving...', 'connecting');
   const btn = document.getElementById('slotConnectBtn_' + conn.id);
+
+  // Check for proxy URL in localStorage
+  const RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
+  let proxyUrl = '';
+  try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch(e) {}
+  if (!proxyUrl) {
+    proxyUrl = (prompt('Rumble requires a Firebase proxy URL.\nEnter your proxy URL (saved to localStorage):') || '').trim();
+    if (!proxyUrl) {
+      conn.loggingActive = false;
+      conn.status = 'error';
+      setSlotStatus(conn.id, 'No proxy URL', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
+    try { localStorage.setItem(RUMBLE_PROXY_STORAGE, proxyUrl); } catch(e) {}
+  }
+
+  conn.status = 'live';
+  conn.reconnectAttempt = 0;
+  saveChannelToHistory(conn.channelName);
+  setSlotStatus(conn.id, 'LIVE', 'live');
   if (btn) btn.disabled = false;
+  if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
+
+  // Start polling loop
+  let lastMessageId = null;
+  let rumblePollAttempt = 0;
+  async function pollRumble() {
+    if (!conn.loggingActive) return;
+    const params = 'streamId=' + encodeURIComponent(conn.channelName) + (lastMessageId ? '&after=' + lastMessageId : '');
+    try {
+      const res = await fetch(proxyUrl + '/rumble/messages?' + params);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const messages = data.messages || data.data || [];
+      const ts = Date.now();
+      for (const item of messages) {
+        const user = item.username || (item.user && item.user.username) || 'unknown';
+        const msg = item.text || item.message || '';
+        if (item.id) lastMessageId = item.id;
+        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+      }
+      rumblePollAttempt = 0;
+      if (conn.loggingActive) conn.pollTimer = setTimeout(pollRumble, 5000);
+    } catch (e) {
+      rumblePollAttempt++;
+      if (rumblePollAttempt < 5 && conn.loggingActive) {
+        conn.pollTimer = setTimeout(pollRumble, 8000);
+      } else {
+        conn.status = 'error';
+        setSlotStatus(conn.id, 'Poll failed', 'error');
+        conn.loggingActive = false;
+      }
+    }
+  }
+  pollRumble();
 }
 
 // --- Disconnect ---
@@ -2357,7 +2507,7 @@ function disconnectSlot(slotId) {
   conn.channelName = '';
   conn.status = 'idle';
   if (conn.ws) { conn.ws.close(); conn.ws = null; }
-  if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
+  if (conn.pollTimer) { clearTimeout(conn.pollTimer); conn.pollTimer = null; }
   conn.bttvEmotes.clear(); conn.seventvEmotes.clear(); conn.ffzEmotes.clear();
   mergeAllEmotes();
   updatePrimaryRoomId();
@@ -2380,7 +2530,7 @@ function disconnectAll() {
     conn.channelName = '';
     conn.status = 'idle';
     if (conn.ws) { conn.ws.close(); conn.ws = null; }
-    if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
+    if (conn.pollTimer) { clearTimeout(conn.pollTimer); conn.pollTimer = null; }
     conn.bttvEmotes.clear(); conn.seventvEmotes.clear(); conn.ffzEmotes.clear();
     setSlotStatus(conn.id, '', '');
     const btn = document.getElementById('slotConnectBtn_' + conn.id);
