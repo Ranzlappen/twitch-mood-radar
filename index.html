@@ -20,21 +20,24 @@ DATE: 2026-04-02
 <!-- End PWA meta tags -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-<div id="bubbleTip"></div>
+<!-- Skip link for keyboard users -->
+<a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<div id="bubbleTip" role="tooltip"></div>
 
 <!-- Help modal -->
-<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()">
+<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="help-modal">
-    <button class="help-close" onclick="closeHelp()">x</button>
+    <button class="help-close" onclick="closeHelp()" aria-label="Close help">x</button>
     <h3 id="helpTitle">HOW IT WORKS</h3>
     <div id="helpBody"></div>
   </div>
 </div>
 
-<div class="app">
+<div class="app" id="main-content">
 
 <!-- ====================================================
      HEADER + SETTINGS MENU
@@ -48,7 +51,7 @@ DATE: 2026-04-02
   <div class="header-actions">
     <!-- Settings toggle — quick presets -->
     <div class="settings-wrap">
-      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" aria-label="Appearance settings" title="Layout presets">
+      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" aria-label="Appearance settings" aria-expanded="false" title="Layout presets">
         <svg viewBox="0 0 16 16"><path d="M8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm5.85-1.85-.01-.07a5.6 5.6 0 0 0 0-1.16l.01-.07 1.1-.95a.4.4 0 0 0 .08-.5l-1.05-1.82a.4.4 0 0 0-.49-.17l-1.29.52-.1-.06a5.7 5.7 0 0 0-1-.58l-.08-.03-.2-1.37A.4.4 0 0 0 10.4 2H8.6a.4.4 0 0 0-.4.33l-.2 1.37-.08.03a5.7 5.7 0 0 0-1 .58l-.1.06-1.29-.52a.4.4 0 0 0-.49.17L4 5.84a.4.4 0 0 0 .08.5l1.1.95-.01.07a5.6 5.6 0 0 0 0 1.16l.01.07-1.1.95a.4.4 0 0 0-.08.5L5.05 11.9a.4.4 0 0 0 .49.17l1.29-.52.1.06c.31.22.64.41 1 .58l.08.03.2 1.37c.05.19.22.33.4.33h1.8c.18 0 .35-.14.4-.33l.2-1.37.08-.03c.36-.17.69-.36 1-.58l.1-.06 1.29.52a.4.4 0 0 0 .49-.17l1.05-1.82a.4.4 0 0 0-.08-.5l-1.1-.95z"/></svg>
       </button>
       <div class="settings-dropdown" id="settingsDropdown">
@@ -118,7 +121,7 @@ DATE: 2026-04-02
       </div>
     </div>
     <!-- Options Drawer toggle -->
-    <button class="options-btn" id="optionsBtn" onclick="toggleOptionsDrawer()" aria-label="Options drawer" title="Customization options">
+    <button class="options-btn" id="optionsBtn" onclick="toggleOptionsDrawer()" aria-label="Options drawer" aria-expanded="false" title="Customization options">
       <svg viewBox="0 0 16 16"><rect x="1" y="2.5" width="14" height="1" rx=".5"/><rect x="1" y="7.5" width="14" height="1" rx=".5"/><rect x="1" y="12.5" width="14" height="1" rx=".5"/><circle cx="4.5" cy="3" r="1.8"/><circle cx="11.5" cy="8" r="1.8"/><circle cx="7" cy="13" r="1.8"/></svg>
     </button>
   </div>
@@ -126,13 +129,20 @@ DATE: 2026-04-02
 
 <!-- CONNECT PANEL -->
 <div class="connect-panel">
+  <select id="platformSelect" class="platform-select" onchange="switchPlatform(this.value)" aria-label="Streaming platform">
+    <option value="twitch" selected>Twitch</option>
+    <option value="kick">Kick</option>
+    <option value="youtube">YouTube</option>
+    <option value="rumble">Rumble</option>
+  </select>
   <div class="input-wrap" style="position:relative">
-    <span class="input-prefix">#</span>
+    <span class="input-prefix" id="inputPrefix">#</span>
     <input type="text" id="channelInput" placeholder="channel name" spellcheck="false"
       autocomplete="off"
       onfocus="openChannelHistory()"
       oninput="openChannelHistory()"
-      onkeydown="handleChannelKey(event)"/>
+      onkeydown="handleChannelKey(event)"
+      aria-label="Channel name or stream ID"/>
     <div class="channel-history-dropdown" id="channelHistoryDropdown"></div>
   </div>
   <label class="bot-toggle-wrap" title="Filter detected bot messages from all scoring">
@@ -143,7 +153,7 @@ DATE: 2026-04-02
   <button class="btn btn-disconnect" onclick="disconnectChat()">Disconnect</button>
 </div>
 
-<div id="statusBar" class="status-bar">Enter a channel name and connect</div>
+<div id="statusBar" class="status-bar" role="status" aria-live="polite">Enter a channel name and connect</div>
 
 <div class="stats-row">
   <div class="stat-box"><div class="stat-val" id="statMessages">0</div><div class="stat-label">Total</div></div>
@@ -161,8 +171,8 @@ DATE: 2026-04-02
   <span id="tbarLabel">0 msg/s</span>
 </div>
 
-<div class="dominant-mood" id="dominantMood">-</div>
-<div class="shift-alert" id="shiftAlert"></div>
+<div class="dominant-mood" id="dominantMood" aria-live="polite" aria-atomic="true">-</div>
+<div class="shift-alert" id="shiftAlert" role="alert" aria-live="assertive"></div>
 
 <!-- Centralized mood color legend — single source of truth for all sections -->
 <div class="legend-row" id="moodLegend"></div>
@@ -285,7 +295,7 @@ DATE: 2026-04-02
     </div>
   </div>
   <div class="collapsible-body" id="feedCard-body">
-    <div id="feedList"></div>
+    <div id="feedList" role="log" aria-live="polite" aria-label="Live chat feed"></div>
   </div>
 </div>
 
@@ -311,7 +321,7 @@ DATE: 2026-04-02
     </div>
   </div>
   <div class="collapsible-body" id="filteredFeedCard-body">
-    <div id="filteredFeedList"></div>
+    <div id="filteredFeedList" role="log" aria-live="polite" aria-label="Filtered chat feed"></div>
   </div>
 </div>
 
@@ -329,7 +339,7 @@ DATE: 2026-04-02
     </div>
   </div>
   <div class="collapsible-body" id="outlierCard-body">
-    <div id="outlierFeedList"></div>
+    <div id="outlierFeedList" role="log" aria-live="polite" aria-label="Standout messages feed"></div>
   </div>
 </div>
 

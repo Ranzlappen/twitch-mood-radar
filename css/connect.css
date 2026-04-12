@@ -1,0 +1,178 @@
+/* ============================================================
+   CONNECT PANEL
+   ============================================================ */
+.connect-panel {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:12px; padding:14px 18px;
+  display:flex; flex-wrap:wrap; align-items:center;
+  gap:10px; justify-content:center;
+  margin-bottom:var(--gap);
+}
+/* Platform selector dropdown */
+.platform-select {
+  background:#080814; border:1px solid var(--border); border-radius:8px;
+  color:var(--accent); font-family:'Orbitron',sans-serif; font-size:.7em;
+  padding:10px 12px; cursor:pointer; letter-spacing:.08em;
+  text-transform:uppercase; outline:none;
+}
+.platform-select:hover { border-color:var(--accent) }
+.platform-select:focus-visible { border-color:var(--accent); box-shadow:0 0 0 2px rgba(0,255,229,.2) }
+.platform-select option { background:#0d0d1f; color:var(--text) }
+
+.input-wrap { position:relative; display:flex; align-items:center }
+.input-prefix { position:absolute; left:12px; color:var(--accent); pointer-events:none }
+input[type=text] {
+  background:#080814; border:1px solid var(--border); border-radius:8px;
+  color:var(--text); font-family:'Share Tech Mono',monospace; font-size:1em;
+  padding:9px 13px 9px 28px; width:200px; outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+input[type=text]:focus { border-color:var(--accent); box-shadow:0 0 10px rgba(0,255,229,.2) }
+.hl-wrap { display:flex; align-items:center; gap:7px; font-size:.76em; color:var(--muted) }
+input[type=range] { -webkit-appearance:none; appearance:none; width:100%; max-width:100%; height:8px; background:var(--border); border-radius:4px; outline:none; cursor:pointer; padding:10px 0; background-clip:content-box; touch-action:none }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:24px; height:24px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 8px rgba(0,255,229,.35); transition:box-shadow .15s,transform .15s; border:2px solid rgba(0,0,0,.4) }
+input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.15); box-shadow:0 0 14px rgba(0,255,229,.55) }
+input[type=range]::-webkit-slider-thumb:active { transform:scale(1.25); box-shadow:0 0 20px rgba(0,255,229,.7) }
+input[type=range]::-moz-range-thumb { width:24px; height:24px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 8px rgba(0,255,229,.35); border:2px solid rgba(0,0,0,.4) }
+input[type=range]::-moz-range-track { height:8px; background:var(--border); border-radius:4px }
+input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offset:4px }
+#hlVal { color:var(--accent); min-width:26px }
+.btn {
+  font-family:'Orbitron',sans-serif; font-size:.68em; font-weight:700;
+  letter-spacing:.08em; padding:9px 18px; border-radius:8px;
+  border:none; cursor:pointer; transition:all .2s; text-transform:uppercase;
+}
+.btn-connect { background:var(--accent); color:#000; box-shadow:0 0 15px rgba(0,255,229,.3) }
+.btn-connect:hover { box-shadow:0 0 24px rgba(0,255,229,.6); transform:translateY(-1px) }
+.btn-connect:disabled { opacity:.4; cursor:not-allowed; transform:none }
+.btn-disconnect { background:transparent; color:var(--muted); border:1px solid var(--border) }
+.btn-disconnect:hover { border-color:var(--accent2); color:var(--accent2) }
+.bot-toggle-wrap { display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none }
+.bot-toggle-wrap input[type=checkbox] { width:14px; height:14px; accent-color:var(--accent); cursor:pointer }
+.bot-toggle-label { font-size:.72em; color:var(--muted); letter-spacing:.1em }
+
+/* ============================================================
+   HELP BUTTON + MODAL
+   ============================================================ */
+.help-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:50%;
+  border:1px solid var(--muted); background:transparent;
+  color:var(--muted); font-size:.6em; cursor:pointer;
+  line-height:1; vertical-align:middle; margin-left:4px;
+  transition:color .2s,border-color .2s;
+  font-family:'Share Tech Mono',monospace; flex-shrink:0;
+}
+.help-btn:hover { color:var(--accent); border-color:var(--accent) }
+
+.help-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.72); z-index:2000;
+  align-items:center; justify-content:center; padding:16px;
+}
+.help-overlay.open { display:flex }
+.help-modal {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--card-radius); padding:24px;
+  max-width:480px; width:100%; position:relative;
+  max-height:80vh; overflow-y:auto;
+}
+.help-modal h3 { font-family:'Orbitron',sans-serif; font-size:.8em; letter-spacing:.2em; color:var(--accent); margin-bottom:14px }
+.help-modal p,.help-modal li { font-size:.8em; color:#9898c8; line-height:1.7; margin-bottom:8px }
+.help-modal ul { padding-left:16px; margin-bottom:8px }
+.help-modal li { margin-bottom:4px }
+.help-modal strong { color:var(--text) }
+.help-close { position:absolute; top:14px; right:16px; background:transparent; border:none; color:var(--muted); font-size:1.1em; cursor:pointer; line-height:1; padding:4px }
+.help-close:hover { color:var(--accent) }
+
+/* Disconnected pulsing red inlaid border — applied when logging was active but connection was lost */
+body.disconnected {
+  background:var(--bg);
+  animation:disconnectPulse 2s ease-in-out infinite;
+}
+@keyframes disconnectPulse {
+  0%,100% { box-shadow:inset 0 0 30px 4px rgba(220,30,30,.12), inset 0 0 0 2px rgba(220,30,30,.15) }
+  50%     { box-shadow:inset 0 0 60px 8px rgba(220,30,30,.22), inset 0 0 0 3px rgba(220,30,30,.35) }
+}
+/* Smooth removal when reconnected */
+body:not(.disconnected) {
+  box-shadow:none;
+  animation:none;
+  transition:box-shadow .8s ease;
+}
+
+/* Channel history dropdown */
+.channel-history-dropdown {
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-top:none;
+  border-radius:0 0 8px 8px;
+  z-index:600;
+  display:none;
+  max-height:200px;
+  overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.channel-history-dropdown.open { display:block }
+.channel-history-dropdown::-webkit-scrollbar { width:3px }
+.channel-history-dropdown::-webkit-scrollbar-thumb { background:var(--border) }
+
+.history-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:7px 10px;
+  cursor:pointer;
+  font-size:.82em;
+  color:var(--text);
+  transition:background .12s;
+  gap:8px;
+}
+.history-item:hover { background:rgba(0,255,229,.07) }
+.history-item-name {
+  flex:1;
+  color:var(--accent);
+  letter-spacing:.04em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.history-item-name::before { content:'#'; color:var(--muted); margin-right:2px }
+.history-delete {
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:.9em;
+  padding:2px 5px;
+  border-radius:4px;
+  line-height:1;
+  flex-shrink:0;
+  transition:color .15s, background .15s;
+}
+.history-delete:hover { color:var(--accent2); background:rgba(255,45,120,.1) }
+.history-empty {
+  padding:10px;
+  font-size:.76em;
+  color:var(--muted);
+  text-align:center;
+  letter-spacing:.1em;
+}
+.status-bar.live { color:var(--accent) }
+.status-bar.error { color:var(--accent2) }
+.live-dot { display:inline-block; width:7px; height:7px; background:var(--accent); border-radius:50%; margin-right:7px; animation:blink 1s step-end infinite }
+@keyframes blink { 50% { opacity:0 } }
+
+.stats-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:12px }
+.stat-box { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:9px 14px; text-align:center; min-width:80px }
+.stat-val { font-family:'Orbitron',sans-serif; font-size:1.4em; font-weight:700; color:var(--accent) }
+.stat-label { font-size:.6em; letter-spacing:.15em; color:var(--muted); margin-top:2px }
+
+.throughput-bar-wrap { display:flex; align-items:center; gap:9px; font-size:.66em; color:var(--muted); margin-bottom:14px; justify-content:center }
+.tbar { flex:1; max-width:260px; height:5px; background:var(--border); border-radius:3px; overflow:hidden }
+.tbar-fill { height:100%; background:var(--accent); border-radius:3px; transition:width .3s,background .3s; width:0% }
+

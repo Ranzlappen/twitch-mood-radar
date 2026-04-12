@@ -1,0 +1,173 @@
+/* ============================================================
+   LAYOUT MANAGER — in settings dropdown
+   ============================================================ */
+.layout-section { padding:4px 10px 8px }
+.layout-item {
+  display:flex; align-items:center; gap:6px;
+  padding:5px 6px; border-radius:5px;
+  font-size:.72em; color:var(--text); letter-spacing:.04em;
+  cursor:grab; user-select:none;
+  border:1px solid transparent;
+  transition:background .12s, border-color .12s;
+}
+.layout-item:hover { background:rgba(0,255,229,.05) }
+.layout-item.dragging { opacity:.5; border-color:var(--accent) }
+.layout-item .drag-handle {
+  color:var(--muted); font-size:.9em; cursor:grab; flex-shrink:0; line-height:1;
+}
+.layout-item .layout-item-label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.layout-inline-toggle {
+  background:transparent; border:1px solid var(--border); border-radius:4px;
+  color:var(--muted); font-size:.6em; padding:2px 5px; cursor:pointer;
+  letter-spacing:.06em; transition:all .15s; flex-shrink:0; white-space:nowrap;
+}
+.layout-inline-toggle:hover { border-color:var(--accent); color:var(--accent) }
+.layout-inline-toggle.active { background:rgba(0,255,229,.1); border-color:var(--accent); color:var(--accent) }
+.layout-apply-btn {
+  display:block; width:100%; margin-top:6px; padding:6px 0;
+  font-family:'Orbitron',sans-serif; font-size:.58em; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  background:rgba(0,255,229,.08); border:1px solid var(--accent);
+  border-radius:5px; color:var(--accent); cursor:pointer;
+  transition:background .15s;
+}
+.layout-apply-btn:hover { background:rgba(0,255,229,.18) }
+.layout-drop-indicator {
+  height:2px; background:var(--accent); border-radius:1px;
+  margin:1px 0; opacity:0; transition:opacity .1s;
+}
+.layout-drop-indicator.active { opacity:1 }
+
+/* Flex alignment options in layout manager */
+.layout-flex-options {
+  display:flex; flex-wrap:wrap; gap:8px; padding:6px 10px 4px; align-items:center;
+}
+.flex-opt-group {
+  display:flex; align-items:center; gap:4px;
+}
+.flex-opt-label {
+  font-size:.52em; color:var(--muted); letter-spacing:.1em; margin-right:2px;
+}
+.flex-opt-btn {
+  background:transparent; border:1px solid var(--border); border-radius:4px;
+  color:var(--muted); font-size:.55em; padding:2px 6px; cursor:pointer;
+  letter-spacing:.06em; transition:all .15s; white-space:nowrap;
+}
+.flex-opt-btn:hover { border-color:var(--accent); color:var(--accent) }
+.flex-opt-btn.active { background:rgba(0,255,229,.1); border-color:var(--accent); color:var(--accent) }
+
+/* Section card title */
+.card-title { font-family:'Orbitron',sans-serif; font-size:clamp(.52em,.6em,1em); letter-spacing:.18em; color:var(--muted); margin-bottom:10px; text-transform:uppercase; display:flex; align-items:center; gap:5px }
+
+/* ============================================================
+   RESIZABLE CARDS — custom JS drag handle replaces native resizer.
+   Cards marked .resizable have overflow:hidden (clips content at
+   the card boundary) and a .resize-handle child injected by JS.
+   ============================================================ */
+.resizable {
+  overflow:hidden;
+  min-height:80px;
+  min-width:120px;
+  box-sizing:border-box;
+  position:relative; /* needed so handle can be absolute inside */
+}
+
+/* Custom resize handle — large enough to grab comfortably */
+.resize-handle {
+  position:absolute;
+  bottom:0; right:0;
+  width:22px; height:22px;
+  cursor:nwse-resize;
+  z-index:10;
+  /* Visible diagonal grip lines */
+  background:
+    linear-gradient(
+      135deg,
+      transparent 30%,
+      rgba(0,255,229,.22) 30%, rgba(0,255,229,.22) 38%,
+      transparent 38%,
+      transparent 52%,
+      rgba(0,255,229,.22) 52%, rgba(0,255,229,.22) 60%,
+      transparent 60%,
+      transparent 74%,
+      rgba(0,255,229,.22) 74%, rgba(0,255,229,.22) 82%,
+      transparent 82%
+    );
+  border-radius:0 0 var(--card-radius) 0;
+  transition:background .2s;
+}
+.resize-handle:hover {
+  background:
+    linear-gradient(
+      135deg,
+      transparent 30%,
+      rgba(0,255,229,.55) 30%, rgba(0,255,229,.55) 38%,
+      transparent 38%,
+      transparent 52%,
+      rgba(0,255,229,.55) 52%, rgba(0,255,229,.55) 60%,
+      transparent 60%,
+      transparent 74%,
+      rgba(0,255,229,.55) 74%, rgba(0,255,229,.55) 82%,
+      transparent 82%
+    );
+}
+
+/* Chart cards: allow flex child (chart-wrap) to fill remaining height */
+.chart-card.resizable {
+  align-items:stretch;
+  display:flex;
+  flex-direction:column;
+}
+/* chart-wrap fills remaining flex space */
+.chart-card.resizable .chart-wrap {
+  flex:1;
+  max-width:100%;
+  aspect-ratio:unset;
+  width:100%;
+  min-height:0;
+}
+
+/* Bubble card: canvas fills 100% of card interior minus padding/title */
+.bubble-card.resizable {
+  display:flex;
+  flex-direction:column;
+}
+.bubble-card.resizable #bubbleCanvas {
+  flex:1;
+  height:auto;
+}
+
+/* Timeline cards (mood + approval): make inner timeline-wrap fill the resized card */
+.timeline-card.resizable {
+  display:flex;
+  flex-direction:column;
+}
+.timeline-card.resizable .timeline-wrap {
+  flex:1;
+  height:auto;
+}
+
+/* Feed card: inner list scrolls within the resized boundary */
+.feed-card.resizable {
+  display:flex;
+  flex-direction:column;
+  max-height:none;
+  height:200px;
+}
+.feed-card.resizable #feedList,
+.feed-card.resizable #filteredFeedList,
+.feed-card.resizable #outlierFeedList {
+  flex:1;
+  overflow-y:auto;
+  min-height:0;
+}
+
+/* Approval card: resizable layout */
+.approval-card.resizable {
+  display:flex;
+  flex-direction:column;
+}
+.approval-card.resizable .collapsible-body {
+  flex:1; min-height:0; justify-content:center;
+}
+

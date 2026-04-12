@@ -1,0 +1,163 @@
+/* ============================================================
+   DOMINANT MOOD + SHIFT ALERT
+   ============================================================ */
+.dominant-mood {
+  text-align:center; margin-bottom:8px;
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1rem,2.4vw,1.8rem); font-weight:700; letter-spacing:.17em;
+  opacity:0; transition:opacity .4s,color .5s,text-shadow .5s;
+}
+.dominant-mood.visible { opacity:1 }
+.shift-alert {
+  text-align:center; font-size:.76em; letter-spacing:.17em;
+  min-height:20px; margin-bottom:14px; color:var(--accent3);
+  opacity:0; transition:opacity .3s;
+}
+.shift-alert.show { opacity:1 }
+
+/* ============================================================
+   SECTION DIVIDERS — subtle rhythm between logical groups
+   ============================================================ */
+.section-divider {
+  height:1px; margin:4px 0 var(--gap);
+  background:linear-gradient(90deg,transparent,rgba(0,255,229,.08),transparent);
+}
+
+/* ============================================================
+   CHARTS GRID — DASHBOARD preset (default)
+   ============================================================ */
+.charts-top {
+  display:contents;
+}
+
+.chart-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--card-radius); padding:var(--card-pad);
+  display:flex; flex-direction:column; align-items:center;
+  transition:border-color .5s,box-shadow .5s;
+}
+.chart-card.flush { border-color:var(--accent); box-shadow:0 0 26px rgba(0,255,229,.13) }
+.chart-title {
+  font-family:'Orbitron',sans-serif; font-size:.6em; letter-spacing:.2em;
+  color:var(--muted); margin-bottom:12px; align-self:flex-start;
+  display:flex; align-items:center; gap:4px;
+}
+.chart-wrap { width:100%; max-width:100%; aspect-ratio:1; position:relative }
+
+/* ============================================================
+   BUBBLE CARD
+   ============================================================ */
+.bubble-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--card-radius); padding:var(--card-pad);
+  margin-bottom:var(--gap);
+  overflow:hidden;
+}
+#bubbleCanvas { width:100%; height:var(--bubble-height, 260px); display:block; cursor:default; border-radius:8px; min-height:60px; max-width:100%; max-height:100% }
+.bubble-card { position:relative; overflow:hidden }
+.bubble-card .collapsible-body { overflow:hidden; position:relative }
+
+/* ============================================================
+   APPROVAL METER — enlarged, more prominent
+   ============================================================ */
+.approval-card {
+  background:var(--panel);
+  /* Stronger border tint to visually distinguish this section */
+  border:1px solid rgba(0,255,229,.18);
+  border-radius:var(--card-radius);
+  padding:20px var(--card-pad);
+  margin-bottom:var(--gap);
+  position:relative;
+  /* Subtle outer glow to draw the eye */
+  box-shadow:0 0 0 1px rgba(0,255,229,.04), inset 0 1px 0 rgba(0,255,229,.06);
+}
+.approval-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:8px }
+.approval-label-left {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(.6em,.78em,1em); /* larger than before */
+  letter-spacing:.12em; color:#ff4800; text-transform:uppercase; flex:1; font-weight:700;
+}
+.approval-label-center {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(.56em,.66em,1em);
+  letter-spacing:.15em; color:var(--muted); text-align:center; flex:2;
+  display:flex; align-items:center; justify-content:center; gap:4px;
+}
+.approval-label-right {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(.6em,.78em,1em); /* larger than before */
+  letter-spacing:.12em; color:#00ffe5; text-align:right; text-transform:uppercase; flex:1; font-weight:700;
+}
+
+/* Track wrap: taller (64px vs 48px) */
+.approval-track-wrap { position:relative; height:64px; display:flex; align-items:center; margin:0 6px }
+
+/* Track: thicker (14px vs 8px), stronger glow */
+.approval-track {
+  position:absolute; left:0; right:0; height:14px; border-radius:7px;
+  background:linear-gradient(90deg,#ff4800 0%,#ff6600 25%,#ff8800 38%,#444466 50%,#00aa88 62%,#00dd99 75%,#00ffe5 100%);
+  box-shadow:0 0 12px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.5);
+}
+/* Center tick mark — taller and more visible */
+.approval-track::before {
+  content:''; position:absolute;
+  left:50%; top:-10px; bottom:-10px;
+  width:2px; background:rgba(255,255,255,.28);
+  transform:translateX(-50%);
+}
+
+/* Thumb: 36px (vs 26px), heavier border and glow */
+.approval-thumb {
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  width:36px; height:36px; border-radius:50%;
+  border:4px solid #fff; background:#0d0d1f;
+  transition:left .55s cubic-bezier(.25,.8,.25,1),box-shadow .55s;
+  cursor:default; z-index:2;
+}
+.approval-thumb::after {
+  content:''; position:absolute; inset:5px;
+  border-radius:50%; background:currentColor; opacity:.92;
+}
+
+/* Ticks: taller (10px vs 6px) */
+.approval-ticks { position:absolute; left:0; right:0; top:50%; display:flex; justify-content:space-between; pointer-events:none }
+.approval-tick { width:2px; height:10px; background:rgba(255,255,255,.15); margin-top:-5px; border-radius:1px }
+
+/* Score: larger font */
+.approval-score {
+  text-align:center; margin-top:12px;
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.4em,1.8em,2.4em); /* bump from 1.4em */
+  font-weight:700; letter-spacing:.1em;
+  transition:color .55s,text-shadow .55s;
+}
+.approval-verdict {
+  text-align:center; font-size:clamp(.66em,.76em,1em); /* bump from .7em */
+  letter-spacing:.18em; color:var(--muted);
+  margin-top:4px; min-height:18px; transition:color .4s;
+}
+.approval-mini { display:flex; gap:2px; justify-content:center; margin-top:14px; height:28px; align-items:flex-end; flex-wrap:nowrap; overflow:hidden }
+.approval-mini-bar { flex:1; max-width:8px; border-radius:2px 2px 0 0; min-height:3px; transition:height .3s,background .3s }
+
+/* ============================================================
+   TIMELINE CARD
+   ============================================================ */
+.timeline-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--card-radius); padding:var(--card-pad);
+  margin-bottom:var(--gap);
+}
+.timeline-wrap { width:100%; height:var(--timeline-height, 320px) }
+.timeline-controls {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:10px; justify-content:flex-end;
+}
+.scale-toggle {
+  font-family:'Share Tech Mono',monospace; font-size:.68em;
+  letter-spacing:.08em; padding:3px 10px; border-radius:5px;
+  border:1px solid var(--border); background:transparent;
+  color:var(--muted); cursor:pointer; transition:all .2s;
+}
+.scale-toggle:hover { border-color:var(--accent); color:var(--accent) }
+.scale-toggle.active { background:rgba(0,255,229,.1); border-color:var(--accent); color:var(--accent) }
+

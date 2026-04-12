@@ -1,0 +1,163 @@
+/* ============================================================
+   LIST PRESET — body.preset-list overrides
+   In list mode everything stacks single-column, charts are
+   wider/shorter, feed is taller. No JS restructuring needed.
+   ============================================================ */
+body.preset-list .app {
+  grid-template-columns:1fr;
+}
+body.preset-list .chart-wrap {
+  max-width:100%;
+  aspect-ratio:unset;
+  height:240px; /* fixed height instead of square */
+}
+/* In list mode the bubble canvas is taller */
+body.preset-list #bubbleCanvas {
+  height:200px;
+}
+/* Timeline taller in list mode */
+body.preset-list .timeline-wrap {
+  height:360px;
+}
+/* Feed taller in list mode */
+body.preset-list .feed-card {
+  max-height:320px;
+}
+/* In list mode, stat boxes use all available width */
+body.preset-list .stats-row {
+  gap:6px;
+}
+body.preset-list .stat-box {
+  flex:1; min-width:70px;
+}
+/* Spacing between all cards is slightly increased in list mode */
+body.preset-list { --gap:20px }
+
+/* ============================================================
+   CUSTOM LAYOUT — flexbox-based container arrangement
+   ============================================================ */
+.layout-row {
+  display:flex; flex-wrap:wrap; gap:var(--gap); margin-bottom:var(--gap);
+  align-items:flex-start;
+}
+.layout-row > * { flex:1 1 0; min-width:120px }
+/* Flexbox alignment options */
+.layout-row.layout-align-stretch { align-items:stretch }
+.layout-row.layout-align-start   { align-items:flex-start }
+.layout-row.layout-align-center  { align-items:center }
+.layout-row.layout-justify-start   { justify-content:flex-start }
+.layout-row.layout-justify-center  { justify-content:center }
+.layout-row.layout-justify-between { justify-content:space-between }
+@media(max-width:660px) {
+  .layout-row > * { flex-basis:100% }
+}
+
+/* When using custom layout, revert to block and hide default wrappers */
+body.preset-custom .app { display:block }
+body.preset-custom .app > * { margin-bottom:var(--gap) }
+body.preset-custom .section-divider { margin:4px 0 var(--gap); display:none }
+body.preset-custom .charts-top { display:none }
+body.preset-custom #customLayoutContainer { display:block }
+#customLayoutContainer { display:none }
+/* Zero padding on bubble card in custom layout — canvas fills container */
+body.preset-custom .bubble-card { padding:0; padding-top:var(--card-pad) }
+
+/* ============================================================
+   FULL-BLEED GRID — column span rules
+   ============================================================ */
+.app > header,
+.app > .connect-panel,
+.app > .status-bar,
+.app > .stats-row,
+.app > .throughput-bar-wrap,
+.app > .dominant-mood,
+.app > .shift-alert,
+.app > .legend-row,
+.app > .section-divider,
+.app > .approval-card,
+.app > #customLayoutContainer,
+.app::before {
+  grid-column:1/-1;
+}
+
+@media (min-width:700px) {
+  .app > .bubble-card  { grid-column:span 2 }
+  .app > .timeline-card { grid-column:span 2 }
+}
+
+/* ============================================================
+   CONTAINER QUERIES — card-level micro-adjustments
+   ============================================================ */
+.chart-card, .bubble-card, .approval-card, .timeline-card, .feed-card {
+  container-type:inline-size;
+}
+@container (max-width:360px) {
+  .chart-title, .card-title { font-size:.5em; letter-spacing:.12em }
+}
+@container (max-width:280px) {
+  .chart-title, .card-title { font-size:.45em }
+  .approval-header { flex-direction:column; gap:4px }
+}
+
+/* ============================================================
+   COMPACT STATS — toggled by Options Drawer
+   ============================================================ */
+.stats-row.compact { gap:4px }
+.stats-row.compact .stat-box { padding:4px 8px; min-width:60px }
+.stats-row.compact .stat-val { font-size:1em }
+.stats-row.compact .stat-label { font-size:.5em; margin-top:1px }
+
+/* ============================================================
+   PRESET: LOOSE — extra breathing room
+   ============================================================ */
+body.preset-loose { --gap:24px; --card-pad:24px; --card-radius:16px }
+
+/* ============================================================
+   PRESET: ONE-SCREEN / ULTRA DENSE
+   ============================================================ */
+body.preset-dense {
+  --gap:clamp(3px,0.4vw,8px);
+  --card-pad:clamp(6px,0.6vw,12px);
+  --card-radius:8px;
+  --crt-opacity:0.3;
+  --grid-opacity:0.4;
+  --font-scale:0.88;
+  --timeline-height:160px;
+  --bubble-height:140px;
+}
+body.preset-dense .app {
+  padding:4px clamp(4px,0.5vw,8px) 16px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
+body.preset-dense .app::before { display:none }
+body.preset-dense header { margin-bottom:2px }
+body.preset-dense .title { font-size:clamp(1rem,3vw,1.8rem) }
+body.preset-dense .subtitle { display:none }
+body.preset-dense .connect-panel { padding:6px 10px }
+body.preset-dense .stats-row { gap:4px }
+body.preset-dense .stat-box { padding:4px 8px; min-width:56px }
+body.preset-dense .stat-val { font-size:1em }
+body.preset-dense .stat-label { font-size:.5em }
+body.preset-dense .throughput-bar-wrap { font-size:.58em }
+body.preset-dense .dominant-mood { font-size:clamp(.7rem,1.5vw,1.1rem) }
+body.preset-dense .shift-alert { min-height:14px; font-size:.6em }
+body.preset-dense .legend-row { gap:5px; font-size:.58em }
+body.preset-dense .legend-dot { width:6px; height:6px }
+body.preset-dense .section-divider { display:none }
+body.preset-dense .chart-title,
+body.preset-dense .card-title { font-size:.48em; margin-bottom:4px }
+body.preset-dense .approval-card { padding:8px var(--card-pad) }
+body.preset-dense .approval-header { margin-bottom:6px }
+body.preset-dense .approval-track-wrap { height:40px }
+body.preset-dense .approval-track { height:10px }
+body.preset-dense .approval-thumb { width:24px; height:24px; border-width:3px }
+body.preset-dense .approval-score { margin-top:4px; font-size:clamp(.9em,1.2em,1.6em) }
+body.preset-dense .approval-verdict { font-size:.6em }
+body.preset-dense .approval-mini { margin-top:4px; height:16px }
+body.preset-dense .feed-card { padding:6px; max-height:none }
+body.preset-dense .feed-card.resizable { height:150px }
+body.preset-dense .feed-title { font-size:.5em }
+body.preset-dense .feed-item { font-size:.6em; padding:1px 0 }
+body.preset-dense .resizable { min-height:50px }
+body.preset-dense .help-btn { width:13px; height:13px; font-size:.5em }
+
