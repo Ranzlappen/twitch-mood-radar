@@ -4,13 +4,13 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '8' },
-    { url: '/index.html', revision: '8' },
+    { url: '/', revision: '9' },
+    { url: '/index.html', revision: '9' },
     { url: '/css/main.css', revision: '1' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '1' },
     { url: '/css/header.css', revision: '1' },
-    { url: '/css/connect.css', revision: '1' },
+    { url: '/css/connect.css', revision: '2' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '1' },
     { url: '/css/layout-mgr.css', revision: '1' },

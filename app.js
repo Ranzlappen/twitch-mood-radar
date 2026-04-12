@@ -540,15 +540,17 @@ function renderEmotes(escapedHtml) {
 // =============================================================
 //  THIRD-PARTY EMOTES — BTTV, 7TV, FrankerFaceZ
 // =============================================================
+// Primary room/channel — points to the first connected Twitch slot (for chat input compat)
 let currentRoomId = null;
 let currentChannelName = '';
+// Global merged emote maps (union of all connected slots)
 const bttvEmotes = new Map();
 const seventvEmotes = new Map();
 const ffzEmotes = new Map();
 const thirdPartyEmotes = new Map(); // merged: code → { url, source, id }
 
-async function fetchBTTVEmotes(roomId) {
-  bttvEmotes.clear();
+async function fetchBTTVEmotes(roomId, targetMap) {
+  targetMap.clear();
   try {
     const [globalRes, channelRes] = await Promise.all([
       fetch('https://api.betterttv.net/3/cached/emotes/global'),
@@ -557,21 +559,21 @@ async function fetchBTTVEmotes(roomId) {
     if (globalRes.ok) {
       const global = await globalRes.json();
       for (const e of global) {
-        bttvEmotes.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
+        targetMap.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
       }
     }
     if (channelRes.ok) {
       const data = await channelRes.json();
       const channelEmotes = (data.channelEmotes || []).concat(data.sharedEmotes || []);
       for (const e of channelEmotes) {
-        bttvEmotes.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
+        targetMap.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
       }
     }
   } catch(e) { /* silently fail — emotes are optional */ }
 }
 
-async function fetch7TVEmotes(roomId) {
-  seventvEmotes.clear();
+async function fetch7TVEmotes(roomId, targetMap) {
+  targetMap.clear();
   try {
     const [globalRes, channelRes] = await Promise.all([
       fetch('https://7tv.io/v3/emote-sets/global'),
@@ -586,7 +588,7 @@ async function fetch7TVEmotes(roomId) {
         const baseUrl = 'https:' + fileHost.url;
         const file = (fileHost.files || []).find(f => f.name === '1x.webp') || (fileHost.files || [])[0];
         if (!file) continue;
-        seventvEmotes.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
+        targetMap.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
       }
     }
     if (channelRes.ok) {
@@ -599,15 +601,15 @@ async function fetch7TVEmotes(roomId) {
           const baseUrl = 'https:' + fileHost.url;
           const file = (fileHost.files || []).find(f => f.name === '1x.webp') || (fileHost.files || [])[0];
           if (!file) continue;
-          seventvEmotes.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
+          targetMap.set(e.name, { url: baseUrl + '/' + file.name, id: e.id, source: '7tv' });
         }
       }
     }
   } catch(e) { /* silently fail */ }
 }
 
-async function fetchFFZEmotes(channelName) {
-  ffzEmotes.clear();
+async function fetchFFZEmotes(channelName, targetMap) {
+  targetMap.clear();
   try {
     const [globalRes, channelRes] = await Promise.all([
       fetch('https://api.frankerfacez.com/v1/set/global'),
@@ -621,7 +623,7 @@ async function fetchFFZEmotes(channelName) {
           const url = e.urls && (e.urls['1'] || e.urls['2'] || e.urls['4']);
           if (!url) continue;
           const fullUrl = url.startsWith('//') ? 'https:' + url : url;
-          ffzEmotes.set(e.name, { url: fullUrl, id: e.id, source: 'ffz' });
+          targetMap.set(e.name, { url: fullUrl, id: e.id, source: 'ffz' });
         }
       }
     }
@@ -630,18 +632,24 @@ async function fetchFFZEmotes(channelName) {
   } catch(e) { /* silently fail */ }
 }
 
-async function loadAllEmotes(roomId, channelName) {
+async function loadSlotEmotes(conn) {
   await Promise.all([
-    fetchBTTVEmotes(roomId),
-    fetch7TVEmotes(roomId),
-    fetchFFZEmotes(channelName)
+    fetchBTTVEmotes(conn.currentRoomId, conn.bttvEmotes),
+    fetch7TVEmotes(conn.currentRoomId, conn.seventvEmotes),
+    fetchFFZEmotes(conn.channelName, conn.ffzEmotes)
   ]);
-  // Merge: FFZ first (lowest priority), then 7TV, then BTTV (highest priority)
-  thirdPartyEmotes.clear();
-  for (const [k, v] of ffzEmotes) thirdPartyEmotes.set(k, v);
-  for (const [k, v] of seventvEmotes) thirdPartyEmotes.set(k, v);
-  for (const [k, v] of bttvEmotes) thirdPartyEmotes.set(k, v);
-  console.log('[MoodRadar] Loaded ' + thirdPartyEmotes.size + ' third-party emotes (BTTV: ' + bttvEmotes.size + ', 7TV: ' + seventvEmotes.size + ', FFZ: ' + ffzEmotes.size + ')');
+  mergeAllEmotes();
+}
+
+function mergeAllEmotes() {
+  bttvEmotes.clear(); seventvEmotes.clear(); ffzEmotes.clear(); thirdPartyEmotes.clear();
+  for (const conn of connections) {
+    if (!conn.loggingActive) continue;
+    for (const [k, v] of conn.ffzEmotes) { ffzEmotes.set(k, v); thirdPartyEmotes.set(k, v); }
+    for (const [k, v] of conn.seventvEmotes) { seventvEmotes.set(k, v); thirdPartyEmotes.set(k, v); }
+    for (const [k, v] of conn.bttvEmotes) { bttvEmotes.set(k, v); thirdPartyEmotes.set(k, v); }
+  }
+  console.log('[MoodRadar] Merged emotes from ' + connections.filter(c=>c.loggingActive).length + ' feeds — ' + thirdPartyEmotes.size + ' total');
 }
 
 // =============================================================
@@ -849,7 +857,6 @@ const approvalStore  = [];
 const msgQueue       = [];
 let droppedMessages  = 0;
 
-let ws = null;
 let totalMessages = 0;
 const uniqueUsers   = new Set();
 const msgTimestamps = [];
@@ -1984,23 +1991,24 @@ function saveChannelToHistory(name) {
   const clean = name.replace(/^#/,'').toLowerCase().trim();
   if (!clean) return;
   let hist = loadChannelHistory();
-  hist = hist.filter(h => h !== clean);   // remove duplicate
-  hist.unshift(clean);                    // add to front
+  hist = hist.filter(h => h !== clean);
+  hist.unshift(clean);
   if (hist.length > CHANNEL_HISTORY_MAX) hist = hist.slice(0, CHANNEL_HISTORY_MAX);
   try { localStorage.setItem(CHANNEL_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
 }
 
-function deleteChannelFromHistory(name) {
+function deleteChannelFromHistory(name, slotId) {
   let hist = loadChannelHistory().filter(h => h !== name);
   try { localStorage.setItem(CHANNEL_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
-  renderChannelHistory();
+  renderChannelHistory(slotId != null ? slotId : 0);
 }
 
-function renderChannelHistory() {
-  const dropdown = document.getElementById('channelHistoryDropdown');
+function renderChannelHistory(slotId) {
+  const dropdown = document.getElementById('channelHistoryDropdown_' + slotId);
+  const input = document.getElementById('channelInput_' + slotId);
+  if (!dropdown || !input) return;
   const hist = loadChannelHistory();
-  const filter = sanitize(document.getElementById('channelInput').value.trim().toLowerCase().replace(/^#/,''));
-
+  const filter = sanitize(input.value.trim().toLowerCase().replace(/^#/,''));
   const filtered = filter ? hist.filter(h => h.startsWith(filter)) : hist;
 
   if (filtered.length === 0) {
@@ -2009,154 +2017,458 @@ function renderChannelHistory() {
   }
 
   dropdown.innerHTML = filtered.map(name =>
-    `<div class="history-item" onmousedown="selectChannel('${esc(name)}')">
+    `<div class="history-item" onmousedown="selectChannel(${slotId},'${esc(name)}')">
       <span class="history-item-name">${esc(name)}</span>
-      <button class="history-delete" onmousedown="event.stopPropagation();deleteChannelFromHistory('${esc(name)}')" title="Remove">×</button>
+      <button class="history-delete" onmousedown="event.stopPropagation();deleteChannelFromHistory('${esc(name)}',${slotId})" title="Remove">\u00d7</button>
     </div>`
   ).join('');
 }
 
-function openChannelHistory() {
-  renderChannelHistory();
-  document.getElementById('channelHistoryDropdown').classList.add('open');
+function openChannelHistory(slotId) {
+  renderChannelHistory(slotId);
+  const dd = document.getElementById('channelHistoryDropdown_' + slotId);
+  if (dd) dd.classList.add('open');
 }
 
-function closeChannelHistory() {
-  document.getElementById('channelHistoryDropdown').classList.remove('open');
+function closeChannelHistory(slotId) {
+  const dd = document.getElementById('channelHistoryDropdown_' + slotId);
+  if (dd) dd.classList.remove('open');
 }
 
-function selectChannel(name) {
-  document.getElementById('channelInput').value = name;
-  closeChannelHistory();
+function selectChannel(slotId, name) {
+  const input = document.getElementById('channelInput_' + slotId);
+  if (input) input.value = name;
+  closeChannelHistory(slotId);
 }
 
-function handleChannelKey(e) {
-  if (e.key === 'Escape') { closeChannelHistory(); return; }
-  if (e.key === 'Enter')  { closeChannelHistory(); connectChat(); return; }
+function handleChannelKey(slotId, e) {
+  if (e.key === 'Escape') { closeChannelHistory(slotId); return; }
+  if (e.key === 'Enter')  { closeChannelHistory(slotId); connectSlot(slotId); return; }
 }
 
-// Close dropdown when clicking outside
+// Close all dropdowns when clicking outside
 document.addEventListener('click', e => {
-  if (!e.target.closest('.input-wrap')) closeChannelHistory();
+  if (!e.target.closest('.input-wrap')) {
+    for (const conn of connections) closeChannelHistory(conn.id);
+  }
 });
 
 // =============================================================
-//  CONNECTION STATE — loggingActive flag + reconnect logic
+//  MULTI-FEED CONNECTION — slot model + multi-platform support
 // =============================================================
-let loggingActive    = false;   // true only when user has intentionally connected
-let reconnectAttempt = 0;
-const MAX_RECONNECT  = 3;
+const MAX_FEEDS = 10;
+const MAX_RECONNECT = 3;
 const RECONNECT_DELAY_MS = 10_000;
-let reconnectTimer   = null;
+const connections = [];
+let slotIdCounter = 0;
 
-function setDisconnectedState(shouldReconnect) {
-  if (loggingActive) {
-    document.body.classList.add('disconnected');
+const PLATFORM_PLACEHOLDERS = {
+  twitch: 'channel name', kick: 'channel name',
+  youtube: 'video ID or URL', rumble: 'stream ID or channel'
+};
+const PLATFORM_PREFIXES = {
+  twitch: '#', kick: '#', youtube: '\u25b6', rumble: '\u25b6'
+};
+
+function createSlot(id) {
+  return {
+    id,
+    platform: 'twitch',
+    channel: '',
+    ws: null,
+    pollTimer: null,
+    loggingActive: false,
+    reconnectAttempt: 0,
+    reconnectTimer: null,
+    currentRoomId: null,
+    channelName: '',
+    status: 'idle',
+    bttvEmotes: new Map(),
+    seventvEmotes: new Map(),
+    ffzEmotes: new Map(),
+  };
+}
+
+function getSlot(slotId) {
+  return connections.find(c => c.id === slotId);
+}
+
+function anySlotActive() {
+  return connections.some(c => c.loggingActive);
+}
+
+function updatePrimaryRoomId() {
+  const twitchSlot = connections.find(c => c.platform === 'twitch' && c.loggingActive && c.currentRoomId);
+  currentRoomId = twitchSlot ? twitchSlot.currentRoomId : null;
+  currentChannelName = twitchSlot ? twitchSlot.channelName : '';
+}
+
+// --- Per-slot status ---
+function setSlotStatus(slotId, text, cls) {
+  const dot = document.getElementById('slotDot_' + slotId);
+  const txt = document.getElementById('slotStatusText_' + slotId);
+  if (dot) {
+    dot.className = 'slot-dot' + (cls ? ' slot-dot-' + cls : '');
   }
-  if (shouldReconnect && loggingActive && reconnectAttempt < MAX_RECONNECT) {
-    reconnectAttempt++;
-    const attemptNum = reconnectAttempt;
-    setStatus(`Disconnected. Reconnecting in 10s (attempt ${attemptNum}/${MAX_RECONNECT})...`, 'error');
-    reconnectTimer = setTimeout(() => {
-      if (loggingActive) connectChat(true); // true = is a reconnect attempt
+  if (txt) txt.textContent = text;
+  updateGlobalStatus();
+}
+
+function updateGlobalStatus() {
+  const live = connections.filter(c => c.status === 'live');
+  const active = connections.filter(c => c.loggingActive);
+  const bar = document.getElementById('statusBar');
+  if (!bar) return;
+  if (live.length === 0 && active.length === 0) {
+    bar.innerHTML = 'Enter a channel name and connect';
+    bar.className = 'status-bar';
+  } else if (live.length === active.length && live.length > 0) {
+    const names = live.map(c => c.channelName.toUpperCase()).join(', ');
+    bar.innerHTML = '<span class="live-dot"></span>' + live.length + '/' + active.length + ' FEEDS LIVE \u2014 ' + names;
+    bar.className = 'status-bar live';
+  } else {
+    bar.innerHTML = live.length + '/' + active.length + ' feeds connected';
+    bar.className = 'status-bar' + (live.length > 0 ? ' live' : '');
+  }
+  // Disconnected pulsing border when any active slot has error
+  const anyError = connections.some(c => c.loggingActive && (c.status === 'error' || c.status === 'reconnecting'));
+  document.body.classList.toggle('disconnected', anyError);
+}
+
+// --- Per-slot disconnected/reconnect logic ---
+function setSlotDisconnectedState(slotId, shouldReconnect) {
+  const conn = getSlot(slotId);
+  if (!conn) return;
+  if (shouldReconnect && conn.loggingActive && conn.reconnectAttempt < MAX_RECONNECT) {
+    conn.reconnectAttempt++;
+    conn.status = 'reconnecting';
+    setSlotStatus(slotId, 'Reconnecting ' + conn.reconnectAttempt + '/' + MAX_RECONNECT + '...', 'reconnecting');
+    conn.reconnectTimer = setTimeout(() => {
+      if (conn.loggingActive) connectSlot(slotId, true);
     }, RECONNECT_DELAY_MS);
-  } else if (loggingActive && reconnectAttempt >= MAX_RECONNECT) {
-    setStatus('Reconnect failed after ' + MAX_RECONNECT + ' attempts. Click Connect to retry.', 'error');
+  } else if (conn.loggingActive && conn.reconnectAttempt >= MAX_RECONNECT) {
+    conn.status = 'error';
+    setSlotStatus(slotId, 'Failed', 'error');
   }
 }
 
 // =============================================================
-//  WEBSOCKET
+//  CONNECT / DISCONNECT — multi-platform, multi-slot
 // =============================================================
-function connectChat(isReconnect) {
-  const raw = sanitize(document.getElementById('channelInput').value.trim().toLowerCase());
-  if (!raw) { setStatus('Enter a channel name first.','error'); return; }
+function connectSlot(slotId, isReconnect) {
+  const conn = getSlot(slotId);
+  if (!conn) return;
+  const input = document.getElementById('channelInput_' + slotId);
+  const raw = sanitize((input ? input.value : '').trim().toLowerCase());
+  if (!raw) { setSlotStatus(slotId, 'Enter a name', 'error'); return; }
 
-  // Close existing connection cleanly without clearing loggingActive
-  if (ws) { ws.close(); ws = null; }
-  if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle = null; }
-  msgQueue.length = 0;
+  // Block duplicates
+  const dup = connections.find(c => c.id !== slotId && c.loggingActive && c.platform === conn.platform && c.channelName === raw);
+  if (dup) { setSlotStatus(slotId, 'Already connected', 'error'); return; }
+
+  // Close existing connection for this slot
+  if (conn.ws) { conn.ws.close(); conn.ws = null; }
+  if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
 
   if (!isReconnect) {
-    initCharts();
-    reconnectAttempt = 0;  // reset counter on fresh manual connect
+    conn.reconnectAttempt = 0;
+    // Only init charts on the very first connection
+    if (!connections.some(c => c.loggingActive)) initCharts();
   }
 
-  loggingActive = true;
-  document.body.classList.remove('disconnected');
-  clearTimeout(reconnectTimer);
+  conn.loggingActive = true;
+  conn.channelName = raw;
+  conn.status = 'connecting';
+  clearTimeout(conn.reconnectTimer);
+  setSlotStatus(slotId, 'Connecting...', 'connecting');
 
-  const channel = raw.startsWith('#') ? raw : '#'+raw;
-  setStatus('Connecting to '+channel+'...','');
-  document.getElementById('connectBtn').disabled = true;
+  const connectBtn = document.getElementById('slotConnectBtn_' + slotId);
+  if (connectBtn) connectBtn.disabled = true;
 
-  ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
-  ws.onopen = () => {
-    ws.send('CAP REQ :twitch.tv/commands twitch.tv/tags');
-    ws.send('PASS SCHMOOPIIE');
-    ws.send('NICK justinfan'+(Math.random()*80000+1000|0));
-    ws.send('JOIN '+channel);
+  if (conn.platform === 'twitch') connectTwitch(conn);
+  else if (conn.platform === 'kick') connectKick(conn);
+  else if (conn.platform === 'youtube') connectYouTube(conn);
+  else if (conn.platform === 'rumble') connectRumble(conn);
+}
+
+// --- Twitch IRC WebSocket ---
+function connectTwitch(conn) {
+  const channel = conn.channelName.startsWith('#') ? conn.channelName : '#' + conn.channelName;
+  conn.ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+  conn.ws.onopen = () => {
+    conn.ws.send('CAP REQ :twitch.tv/commands twitch.tv/tags');
+    conn.ws.send('PASS SCHMOOPIIE');
+    conn.ws.send('NICK justinfan' + (Math.random() * 80000 + 1000 | 0));
+    conn.ws.send('JOIN ' + channel);
   };
-  ws.onmessage = (event) => {
+  conn.ws.onmessage = (event) => {
     const now = Date.now();
     const lines = event.data.split('\r\n');
-    for (let i=0; i<lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (!line) continue;
-      if (line.startsWith('PING')) { ws.send('PONG :tmi.twitch.tv'); continue; }
-      // Parse ROOMSTATE for room-id (Twitch user ID) to load third-party emotes
-      if (line.includes('ROOMSTATE') && !currentRoomId) {
+      if (line.startsWith('PING')) { conn.ws.send('PONG :tmi.twitch.tv'); continue; }
+      if (line.includes('ROOMSTATE') && !conn.currentRoomId) {
         const roomMatch = line.match(/room-id=(\d+)/);
         if (roomMatch) {
-          currentRoomId = roomMatch[1];
-          currentChannelName = channel.replace('#','');
-          loadAllEmotes(currentRoomId, currentChannelName);
+          conn.currentRoomId = roomMatch[1];
+          updatePrimaryRoomId();
+          loadSlotEmotes(conn);
         }
       }
-      if (line.includes('366')||(line.includes('JOIN')&&line.includes(channel))) {
-        // Successful join — reset reconnect counter, save to history
-        reconnectAttempt = 0;
-        document.body.classList.remove('disconnected');
-        saveChannelToHistory(channel);
-        setStatus('<span class="live-dot"></span>LIVE - '+channel.replace('#','').toUpperCase(),'live');
-        if (!rafHandle) { lastTimelineTs=now; rafHandle=requestAnimationFrame(processingLoop); }
+      if (line.includes('366') || (line.includes('JOIN') && line.includes(channel))) {
+        conn.reconnectAttempt = 0;
+        conn.status = 'live';
+        saveChannelToHistory(conn.channelName);
+        setSlotStatus(conn.id, 'LIVE', 'live');
+        if (!rafHandle) { lastTimelineTs = now; rafHandle = requestAnimationFrame(processingLoop); }
       }
       if (!line.includes('PRIVMSG')) continue;
-      const privIdx=line.indexOf('PRIVMSG'), colonIdx=line.indexOf(':',privIdx);
-      if (colonIdx<0) continue;
-      const msgText=line.slice(colonIdx+1);
-      const atStart=line.charCodeAt(0)===64;
-      const userStart=atStart?line.indexOf(' :')+2:1;
-      const bangIdx=line.indexOf('!',userStart);
-      if (bangIdx<0) continue;
-      const user=line.slice(userStart,bangIdx);
+      const privIdx = line.indexOf('PRIVMSG'), colonIdx = line.indexOf(':', privIdx);
+      if (colonIdx < 0) continue;
+      const msgText = line.slice(colonIdx + 1);
+      const atStart = line.charCodeAt(0) === 64;
+      const userStart = atStart ? line.indexOf(' :') + 2 : 1;
+      const bangIdx = line.indexOf('!', userStart);
+      if (bangIdx < 0) continue;
+      const user = line.slice(userStart, bangIdx);
       tsThroughput.push(now);
-      enqueue(user,msgText,now);
+      enqueue(user, msgText, now);
     }
   };
-  ws.onerror = () => {
-    document.getElementById('connectBtn').disabled=false;
-    setDisconnectedState(true);
+  conn.ws.onerror = () => {
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    setSlotDisconnectedState(conn.id, true);
   };
-  ws.onclose = () => {
-    document.getElementById('connectBtn').disabled=false;
-    // Only treat as unexpected if loggingActive (not a manual disconnect)
-    setDisconnectedState(loggingActive);
+  conn.ws.onclose = () => {
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    setSlotDisconnectedState(conn.id, conn.loggingActive);
   };
 }
 
-function disconnectChat() {
-  loggingActive = false;                        // user intentionally stopped
-  clearTimeout(reconnectTimer);
-  reconnectAttempt = 0;
-  currentRoomId = null; // reset so emotes reload for next channel
-  document.body.classList.remove('disconnected');
-  if (ws) { ws.close(); ws=null; }
-  if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle=null; }
-  msgQueue.length=0;
-  setStatus('Disconnected.','');
-  document.getElementById('connectBtn').disabled=false;
+// --- Kick Pusher WebSocket ---
+async function connectKick(conn) {
+  const slug = conn.channelName;
+  setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  let chatroomId;
+  try {
+    const res = await fetch('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    chatroomId = data.chatroom && data.chatroom.id;
+    if (!chatroomId) throw new Error('no chatroom');
+  } catch (e) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'Not found', 'error');
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  const pusherKey = 'eb1d5f283081a78b932c';
+  const wsUrl = 'wss://ws-us2.pusher.com/app/' + pusherKey + '?protocol=7&client=js&version=7.6.0&flash=false';
+  conn.ws = new WebSocket(wsUrl);
+
+  conn.ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.event === 'pusher:connection_established') {
+        conn.ws.send(JSON.stringify({
+          event: 'pusher:subscribe',
+          data: { channel: 'chatrooms.' + chatroomId + '.v2' }
+        }));
+      }
+      if (data.event === 'pusher_internal:subscription_succeeded') {
+        conn.reconnectAttempt = 0;
+        conn.status = 'live';
+        saveChannelToHistory(conn.channelName);
+        setSlotStatus(conn.id, 'LIVE', 'live');
+        const btn = document.getElementById('slotConnectBtn_' + conn.id);
+        if (btn) btn.disabled = false;
+        if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
+      }
+      if (data.event === 'App\\Events\\ChatMessageEvent') {
+        const msgData = JSON.parse(data.data);
+        const user = (msgData.sender && (msgData.sender.username || msgData.sender.slug)) || 'unknown';
+        const msg = msgData.content || '';
+        if (msg) {
+          const now = Date.now();
+          tsThroughput.push(now);
+          enqueue(user, msg, now);
+        }
+      }
+      if (data.event === 'pusher:ping') {
+        conn.ws.send(JSON.stringify({ event: 'pusher:pong', data: {} }));
+      }
+    } catch (e) { /* ignore parse errors */ }
+  };
+  conn.ws.onerror = () => {
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    setSlotDisconnectedState(conn.id, true);
+  };
+  conn.ws.onclose = () => {
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    setSlotDisconnectedState(conn.id, conn.loggingActive);
+  };
 }
+
+// --- YouTube Data API polling ---
+async function connectYouTube(conn) {
+  setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  // Parse video ID from URL or raw input
+  let videoId = conn.channelName;
+  const urlMatch = videoId.match(/(?:v=|youtu\.be\/|\/live\/)([a-zA-Z0-9_-]{11})/);
+  if (urlMatch) videoId = urlMatch[1];
+
+  // Try to resolve liveChatId
+  const apiKey = ''; // requires user-provided API key or proxy
+  if (!apiKey) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'No API key', 'error');
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+    return;
+  }
+}
+
+// --- Rumble REST polling ---
+async function connectRumble(conn) {
+  conn.loggingActive = false;
+  conn.status = 'error';
+  setSlotStatus(conn.id, 'Not yet supported', 'error');
+  const btn = document.getElementById('slotConnectBtn_' + conn.id);
+  if (btn) btn.disabled = false;
+}
+
+// --- Disconnect ---
+function disconnectSlot(slotId) {
+  const conn = getSlot(slotId);
+  if (!conn) return;
+  conn.loggingActive = false;
+  clearTimeout(conn.reconnectTimer);
+  conn.reconnectAttempt = 0;
+  conn.currentRoomId = null;
+  conn.channelName = '';
+  conn.status = 'idle';
+  if (conn.ws) { conn.ws.close(); conn.ws = null; }
+  if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
+  conn.bttvEmotes.clear(); conn.seventvEmotes.clear(); conn.ffzEmotes.clear();
+  mergeAllEmotes();
+  updatePrimaryRoomId();
+  setSlotStatus(slotId, '', '');
+  const btn = document.getElementById('slotConnectBtn_' + slotId);
+  if (btn) btn.disabled = false;
+  // If no slots active, stop processing
+  if (!anySlotActive()) {
+    if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle = null; }
+    msgQueue.length = 0;
+  }
+}
+
+function disconnectAll() {
+  for (const conn of connections) {
+    conn.loggingActive = false;
+    clearTimeout(conn.reconnectTimer);
+    conn.reconnectAttempt = 0;
+    conn.currentRoomId = null;
+    conn.channelName = '';
+    conn.status = 'idle';
+    if (conn.ws) { conn.ws.close(); conn.ws = null; }
+    if (conn.pollTimer) { clearInterval(conn.pollTimer); conn.pollTimer = null; }
+    conn.bttvEmotes.clear(); conn.seventvEmotes.clear(); conn.ffzEmotes.clear();
+    setSlotStatus(conn.id, '', '');
+    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    if (btn) btn.disabled = false;
+  }
+  mergeAllEmotes();
+  updatePrimaryRoomId();
+  if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle = null; }
+  msgQueue.length = 0;
+  document.body.classList.remove('disconnected');
+  setStatus('Disconnected.', '');
+}
+
+// Backward-compat wrappers
+function connectChat(isReconnect) { connectSlot(connections[0] ? connections[0].id : 0, isReconnect); }
+function disconnectChat() { disconnectAll(); }
+
+// =============================================================
+//  SLOT UI — dynamic slot rows
+// =============================================================
+function switchSlotPlatform(slotId, platform) {
+  const conn = getSlot(slotId);
+  if (!conn) return;
+  if (conn.loggingActive) disconnectSlot(slotId);
+  conn.platform = platform;
+  const input = document.getElementById('channelInput_' + slotId);
+  const prefix = document.getElementById('inputPrefix_' + slotId);
+  if (input) input.placeholder = PLATFORM_PLACEHOLDERS[platform] || 'channel name';
+  if (prefix) prefix.textContent = PLATFORM_PREFIXES[platform] || '#';
+}
+
+function renderSlotHTML(conn) {
+  const isFirst = conn.id === connections[0].id;
+  return '<div class="connection-slot" id="slot_' + conn.id + '" data-slot="' + conn.id + '">' +
+    '<select class="platform-select" id="slotPlatform_' + conn.id + '" onchange="switchSlotPlatform(' + conn.id + ',this.value)" aria-label="Platform">' +
+      '<option value="twitch"' + (conn.platform==='twitch'?' selected':'') + '>Twitch</option>' +
+      '<option value="kick"' + (conn.platform==='kick'?' selected':'') + '>Kick</option>' +
+      '<option value="youtube"' + (conn.platform==='youtube'?' selected':'') + '>YouTube</option>' +
+      '<option value="rumble"' + (conn.platform==='rumble'?' selected':'') + '>Rumble</option>' +
+    '</select>' +
+    '<div class="input-wrap" style="position:relative">' +
+      '<span class="input-prefix" id="inputPrefix_' + conn.id + '">' + (PLATFORM_PREFIXES[conn.platform] || '#') + '</span>' +
+      '<input type="text" id="channelInput_' + conn.id + '" placeholder="' + (PLATFORM_PLACEHOLDERS[conn.platform] || 'channel name') + '" spellcheck="false" autocomplete="off" ' +
+        'onfocus="openChannelHistory(' + conn.id + ')" oninput="openChannelHistory(' + conn.id + ')" ' +
+        'onblur="setTimeout(function(){closeChannelHistory(' + conn.id + ')},150)" ' +
+        'onkeydown="handleChannelKey(' + conn.id + ',event)" aria-label="Channel name"/>' +
+      '<div class="channel-history-dropdown" id="channelHistoryDropdown_' + conn.id + '"></div>' +
+    '</div>' +
+    '<button class="btn btn-connect" id="slotConnectBtn_' + conn.id + '" onclick="connectSlot(' + conn.id + ')">Connect</button>' +
+    '<button class="btn btn-disconnect slot-disconnect-btn" onclick="disconnectSlot(' + conn.id + ')">Disconnect</button>' +
+    '<span class="slot-status">' +
+      '<span class="slot-dot" id="slotDot_' + conn.id + '"></span>' +
+      '<span class="slot-status-text" id="slotStatusText_' + conn.id + '"></span>' +
+    '</span>' +
+    (isFirst ? '' : '<button class="btn-slot-remove" onclick="removeSlot(' + conn.id + ')" title="Remove feed">\u00d7</button>') +
+  '</div>';
+}
+
+function renderAllSlots() {
+  const container = document.getElementById('connectionSlots');
+  if (!container) return;
+  container.innerHTML = connections.map(c => renderSlotHTML(c)).join('');
+  // Update add-feed button visibility
+  const addBtn = document.getElementById('addFeedBtn');
+  if (addBtn) addBtn.style.display = connections.length >= MAX_FEEDS ? 'none' : '';
+}
+
+function addSlot() {
+  if (connections.length >= MAX_FEEDS) return;
+  const id = slotIdCounter++;
+  const conn = createSlot(id);
+  connections.push(conn);
+  renderAllSlots();
+}
+
+function removeSlot(slotId) {
+  const idx = connections.findIndex(c => c.id === slotId);
+  if (idx <= 0) return; // never remove slot 0 (first slot)
+  disconnectSlot(slotId);
+  connections.splice(idx, 1);
+  renderAllSlots();
+}
+
+// Initialize first slot
+(function initSlots() {
+  const id = slotIdCounter++;
+  connections.push(createSlot(id));
+})()
 
 function updateHalfLife(v) {
   HALF_LIFE_MS=parseInt(v)*1000;
@@ -2869,6 +3181,9 @@ function restoreDefaultDOM() {
 }
 
 window.onload = function() {
+  // Render multi-slot connection UI
+  renderAllSlots();
+
   // Init label scale slider with saved/default value
   const slider = document.getElementById('labelScaleSlider');
   if (slider) slider.value = labelScale;
