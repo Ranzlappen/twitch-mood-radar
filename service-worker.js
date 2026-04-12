@@ -4,10 +4,37 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '7' },
-    { url: '/index.html', revision: '7' },
-    { url: '/styles.css', revision: '7' },
-    { url: '/app.js', revision: '7' },
+    { url: '/', revision: '8' },
+    { url: '/index.html', revision: '8' },
+    { url: '/styles.css', revision: '8' },
+    // JS modules
+    { url: '/js/app.js', revision: '1' },
+    { url: '/js/config.js', revision: '1' },
+    { url: '/js/state.js', revision: '1' },
+    { url: '/js/processing.js', revision: '1' },
+    // Utils
+    { url: '/js/utils/dom.js', revision: '1' },
+    { url: '/js/utils/color.js', revision: '1' },
+    { url: '/js/utils/storage.js', revision: '1' },
+    // Analysis
+    { url: '/js/analysis/sentiment.js', revision: '1' },
+    { url: '/js/analysis/approval.js', revision: '1' },
+    { url: '/js/analysis/botDetector.js', revision: '1' },
+    { url: '/js/analysis/ewma.js', revision: '1' },
+    // Platform
+    { url: '/js/platform/PlatformAdapter.js', revision: '1' },
+    { url: '/js/platform/TwitchAdapter.js', revision: '1' },
+    { url: '/js/platform/emotes.js', revision: '1' },
+    // UI
+    { url: '/js/ui/charts.js', revision: '1' },
+    { url: '/js/ui/bubbles.js', revision: '1' },
+    { url: '/js/ui/feeds.js', revision: '1' },
+    { url: '/js/ui/approval-meter.js', revision: '1' },
+    { url: '/js/ui/options.js', revision: '1' },
+    { url: '/js/ui/settings.js', revision: '1' },
+    { url: '/js/ui/layout.js', revision: '1' },
+    { url: '/js/ui/help.js', revision: '1' },
+    // Assets
     { url: '/manifest.json', revision: '1' },
     { url: '/icons/icon-192x192.png', revision: '1' },
     { url: '/icons/icon-512x512.png', revision: '1' }
