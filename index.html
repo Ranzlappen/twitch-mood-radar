@@ -127,30 +127,19 @@ DATE: 2026-04-02
   </div>
 </header>
 
-<!-- CONNECT PANEL -->
+<!-- CONNECT PANEL — multi-feed -->
 <div class="connect-panel">
-  <select id="platformSelect" class="platform-select" onchange="switchPlatform(this.value)" aria-label="Streaming platform">
-    <option value="twitch" selected>Twitch</option>
-    <option value="kick">Kick</option>
-    <option value="youtube">YouTube</option>
-    <option value="rumble">Rumble</option>
-  </select>
-  <div class="input-wrap" style="position:relative">
-    <span class="input-prefix" id="inputPrefix">#</span>
-    <input type="text" id="channelInput" placeholder="channel name" spellcheck="false"
-      autocomplete="off"
-      onfocus="openChannelHistory()"
-      oninput="openChannelHistory()"
-      onkeydown="handleChannelKey(event)"
-      aria-label="Channel name or stream ID"/>
-    <div class="channel-history-dropdown" id="channelHistoryDropdown"></div>
+  <div id="connectionSlots">
+    <!-- Slot rows rendered dynamically by renderAllSlots() -->
   </div>
-  <label class="bot-toggle-wrap" title="Filter detected bot messages from all scoring">
-    <input type="checkbox" id="botToggle" checked onchange="botFilterEnabled = this.checked"/>
-    <span class="bot-toggle-label">Filter bots</span>
-  </label>
-  <button class="btn btn-connect" id="connectBtn" onclick="connectChat()">Connect</button>
-  <button class="btn btn-disconnect" onclick="disconnectChat()">Disconnect</button>
+  <div class="connect-panel-footer">
+    <button class="btn btn-add-feed" id="addFeedBtn" onclick="addSlot()">+ Add Feed</button>
+    <label class="bot-toggle-wrap" title="Filter detected bot messages from all scoring">
+      <input type="checkbox" id="botToggle" checked onchange="botFilterEnabled = this.checked"/>
+      <span class="bot-toggle-label">Filter bots</span>
+    </label>
+    <button class="btn btn-disconnect-all" id="disconnectAllBtn" onclick="disconnectAll()">Disconnect All</button>
+  </div>
 </div>
 
 <div id="statusBar" class="status-bar" role="status" aria-live="polite">Enter a channel name and connect</div>
