@@ -23,7 +23,6 @@ export const LAYOUT_STORAGE_KEY = 'moodradar_layout_v1';
 export const WINDOW_MS = 120_000;
 export const QUEUE_CAP = 5000;
 export const BOT_THRESHOLD = 60;
-export const MAX_RECONNECT = 3;
 export const RECONNECT_DELAY_MS = 10_000;
 export const CHANNEL_HISTORY_MAX = 20;
 export const USER_PROFILE_WINDOW = 60_000;
