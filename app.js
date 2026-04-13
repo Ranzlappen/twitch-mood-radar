@@ -2057,7 +2057,6 @@ document.addEventListener('click', e => {
 //  MULTI-FEED CONNECTION — slot model + multi-platform support
 // =============================================================
 const MAX_FEEDS = 10;
-const MAX_RECONNECT = 3;
 const RECONNECT_DELAY_MS = 10_000;
 const connections = [];
 let slotIdCounter = 0;
@@ -2139,16 +2138,13 @@ function updateGlobalStatus() {
 function setSlotDisconnectedState(slotId, shouldReconnect) {
   const conn = getSlot(slotId);
   if (!conn) return;
-  if (shouldReconnect && conn.loggingActive && conn.reconnectAttempt < MAX_RECONNECT) {
+  if (shouldReconnect && conn.loggingActive) {
     conn.reconnectAttempt++;
     conn.status = 'reconnecting';
-    setSlotStatus(slotId, 'Reconnecting ' + conn.reconnectAttempt + '/' + MAX_RECONNECT + '...', 'reconnecting');
+    setSlotStatus(slotId, 'Reconnecting (attempt ' + conn.reconnectAttempt + ')...', 'reconnecting');
     conn.reconnectTimer = setTimeout(() => {
       if (conn.loggingActive) connectSlot(slotId, true);
     }, RECONNECT_DELAY_MS);
-  } else if (conn.loggingActive && conn.reconnectAttempt >= MAX_RECONNECT) {
-    conn.status = 'error';
-    setSlotStatus(slotId, 'Failed', 'error');
   }
 }
 

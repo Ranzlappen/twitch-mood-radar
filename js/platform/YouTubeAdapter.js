@@ -123,11 +123,8 @@ export class YouTubeAdapter extends PlatformAdapter {
     } catch (e) {
       // Retry after delay
       this._reconnectAttempt++;
-      if (this._reconnectAttempt < 5 && this._polling) {
+      if (this._polling) {
         this._pollTimer = setTimeout(() => this._pollMessages(), 5000);
-      } else {
-        setStatus('YouTube polling failed after multiple retries.', 'error');
-        this._polling = false;
       }
     }
   }

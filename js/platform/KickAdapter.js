@@ -8,7 +8,7 @@
 import { PlatformAdapter } from './PlatformAdapter.js';
 import { state } from '../state.js';
 import { sanitize, setStatus } from '../utils/dom.js';
-import { MAX_RECONNECT, RECONNECT_DELAY_MS } from '../config.js';
+import { RECONNECT_DELAY_MS } from '../config.js';
 
 export class KickAdapter extends PlatformAdapter {
   constructor() {
@@ -167,15 +167,13 @@ export class KickAdapter extends PlatformAdapter {
     if (this._loggingActive) {
       document.body.classList.add('disconnected');
     }
-    if (shouldReconnect && this._loggingActive && this._reconnectAttempt < MAX_RECONNECT) {
+    if (shouldReconnect && this._loggingActive) {
       this._reconnectAttempt++;
       const attempt = this._reconnectAttempt;
-      setStatus(`Disconnected. Reconnecting in 10s (attempt ${attempt}/${MAX_RECONNECT})...`, 'error');
+      setStatus(`Disconnected. Reconnecting in 10s (attempt ${attempt})...`, 'error');
       this._reconnectTimer = setTimeout(() => {
         if (this._loggingActive) this.connect(true);
       }, RECONNECT_DELAY_MS);
-    } else if (this._loggingActive && this._reconnectAttempt >= MAX_RECONNECT) {
-      setStatus('Reconnect failed after ' + MAX_RECONNECT + ' attempts. Click Connect to retry.', 'error');
     }
   }
 

@@ -11,7 +11,6 @@ import {
   OAUTH_STORAGE_KEY,
   CHANNEL_HISTORY_KEY,
   CHANNEL_HISTORY_MAX,
-  MAX_RECONNECT,
   RECONNECT_DELAY_MS
 } from '../config.js';
 import { saveRaw, loadRaw, load, save } from '../utils/storage.js';
@@ -176,19 +175,15 @@ export class TwitchAdapter extends PlatformAdapter {
     if (this._loggingActive) {
       document.body.classList.add('disconnected');
     }
-    if (shouldReconnect && this._loggingActive && this._reconnectAttempt < MAX_RECONNECT) {
+    if (shouldReconnect && this._loggingActive) {
       this._reconnectAttempt++;
       const attemptNum = this._reconnectAttempt;
-      const msg = `Disconnected. Reconnecting in 10s (attempt ${attemptNum}/${MAX_RECONNECT})...`;
+      const msg = `Disconnected. Reconnecting in 10s (attempt ${attemptNum})...`;
       setStatus(msg, 'error');
       if (this._onStatusCallback) this._onStatusCallback({ text: msg, type: 'error' });
       this._reconnectTimer = setTimeout(() => {
         if (this._loggingActive) this.connect(this._currentChannelName, true);
       }, RECONNECT_DELAY_MS);
-    } else if (this._loggingActive && this._reconnectAttempt >= MAX_RECONNECT) {
-      const msg = 'Reconnect failed after ' + MAX_RECONNECT + ' attempts. Click Connect to retry.';
-      setStatus(msg, 'error');
-      if (this._onStatusCallback) this._onStatusCallback({ text: msg, type: 'error' });
     }
   }
 

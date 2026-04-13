@@ -66,11 +66,8 @@ export class RumbleAdapter extends PlatformAdapter {
       }
     } catch (e) {
       this._reconnectAttempt++;
-      if (this._reconnectAttempt < 5 && this._polling) {
+      if (this._polling) {
         this._pollTimer = setTimeout(() => this._pollMessages(), 8000);
-      } else {
-        setStatus('Rumble polling failed after multiple retries.', 'error');
-        this._polling = false;
       }
     }
   }
