@@ -2540,6 +2540,141 @@ function disconnectAll() {
   setStatus('Disconnected.', '');
 }
 
+function flushChatterData() {
+  // -- Data stores --
+  scoredMessages.length = 0;
+  keywordStore.clear();
+  approvalStore.length = 0;
+  msgQueue.length = 0;
+  droppedMessages = 0;
+  totalMessages = 0;
+  uniqueUsers.clear();
+  msgTimestamps.length = 0;
+  tsThroughput.length = 0;
+  prevDominant = null;
+  frameIdx = 0;
+
+  // -- Bot detection --
+  userProfiles.clear();
+  botMessagesFiltered = 0;
+  botUsersDetected = new Set();
+
+  // -- Approval display --
+  approvalDisplayVal = 50;
+  approvalHistory = Array(40).fill(50);
+
+  // -- Bubbles --
+  bubbles = [];
+
+  // -- Feed pending queues --
+  feedPending.length = 0;
+  outlierPending.length = 0;
+  filteredFeedPending.length = 0;
+
+  // -- Reset timeline timestamp --
+  lastTimelineTs = 0;
+
+  // -- Pie chart: reset to initial (100% neutral) --
+  if (pieChart) {
+    pieChart.data.datasets[0].data = MOODS.map((_, i) => i === MOODS.length - 1 ? 100 : 0);
+    pieChart.update('none');
+  }
+
+  // -- Radar chart: reset to all zeros --
+  if (radarChart) {
+    const moodsForWeb = MOODS.filter(m => m !== 'neutral');
+    radarChart.data.datasets[0].data = moodsForWeb.map(() => 0);
+    radarChart.options.scales.r.max = 10;
+    radarChart.data.datasets[0].borderColor = '#00ffe5';
+    radarChart.data.datasets[0].backgroundColor = 'rgba(0,255,229,.09)';
+    radarChart.data.datasets[0].pointBackgroundColor = '#00ffe5';
+    radarChart.update('none');
+  }
+
+  // -- Timeline charts: fill with null --
+  [timelineLinearChart, timelineLogChart].filter(Boolean).forEach(ch => {
+    ch.data.labels = Array(TIMELINE_POINTS).fill('');
+    ch.data.datasets.forEach(ds => { ds.data = Array(TIMELINE_POINTS).fill(null); });
+    ch.update('none');
+  });
+  if (timelineLinearChart) {
+    timelineLinearChart.options.scales.y.max = 10;
+  }
+
+  // -- Approval timeline: reset --
+  if (approvalTimelineChart) {
+    approvalTimelineChart.data.labels = Array(TIMELINE_POINTS).fill('');
+    approvalTimelineChart.data.datasets[0].data = Array(TIMELINE_POINTS).fill(null);
+    approvalTimelineChart.data.datasets[0].borderColor = '#00ffe5';
+    approvalTimelineChart.data.datasets[0].backgroundColor = 'rgba(0,255,229,.08)';
+    approvalTimelineChart.update('none');
+  }
+
+  // -- Throughput timeline: reset --
+  if (throughputTimelineChart) {
+    throughputTimelineChart.data.labels = Array(TIMELINE_POINTS).fill('');
+    throughputTimelineChart.data.datasets[0].data = Array(TIMELINE_POINTS).fill(null);
+    throughputTimelineChart.data.datasets[0].borderColor = '#00ffe5';
+    throughputTimelineChart.data.datasets[0].backgroundColor = 'rgba(0,255,229,.08)';
+    throughputTimelineChart.update('none');
+  }
+
+  // -- Clear feed lists --
+  document.getElementById('feedList').innerHTML = '';
+  document.getElementById('outlierFeedList').innerHTML = '';
+  document.getElementById('filteredFeedList').innerHTML = '';
+
+  // -- Reset stat displays --
+  document.getElementById('statMessages').textContent = '0';
+  document.getElementById('statRate').textContent = '0';
+  document.getElementById('statQueue').textContent = '0';
+  document.getElementById('statUsers').textContent = '0';
+  document.getElementById('statDropped').textContent = '0';
+  document.getElementById('statBotMsgs').textContent = '0';
+  document.getElementById('statBotUsers').textContent = '0';
+
+  // -- Reset dominant mood display --
+  const domEl = document.getElementById('dominantMood');
+  domEl.textContent = '-';
+  domEl.style.color = '';
+  domEl.style.textShadow = '';
+  domEl.classList.remove('visible');
+
+  // -- Reset approval meter --
+  const thumb = document.getElementById('approvalThumb');
+  thumb.style.left = '50%';
+  thumb.style.background = '#0d0d1f';
+  thumb.style.color = '#8888aa';
+  thumb.style.borderColor = '#8888aa';
+  thumb.style.boxShadow = '';
+  document.getElementById('approvalScore').textContent = '+0';
+  document.getElementById('approvalScore').style.color = '#8888aa';
+  document.getElementById('approvalScore').style.textShadow = '';
+  const verdictEl = document.getElementById('approvalVerdict');
+  verdictEl.textContent = 'NEUTRAL';
+  verdictEl.style.color = '#8888aa';
+
+  // -- Reset approval mini bars --
+  const bars = document.getElementById('approvalMini').children;
+  for (let i = 0; i < bars.length; i++) {
+    bars[i].style.height = '3px';
+    bars[i].style.background = '#333355';
+  }
+
+  // -- Reset throughput bar --
+  const fill = document.getElementById('tbarFill');
+  fill.style.width = '0%';
+  fill.style.background = '#00ffe5';
+  document.getElementById('tbarLabel').textContent = '0.0 msg/s';
+
+  // -- Clear bubble canvas --
+  const bubCanvas = document.getElementById('bubbleCanvas');
+  const bubCtx = bubCanvas.getContext('2d');
+  bubCtx.clearRect(0, 0, bubCanvas.width, bubCanvas.height);
+
+  setStatus('Data flushed.', '');
+}
+
 // Backward-compat wrappers
 function connectChat(isReconnect) { connectSlot(connections[0] ? connections[0].id : 0, isReconnect); }
 function disconnectChat() { disconnectAll(); }

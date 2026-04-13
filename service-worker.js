@@ -4,13 +4,13 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '9' },
-    { url: '/index.html', revision: '9' },
+    { url: '/', revision: '10' },
+    { url: '/index.html', revision: '10' },
     { url: '/css/main.css', revision: '1' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '1' },
     { url: '/css/header.css', revision: '1' },
-    { url: '/css/connect.css', revision: '2' },
+    { url: '/css/connect.css', revision: '3' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '1' },
     { url: '/css/layout-mgr.css', revision: '1' },
@@ -18,10 +18,10 @@ if (workbox) {
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '1' },
+    { url: '/js/app.js', revision: '2' },
     { url: '/js/config.js', revision: '1' },
     { url: '/js/state.js', revision: '1' },
-    { url: '/js/processing.js', revision: '1' },
+    { url: '/js/processing.js', revision: '2' },
     // Utils
     { url: '/js/utils/dom.js', revision: '1' },
     { url: '/js/utils/color.js', revision: '1' },

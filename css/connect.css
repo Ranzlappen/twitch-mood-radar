@@ -46,6 +46,12 @@
   font-size:.62em; padding:6px 14px;
 }
 .btn-disconnect-all:hover { border-color:var(--accent2); color:var(--accent2); }
+/* Flush chatter data */
+.btn-flush-data {
+  background:rgba(255,45,120,.06); color:var(--accent2); border:1px solid var(--accent2);
+  font-size:.62em; padding:6px 14px;
+}
+.btn-flush-data:hover { background:rgba(255,45,120,.15); box-shadow:0 0 12px rgba(255,45,120,.2); }
 /* Remove slot button */
 .btn-slot-remove {
   background:transparent; border:none; color:var(--muted);
