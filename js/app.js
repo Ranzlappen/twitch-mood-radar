@@ -25,7 +25,7 @@ import { saveSizes, restoreSizes, notifyChartResize, setupResizeObserver, loadLa
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
 import { sanitize, esc, setStatus, fmtNum } from './utils/dom.js';
 import { hexAlpha, lerpColor } from './utils/color.js';
-import { startProcessingLoop } from './processing.js';
+import { startProcessingLoop, flushChatterData } from './processing.js';
 
 // --- Import all setOpt* functions from options ---
 import {
@@ -84,6 +84,7 @@ window.switchPlatform = switchPlatform;
 // Connection
 window.connectChat = (isReconnect) => adapter.connect(isReconnect);
 window.disconnectChat = () => adapter.disconnect();
+window.flushChatterData = flushChatterData;
 
 // Settings & Presets
 window.toggleSettings = toggleSettings;

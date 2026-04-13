@@ -46,6 +46,19 @@
   font-size:.62em; padding:6px 14px;
 }
 .btn-disconnect-all:hover { border-color:var(--accent2); color:var(--accent2); }
+/* Flush chatter data */
+.btn-flush-data {
+  background:rgba(255,45,120,.06); color:var(--accent2); border:1px solid var(--accent2);
+  font-size:.62em; padding:6px 14px;
+}
+.btn-flush-data:hover { background:rgba(255,45,120,.15); box-shadow:0 0 12px rgba(255,45,120,.2); }
+.btn-flush-data.flushing { animation:flushSpin .6s ease-in-out; pointer-events:none; }
+@keyframes flushSpin {
+  0%   { transform:rotate(0deg) scale(1); }
+  40%  { transform:rotate(360deg) scale(.82); box-shadow:0 0 18px rgba(255,45,120,.4); }
+  70%  { transform:rotate(360deg) scale(.92); }
+  100% { transform:rotate(360deg) scale(1); }
+}
 /* Remove slot button */
 .btn-slot-remove {
   background:transparent; border:none; color:var(--muted);
