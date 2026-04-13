@@ -2672,6 +2672,15 @@ function flushChatterData() {
   const bubCtx = bubCanvas.getContext('2d');
   bubCtx.clearRect(0, 0, bubCanvas.width, bubCanvas.height);
 
+  // -- Flush animation on button --
+  const flushBtn = document.getElementById('flushDataBtn');
+  if (flushBtn) {
+    flushBtn.classList.remove('flushing');
+    void flushBtn.offsetWidth; // reflow to restart animation
+    flushBtn.classList.add('flushing');
+    flushBtn.addEventListener('animationend', () => flushBtn.classList.remove('flushing'), { once: true });
+  }
+
   setStatus('Data flushed.', '');
 }
 
