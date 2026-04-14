@@ -24,11 +24,14 @@ const RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
  */
 async function fetchViaCorsProxy(url, timeoutMs) {
   timeoutMs = timeoutMs || 10000;
+  const enc = encodeURIComponent(url);
   const attempts = [
     url,
-    'https://corsproxy.io/?' + encodeURIComponent(url),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    'https://corsproxy.io/?' + enc,
+    'https://api.allorigins.win/raw?url=' + enc,
+    'https://api.codetabs.com/v1/proxy?quest=' + enc,
+    'https://cors-anywhere.herokuapp.com/' + url,
+    'https://crossorigin.me/' + url,
   ];
   for (const tryUrl of attempts) {
     try {
@@ -36,9 +39,15 @@ async function fetchViaCorsProxy(url, timeoutMs) {
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(tryUrl, { signal: controller.signal });
       clearTimeout(timer);
-      if (res.ok) return res;
-    } catch (e) { /* continue to next proxy */ }
+      if (res.ok) {
+        console.log('[MoodRadar][Rumble] CORS proxy succeeded: ' + tryUrl.split('?')[0]);
+        return res;
+      }
+    } catch (e) {
+      console.warn('[MoodRadar][Rumble] Proxy failed: ' + tryUrl.split('?')[0]);
+    }
   }
+  console.error('[MoodRadar][Rumble] All CORS proxies failed for: ' + url);
   return null;
 }
 
