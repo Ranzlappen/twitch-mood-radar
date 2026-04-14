@@ -2333,6 +2333,7 @@ function connectTwitch(conn) {
 async function connectKick(conn) {
   var slug = conn.channelName;
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.info('[MoodRadar][Kick] Kick connection uses unofficial Pusher WebSocket. No official API available.');
   console.log('[MoodRadar][Kick] Resolving channel: ' + slug);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
   var chatroomId = null;
@@ -2635,6 +2636,7 @@ function _ytFindContinuation(obj) {
 
 async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.info('[MoodRadar][YouTube] YouTube connection uses unofficial methods. For compliant access, use a YouTube Data API v3 key.');
   console.log('[MoodRadar][YouTube] Connecting for: ' + conn.channelName);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
 
@@ -2880,6 +2882,7 @@ async function connectYouTube(conn) {
 // --- Rumble REST polling ---
 async function connectRumble(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.info('[MoodRadar][Rumble] Rumble connection uses unofficial methods. No official API available.');
   console.log('[MoodRadar][Rumble] Connecting for: ' + conn.channelName);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
   var channelInput = conn.channelName;
@@ -3272,9 +3275,9 @@ function renderSlotHTML(conn) {
   return '<div class="connection-slot" id="slot_' + conn.id + '" data-slot="' + conn.id + '">' +
     '<select class="platform-select" id="slotPlatform_' + conn.id + '" onchange="switchSlotPlatform(' + conn.id + ',this.value)" aria-label="Platform">' +
       '<option value="twitch"' + (conn.platform==='twitch'?' selected':'') + '>Twitch</option>' +
-      '<option value="kick"' + (conn.platform==='kick'?' selected':'') + '>Kick</option>' +
-      '<option value="youtube"' + (conn.platform==='youtube'?' selected':'') + '>YouTube</option>' +
-      '<option value="rumble"' + (conn.platform==='rumble'?' selected':'') + '>Rumble</option>' +
+      '<option value="kick"' + (conn.platform==='kick'?' selected':'') + '>Kick (unofficial)</option>' +
+      '<option value="youtube"' + (conn.platform==='youtube'?' selected':'') + '>YouTube (unofficial)</option>' +
+      '<option value="rumble"' + (conn.platform==='rumble'?' selected':'') + '>Rumble (unofficial)</option>' +
     '</select>' +
     '<div class="input-wrap" style="position:relative">' +
       '<span class="input-prefix" id="inputPrefix_' + conn.id + '">' + (PLATFORM_PREFIXES[conn.platform] || '#') + '</span>' +

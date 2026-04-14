@@ -4,11 +4,11 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '11' },
-    { url: '/index.html', revision: '11' },
+    { url: '/', revision: '12' },
+    { url: '/index.html', revision: '12' },
     { url: '/css/main.css', revision: '1' },
     { url: '/css/tokens.css', revision: '1' },
-    { url: '/css/layout.css', revision: '1' },
+    { url: '/css/layout.css', revision: '2' },
     { url: '/css/header.css', revision: '1' },
     { url: '/css/connect.css', revision: '3' },
     { url: '/css/cards.css', revision: '1' },
@@ -34,9 +34,9 @@ if (workbox) {
     // Platform
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '1' },
-    { url: '/js/platform/KickAdapter.js', revision: '3' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '4' },
-    { url: '/js/platform/RumbleAdapter.js', revision: '3' },
+    { url: '/js/platform/KickAdapter.js', revision: '4' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '5' },
+    { url: '/js/platform/RumbleAdapter.js', revision: '4' },
     { url: '/js/platform/emotes.js', revision: '1' },
     // UI
     { url: '/js/ui/charts.js', revision: '1' },
@@ -49,7 +49,7 @@ if (workbox) {
     { url: '/js/ui/help.js', revision: '1' },
     { url: '/js/ui/wake-lock.js', revision: '1' },
     // Assets
-    { url: '/manifest.json', revision: '1' },
+    { url: '/manifest.json', revision: '2' },
     { url: '/icons/icon-192x192.png', revision: '1' },
     { url: '/icons/icon-512x512.png', revision: '1' }
   ]);

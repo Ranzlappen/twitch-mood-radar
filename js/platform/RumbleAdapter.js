@@ -172,6 +172,7 @@ export class RumbleAdapter extends PlatformAdapter {
   }
 
   async connect(isReconnect) {
+    console.info('[MoodRadar][Rumble] Rumble connection uses unofficial methods. No official API available.');
     const input = document.getElementById('channelInput');
     const raw = sanitize((input ? input.value : '').trim());
     if (!raw) { setStatus('Enter a Rumble stream ID or channel.', 'error'); return; }

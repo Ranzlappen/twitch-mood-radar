@@ -30,3 +30,18 @@
   grid-column:1/-1;
 }
 
+/* Disclaimer footer */
+.app-disclaimer {
+  grid-column:1/-1;
+  padding:18px 16px 6px;
+  margin-top:12px;
+  border-top:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;
+  font-size:.65em;
+  line-height:1.6;
+  color:var(--muted);
+  letter-spacing:.02em;
+}
+.app-disclaimer p { margin-bottom:4px; }
+.app-disclaimer strong { color:var(--text); }
+

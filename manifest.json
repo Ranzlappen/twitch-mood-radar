@@ -1,7 +1,7 @@
 {
-  "name": "Twitch Mood Radar",
+  "name": "Mood Radar",
   "short_name": "Mood Radar",
-  "description": "Real-time Twitch chat mood analyzer with live visualizations",
+  "description": "Real-time multi-platform chat mood analyzer with live visualizations",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",
