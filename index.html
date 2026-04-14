@@ -532,6 +532,16 @@ DATE: 2026-04-02
     </details>
 
     <details class="opt-section">
+      <summary>Display</summary>
+      <div class="opt-content">
+        <label class="opt-toggle">
+          <input type="checkbox" id="optWakeLock" onchange="setOptWakeLock(this.checked)">
+          <span class="opt-label">Keep screen awake</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
       <summary>Card Visibility</summary>
       <div class="opt-content">
         <label class="opt-toggle"><input type="checkbox" id="optShowPie" checked onchange="setOptCardVisibility('pieCard',this.checked)"><span class="opt-label">Mood Distribution</span></label>
