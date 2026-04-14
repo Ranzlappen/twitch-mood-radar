@@ -1244,9 +1244,16 @@ function approvalVerdict(score) {
   return ['OVERWHELMING REJECTION','#ff4800'];
 }
 
-function enqueue(user, msg, ts) {
+const PLATFORM_COLORS = {
+  twitch: '#9146ff',
+  kick: '#53fc18',
+  youtube: '#ff0000',
+  rumble: '#85c742'
+};
+
+function enqueue(user, msg, ts, platform) {
   if (msgQueue.length >= QUEUE_CAP) { msgQueue.shift(); droppedMessages++; }
-  msgQueue.push({ user, msg, ts });
+  msgQueue.push({ user, msg, ts, platform: platform || '' });
 }
 
 // =============================================================
@@ -1893,8 +1900,8 @@ function showDecayRecommendation() {
 const feedPending = [];
 let feedRafId = null;
 
-function addFeedItem(user, msg, mood, botScore, approvalVote) {
-  feedPending.push({ user, msg, mood, botScore:botScore||0, approvalVote:approvalVote||0 });
+function addFeedItem(user, msg, mood, botScore, approvalVote, platform) {
+  feedPending.push({ user, msg, mood, botScore:botScore||0, approvalVote:approvalVote||0, platform:platform||'' });
   if (!feedRafId) feedRafId = requestAnimationFrame(flushFeed);
 }
 
@@ -1902,12 +1909,13 @@ function flushFeed() {
   feedRafId = null;
   const list = document.getElementById('feedList');
   const frag = document.createDocumentFragment();
-  for (const { user, msg, mood, botScore, approvalVote } of feedPending.splice(0,25)) {
+  for (const { user, msg, mood, botScore, approvalVote, platform } of feedPending.splice(0,25)) {
     const el = document.createElement('div');
     const isBot = mood === 'bot';
     el.className = 'feed-item' + (isBot?' feed-bot':'');
     const safeUser = sanitize(user);
     const safeMsg  = sanitize(msg);
+    const platDot = `<span class="feed-plat${platform?' feed-plat-'+platform:''}" title="${platform||''}"></span>`;
     const moodTag = isBot
       ? `<span class="feed-mood mood-bot">BOT ${botScore}</span>`
       : `<span class="feed-mood mood-${mood}">${mood}</span>`;
@@ -1921,7 +1929,7 @@ function flushFeed() {
       const apvNum = approvalVote>0 ? '+'+approvalVote.toFixed(1) : approvalVote.toFixed(1);
       apvTag = `<span class="feed-apv"><span class="feed-apv-bar"><span class="feed-apv-fill" style="width:${apvPct}%;background:${apvColor}"></span></span><span class="feed-apv-num" style="color:${apvColor}">${apvNum}</span></span>`;
     }
-    el.innerHTML = `<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
+    el.innerHTML = `${platDot}<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
     frag.appendChild(el);
   }
   list.appendChild(frag);
@@ -1935,8 +1943,8 @@ function flushFeed() {
 const outlierPending = [];
 let outlierRafId = null;
 
-function addOutlierItem(user, msg, mood, approvalVote) {
-  outlierPending.push({ user, msg, mood, approvalVote:approvalVote||0 });
+function addOutlierItem(user, msg, mood, approvalVote, platform) {
+  outlierPending.push({ user, msg, mood, approvalVote:approvalVote||0, platform:platform||'' });
   if (!outlierRafId) outlierRafId = requestAnimationFrame(flushOutlierFeed);
 }
 
@@ -1944,11 +1952,12 @@ function flushOutlierFeed() {
   outlierRafId = null;
   const list = document.getElementById('outlierFeedList');
   const frag = document.createDocumentFragment();
-  for (const { user, msg, mood, approvalVote } of outlierPending.splice(0,25)) {
+  for (const { user, msg, mood, approvalVote, platform } of outlierPending.splice(0,25)) {
     const el = document.createElement('div');
     el.className = 'feed-item';
     const safeUser = sanitize(user);
     const safeMsg  = sanitize(msg);
+    const platDot = `<span class="feed-plat${platform?' feed-plat-'+platform:''}" title="${platform||''}"></span>`;
     const moodTag = `<span class="feed-mood mood-${mood}">${mood}</span>`;
     const apvPct = Math.round(Math.min(100, Math.max(0, (approvalVote+8)/16*100)));
     let apvColor;
@@ -1957,7 +1966,7 @@ function flushOutlierFeed() {
     else apvColor='#4a4a7a';
     const apvNum = approvalVote>0 ? '+'+approvalVote.toFixed(1) : approvalVote.toFixed(1);
     const apvTag = `<span class="feed-apv"><span class="feed-apv-bar"><span class="feed-apv-fill" style="width:${apvPct}%;background:${apvColor}"></span></span><span class="feed-apv-num" style="color:${apvColor}">${apvNum}</span></span>`;
-    el.innerHTML = `<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
+    el.innerHTML = `${platDot}<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
     frag.appendChild(el);
   }
   list.appendChild(frag);
@@ -1976,13 +1985,13 @@ function processingLoop() {
   const n = Math.min(msgQueue.length, burst);
 
   for (let i = 0; i < n; i++) {
-    const { user, msg, ts } = msgQueue.shift();
+    const { user, msg, ts, platform } = msgQueue.shift();
     if (botFilterEnabled) {
       const { botScore, isBot } = detectBot(user, msg, ts);
       if (isBot) {
         botMessagesFiltered++;
         botUsersDetected.add(user);
-        if (i%5===0) { addFeedItem(user, msg, 'bot', botScore, 0); addFilteredFeedItem(user, msg, 'bot', botScore, 0); }
+        if (i%5===0) { addFeedItem(user, msg, 'bot', botScore, 0, platform); addFilteredFeedItem(user, msg, 'bot', botScore, 0, platform); }
         continue;
       }
     }
@@ -1996,12 +2005,12 @@ function processingLoop() {
       if (!keywordStore.has(label)) keywordStore.set(label, []);
       keywordStore.get(label).push({ ts, w:weight, mood:m });
     }
-    if (i%5===0) { addFeedItem(user, msg, mood, 0, approvalVote); addFilteredFeedItem(user, msg, mood, 0, approvalVote); }
+    if (i%5===0) { addFeedItem(user, msg, mood, 0, approvalVote, platform); addFilteredFeedItem(user, msg, mood, 0, approvalVote, platform); }
     // Outlier detection: flag messages whose mood is underrepresented
     if (mood !== 'neutral' && strength >= 1.0 && totalMessages > 20) {
       const pct = computeWeightedMoods(ts);
       if (pct && pct[mood] < 15) {
-        addOutlierItem(user, msg, mood, approvalVote);
+        addOutlierItem(user, msg, mood, approvalVote, platform);
       }
     }
   }
@@ -2314,7 +2323,7 @@ function connectTwitch(conn) {
       if (bangIdx < 0) continue;
       const user = line.slice(userStart, bangIdx);
       tsThroughput.push(now);
-      enqueue(user, msgText, now);
+      enqueue(user, msgText, now, conn.platform);
     }
   };
   conn.ws.onerror = () => {
@@ -2460,7 +2469,7 @@ async function connectKick(conn) {
         if (msg) {
           var now = Date.now();
           tsThroughput.push(now);
-          enqueue(user, msg, now);
+          enqueue(user, msg, now, conn.platform);
         }
       }
       if (data.event === 'pusher:ping') {
@@ -2752,7 +2761,7 @@ async function connectYouTube(conn) {
         var ts = Date.now();
         for (var m = 0; m < msgs.length; m++) {
           tsThroughput.push(ts);
-          enqueue(msgs[m].user, msgs[m].msg, ts);
+          enqueue(msgs[m].user, msgs[m].msg, ts, conn.platform);
         }
 
         var conts = liveChatCont.continuations;
@@ -2861,7 +2870,7 @@ async function connectYouTube(conn) {
         var item = data.items[i];
         var user = (item.authorDetails && item.authorDetails.displayName) || 'unknown';
         var msg = (item.snippet && item.snippet.displayMessage) || '';
-        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts, conn.platform); }
       }
       ytPollAttempt = 0;
       if (conn.loggingActive) conn.pollTimer = setTimeout(pollYouTube, Math.max(interval, 2000));
@@ -2958,7 +2967,7 @@ async function connectRumble(conn) {
           if (seenIds.size > 2000) { var iter = seenIds.values(); iter.next(); seenIds.delete(iter.next().value); }
           var user = item.username || (item.user && item.user.username) || item.name || 'unknown';
           var msg = item.text || item.message || item.content || '';
-          if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+          if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts, conn.platform); }
         }
         directPollAttempt = 0;
         if (conn.loggingActive) conn.pollTimer = setTimeout(pollRumbleDirect, 5000);
@@ -3042,7 +3051,7 @@ async function connectRumble(conn) {
         var user = item.username || (item.user && item.user.username) || 'unknown';
         var msg = item.text || item.message || '';
         if (item.id) lastMessageId = item.id;
-        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+        if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts, conn.platform); }
       }
       rumblePollAttempt = 0;
       if (conn.loggingActive) conn.pollTimer = setTimeout(pollRumble, 5000);
@@ -3651,10 +3660,10 @@ function closeRegexHistory() {
 const filteredFeedPending = [];
 let filteredFeedRafId = null;
 
-function addFilteredFeedItem(user, msg, mood, botScore, approvalVote) {
+function addFilteredFeedItem(user, msg, mood, botScore, approvalVote, platform) {
   if (filteredFeedRegex && !filteredFeedRegex.test(msg)) return;
   if (!filteredFeedRegex) return; // only show when filter is active
-  filteredFeedPending.push({ user, msg, mood, botScore:botScore||0, approvalVote:approvalVote||0 });
+  filteredFeedPending.push({ user, msg, mood, botScore:botScore||0, approvalVote:approvalVote||0, platform:platform||'' });
   if (!filteredFeedRafId) filteredFeedRafId = requestAnimationFrame(flushFilteredFeed);
 }
 
@@ -3662,12 +3671,13 @@ function flushFilteredFeed() {
   filteredFeedRafId = null;
   const list = document.getElementById('filteredFeedList');
   const frag = document.createDocumentFragment();
-  for (const { user, msg, mood, botScore, approvalVote } of filteredFeedPending.splice(0,25)) {
+  for (const { user, msg, mood, botScore, approvalVote, platform } of filteredFeedPending.splice(0,25)) {
     const el = document.createElement('div');
     const isBot = mood === 'bot';
     el.className = 'feed-item' + (isBot?' feed-bot':'');
     const safeUser = sanitize(user);
     const safeMsg  = sanitize(msg);
+    const platDot = `<span class="feed-plat${platform?' feed-plat-'+platform:''}" title="${platform||''}"></span>`;
     const moodTag = isBot
       ? `<span class="feed-mood mood-bot">BOT ${botScore}</span>`
       : `<span class="feed-mood mood-${mood}">${mood}</span>`;
@@ -3681,7 +3691,7 @@ function flushFilteredFeed() {
       const apvNum = approvalVote>0 ? '+'+approvalVote.toFixed(1) : approvalVote.toFixed(1);
       apvTag = `<span class="feed-apv"><span class="feed-apv-bar"><span class="feed-apv-fill" style="width:${apvPct}%;background:${apvColor}"></span></span><span class="feed-apv-num" style="color:${apvColor}">${apvNum}</span></span>`;
     }
-    el.innerHTML = `<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
+    el.innerHTML = `${platDot}<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
     frag.appendChild(el);
   }
   list.appendChild(frag);

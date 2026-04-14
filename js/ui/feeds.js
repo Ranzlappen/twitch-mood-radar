@@ -11,6 +11,15 @@ import {
 } from '../config.js';
 import { saveRaw, loadRaw, save, load } from '../utils/storage.js';
 
+/* ── Platform colors ─────────────────────────────────── */
+
+const PLATFORM_COLORS = {
+  twitch: '#9146ff',
+  kick: '#53fc18',
+  youtube: '#ff0000',
+  rumble: '#85c742'
+};
+
 /* ── FeedRenderer class ──────────────────────────────── */
 
 export class FeedRenderer {
@@ -31,9 +40,9 @@ export class FeedRenderer {
   /**
    * Queue a feed item for rendering on the next animation frame.
    */
-  add(user, msg, mood, botScore, approvalVote) {
+  add(user, msg, mood, botScore, approvalVote, platform) {
     if (this._filterFn && !this._filterFn(user, msg, mood, botScore, approvalVote)) return;
-    this._pending.push({ user, msg, mood, botScore: botScore || 0, approvalVote: approvalVote || 0 });
+    this._pending.push({ user, msg, mood, botScore: botScore || 0, approvalVote: approvalVote || 0, platform: platform || '' });
     if (!this._rafId) this._rafId = requestAnimationFrame(() => this.flush());
   }
 
@@ -45,17 +54,18 @@ export class FeedRenderer {
     const list = document.getElementById(this._containerId);
     if (!list) return;
     const frag = document.createDocumentFragment();
-    for (const { user, msg, mood, botScore, approvalVote } of this._pending.splice(0, 25)) {
+    for (const { user, msg, mood, botScore, approvalVote, platform } of this._pending.splice(0, 25)) {
       const el = document.createElement('div');
       const isBot = mood === 'bot';
       el.className = 'feed-item' + (isBot ? ' feed-bot' : '');
       const safeUser = sanitize(user);
       const safeMsg = sanitize(msg);
+      const platDot = `<span class="feed-plat${platform ? ' feed-plat-' + platform : ''}" title="${platform || ''}"></span>`;
       const moodTag = isBot
         ? `<span class="feed-mood mood-bot">BOT ${botScore}</span>`
         : `<span class="feed-mood mood-${mood}">${mood}</span>`;
       const apvTag = isBot ? '' : this._buildApprovalHtml(approvalVote);
-      el.innerHTML = `<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
+      el.innerHTML = `${platDot}<span class="feed-user">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
       frag.appendChild(el);
     }
     list.appendChild(frag);

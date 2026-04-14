@@ -28,9 +28,9 @@ async function getFeeds() {
 // Eagerly resolve feeds on first import
 getFeeds();
 
-export function enqueue(user, msg, ts) {
+export function enqueue(user, msg, ts, platform) {
   if (state.msgQueue.length >= QUEUE_CAP) { state.msgQueue.shift(); state.droppedMessages++; }
-  state.msgQueue.push({ user, msg, ts });
+  state.msgQueue.push({ user, msg, ts, platform: platform || '' });
 }
 
 export function processingLoop() {
@@ -41,15 +41,15 @@ export function processingLoop() {
   const n = Math.min(state.msgQueue.length, burst);
 
   for (let i = 0; i < n; i++) {
-    const { user, msg, ts } = state.msgQueue.shift();
+    const { user, msg, ts, platform } = state.msgQueue.shift();
     if (state.botFilterEnabled) {
       const { botScore, isBot } = detectBot(user, msg, ts);
       if (isBot) {
         state.botMessagesFiltered++;
         state.botUsersDetected.add(user);
         if (i % 5 === 0 && _mainFeed) {
-          _mainFeed.add(user, msg, 'bot', botScore, 0);
-          if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0);
+          _mainFeed.add(user, msg, 'bot', botScore, 0, platform);
+          if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform);
         }
         continue;
       }
@@ -65,14 +65,14 @@ export function processingLoop() {
       state.keywordStore.get(label).push({ ts, w: weight, mood: m });
     }
     if (i % 5 === 0 && _mainFeed) {
-      _mainFeed.add(user, msg, mood, 0, approvalVote);
-      if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote);
+      _mainFeed.add(user, msg, mood, 0, approvalVote, platform);
+      if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform);
     }
     // Outlier detection: flag messages whose mood is underrepresented
     if (mood !== 'neutral' && strength >= 1.0 && state.totalMessages > 20) {
       const pct = computeWeightedMoods(ts);
       if (pct && pct[mood] < 15 && _outlierFeed) {
-        _outlierFeed.add(user, msg, mood, 0, approvalVote);
+        _outlierFeed.add(user, msg, mood, 0, approvalVote, platform);
       }
     }
   }

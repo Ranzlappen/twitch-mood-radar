@@ -124,7 +124,7 @@ export class RumbleAdapter extends PlatformAdapter {
         const user = item.username || item.user?.username || item.name || 'unknown';
         const msg = item.text || item.message || item.content || '';
         if (this._onMessageCallback && msg) {
-          this._onMessageCallback({ user, msg, ts });
+          this._onMessageCallback({ user, msg, ts, platform: 'rumble' });
         }
       }
       this._reconnectAttempt = 0;
@@ -158,7 +158,7 @@ export class RumbleAdapter extends PlatformAdapter {
         const msg = item.text || item.message || '';
         if (item.id) this._lastMessageId = item.id;
         if (this._onMessageCallback && msg) {
-          this._onMessageCallback({ user, msg, ts });
+          this._onMessageCallback({ user, msg, ts, platform: 'rumble' });
         }
       }
       this._reconnectAttempt = 0;
