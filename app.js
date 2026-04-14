@@ -2189,22 +2189,25 @@ async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
   timeoutMs = timeoutMs || 10000;
   fetchOptions = fetchOptions || {};
   var isPost = fetchOptions.method && fetchOptions.method.toUpperCase() === 'POST';
+  var enc = encodeURIComponent(url);
+  // Build proxy list — POST-safe proxies first for POST requests
   var attempts;
   if (isPost) {
     attempts = [
       url,
-      'https://corsproxy.io/?' + encodeURIComponent(url),
-      'https://thingproxy.freeboard.io/fetch/' + url,
-      'https://cors.eu.org/' + url,
+      'https://corsproxy.io/?' + enc,
+      'https://api.allorigins.win/raw?url=' + enc,
+      'https://cors-anywhere.herokuapp.com/' + url,
+      'https://crossorigin.me/' + url,
     ];
   } else {
     attempts = [
       url,
-      'https://corsproxy.io/?' + encodeURIComponent(url),
-      'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
-      'https://thingproxy.freeboard.io/fetch/' + url,
-      'https://cors.eu.org/' + url,
+      'https://corsproxy.io/?' + enc,
+      'https://api.allorigins.win/raw?url=' + enc,
+      'https://api.codetabs.com/v1/proxy?quest=' + enc,
+      'https://cors-anywhere.herokuapp.com/' + url,
+      'https://crossorigin.me/' + url,
     ];
   }
   for (var i = 0; i < attempts.length; i++) {
@@ -2216,9 +2219,16 @@ async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
       opts.signal = controller.signal;
       var res = await fetch(attempts[i], opts);
       clearTimeout(timer);
-      if (res.ok) return res;
-    } catch (e) { /* continue to next proxy */ }
+      if (res.ok) {
+        if (i > 0) console.log('[MoodRadar] CORS proxy succeeded: ' + attempts[i].split('?')[0]);
+        return res;
+      }
+      console.warn('[MoodRadar] Proxy returned HTTP ' + res.status + ': ' + attempts[i].split('?')[0]);
+    } catch (e) {
+      console.warn('[MoodRadar] Proxy failed (' + (e.name || 'error') + '): ' + attempts[i].split('?')[0]);
+    }
   }
+  console.error('[MoodRadar] All CORS proxies failed for: ' + url);
   return null;
 }
 
@@ -2255,6 +2265,7 @@ function connectSlot(slotId, isReconnect) {
   const connectBtn = document.getElementById('slotConnectBtn_' + slotId);
   if (connectBtn) connectBtn.disabled = true;
 
+  console.log('[MoodRadar] Connecting slot ' + slotId + ' — platform: ' + conn.platform + ', channel: ' + conn.channelName);
   if (conn.platform === 'twitch') connectTwitch(conn);
   else if (conn.platform === 'kick') connectKick(conn);
   else if (conn.platform === 'youtube') connectYouTube(conn);
@@ -2322,12 +2333,14 @@ function connectTwitch(conn) {
 async function connectKick(conn) {
   var slug = conn.channelName;
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.log('[MoodRadar][Kick] Resolving channel: ' + slug);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
   var chatroomId = null;
 
   // Support direct numeric chatroom ID input (bypasses channel resolution)
   if (/^\d+$/.test(slug)) {
     chatroomId = parseInt(slug, 10);
+    console.log('[MoodRadar][Kick] Using direct chatroom ID: ' + chatroomId);
   } else {
     // Resolve slug → chatroom ID via Kick API with CORS proxy fallbacks
     var kickApis = [
@@ -2336,44 +2349,109 @@ async function connectKick(conn) {
     ];
     for (var a = 0; a < kickApis.length && !chatroomId; a++) {
       try {
+        console.log('[MoodRadar][Kick] Trying API: ' + kickApis[a]);
         var res = await fetchViaCorsProxy(kickApis[a], 12000);
         if (res) {
           var data = await res.json();
+          console.log('[MoodRadar][Kick] API response keys:', Object.keys(data));
           chatroomId = (data.chatroom && data.chatroom.id) || data.chatroom_id || null;
+          if (chatroomId) console.log('[MoodRadar][Kick] Resolved chatroom ID: ' + chatroomId);
         }
-      } catch (e) { /* try next API version */ }
+      } catch (e) {
+        console.warn('[MoodRadar][Kick] API attempt failed:', e.message);
+      }
     }
   }
 
   if (!chatroomId) {
     conn.loggingActive = false;
     conn.status = 'error';
+    console.error('[MoodRadar][Kick] Channel resolution failed for: ' + slug);
     setSlotStatus(conn.id, 'Channel not found. Try numeric chatroom ID.', 'error');
     if (btn) btn.disabled = false;
     return;
   }
 
-  var pusherKey = 'eb1d5f283081a78b932c';
-  var wsUrl = 'wss://ws-us2.pusher.com/app/' + pusherKey + '?protocol=7&client=js&version=7.6.0&flash=false';
-  conn.ws = new WebSocket(wsUrl);
+  // Try connecting with known Pusher keys (Kick has rotated keys historically)
+  var pusherKeys = ['eb1d5f283081a78b932c', '32cbd69e4b950bf97679'];
+  var connected = false;
+
+  for (var ki = 0; ki < pusherKeys.length && !connected; ki++) {
+    var pusherKey = pusherKeys[ki];
+    var wsUrl = 'wss://ws-us2.pusher.com/app/' + pusherKey + '?protocol=7&client=js&version=7.6.0&flash=false';
+    console.log('[MoodRadar][Kick] Trying Pusher key ' + (ki + 1) + '/' + pusherKeys.length + ': ' + pusherKey.slice(0, 8) + '...');
+
+    connected = await new Promise(function(resolve) {
+      if (conn.ws) { conn.ws.close(); conn.ws = null; }
+      conn.ws = new WebSocket(wsUrl);
+      var handshakeTimer = setTimeout(function() {
+        console.warn('[MoodRadar][Kick] Pusher handshake timeout for key ' + pusherKey.slice(0, 8) + '...');
+        if (conn.ws) { conn.ws.close(); conn.ws = null; }
+        resolve(false);
+      }, 15000);
+
+      conn.ws.onmessage = function(event) {
+        try {
+          var data = JSON.parse(event.data);
+          console.log('[MoodRadar][Kick] Pusher event: ' + data.event);
+          if (data.event === 'pusher:connection_established') {
+            clearTimeout(handshakeTimer);
+            console.log('[MoodRadar][Kick] Pusher connected, subscribing to chatrooms.' + chatroomId + '.v2');
+            conn.ws.send(JSON.stringify({
+              event: 'pusher:subscribe',
+              data: { channel: 'chatrooms.' + chatroomId + '.v2' }
+            }));
+            // Set a subscription timeout
+            handshakeTimer = setTimeout(function() {
+              console.warn('[MoodRadar][Kick] Subscription timeout — no subscription_succeeded received');
+              // Still resolve true — connection works, subscription might just not send ack
+              resolve(true);
+            }, 10000);
+          }
+          if (data.event === 'pusher_internal:subscription_succeeded') {
+            clearTimeout(handshakeTimer);
+            console.log('[MoodRadar][Kick] Subscription succeeded');
+            resolve(true);
+          }
+          if (data.event === 'pusher:error') {
+            console.error('[MoodRadar][Kick] Pusher error:', data.data);
+            clearTimeout(handshakeTimer);
+            if (conn.ws) { conn.ws.close(); conn.ws = null; }
+            resolve(false);
+          }
+        } catch (e) { /* ignore parse errors */ }
+      };
+      conn.ws.onerror = function() {
+        clearTimeout(handshakeTimer);
+        console.warn('[MoodRadar][Kick] WebSocket error for key ' + pusherKey.slice(0, 8) + '...');
+        resolve(false);
+      };
+      conn.ws.onclose = function() {
+        clearTimeout(handshakeTimer);
+      };
+    });
+  }
+
+  if (!connected || !conn.ws) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    console.error('[MoodRadar][Kick] All Pusher keys failed');
+    setSlotStatus(conn.id, 'Pusher connection failed. Kick may have changed their API.', 'error');
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  // Connected — set up persistent message handler
+  conn.reconnectAttempt = 0;
+  conn.status = 'live';
+  saveChannelToHistory(conn.channelName);
+  setSlotStatus(conn.id, 'LIVE', 'live');
+  if (btn) btn.disabled = false;
+  if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
 
   conn.ws.onmessage = function(event) {
     try {
       var data = JSON.parse(event.data);
-      if (data.event === 'pusher:connection_established') {
-        conn.ws.send(JSON.stringify({
-          event: 'pusher:subscribe',
-          data: { channel: 'chatrooms.' + chatroomId + '.v2' }
-        }));
-      }
-      if (data.event === 'pusher_internal:subscription_succeeded') {
-        conn.reconnectAttempt = 0;
-        conn.status = 'live';
-        saveChannelToHistory(conn.channelName);
-        setSlotStatus(conn.id, 'LIVE', 'live');
-        if (btn) btn.disabled = false;
-        if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
-      }
       if (data.event === 'App\\Events\\ChatMessageEvent') {
         var msgData = JSON.parse(data.data);
         var user = (msgData.sender && (msgData.sender.username || msgData.sender.slug)) || 'unknown';
@@ -2390,10 +2468,12 @@ async function connectKick(conn) {
     } catch (e) { /* ignore parse errors */ }
   };
   conn.ws.onerror = function() {
+    console.warn('[MoodRadar][Kick] WebSocket error on live connection');
     if (btn) btn.disabled = false;
     setSlotDisconnectedState(conn.id, true);
   };
   conn.ws.onclose = function() {
+    console.log('[MoodRadar][Kick] WebSocket closed');
     if (btn) btn.disabled = false;
     setSlotDisconnectedState(conn.id, conn.loggingActive);
   };
@@ -2405,7 +2485,7 @@ async function connectKick(conn) {
 
 // Known YouTube innertube API key (public, embedded in YouTube's frontend)
 var YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
-var YT_CLIENT_VERSION = '2.20250410.01.00';
+var YT_CLIENT_VERSION = '2.20260414.01.00';
 
 function _ytParseVideoId(input) {
   if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
@@ -2555,24 +2635,29 @@ function _ytFindContinuation(obj) {
 
 async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.log('[MoodRadar][YouTube] Connecting for: ' + conn.channelName);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
 
   // Try to parse as a direct video ID or video URL first
   var videoId = _ytParseVideoId(conn.channelName);
+  if (videoId) console.log('[MoodRadar][YouTube] Parsed video ID: ' + videoId);
 
   // If not a video ID, treat as channel name/@handle and resolve to live stream
   if (!videoId) {
     setSlotStatus(conn.id, 'Looking for live stream...', 'connecting');
+    console.log('[MoodRadar][YouTube] Resolving channel to live stream...');
     videoId = await _ytResolveChannelToLive(conn.channelName, function(msg) {
       setSlotStatus(conn.id, msg, 'connecting');
     });
     if (!videoId) {
       conn.loggingActive = false;
       conn.status = 'error';
+      console.error('[MoodRadar][YouTube] No live stream found for: ' + conn.channelName);
       setSlotStatus(conn.id, 'No live stream found for this channel', 'error');
       if (btn) btn.disabled = false;
       return;
     }
+    console.log('[MoodRadar][YouTube] Resolved to video ID: ' + videoId);
   }
 
   // === Approach 1: Innertube 'next' API — get chat continuation token ===
@@ -2582,6 +2667,7 @@ async function connectYouTube(conn) {
 
   try {
     setSlotStatus(conn.id, 'Connecting to chat...', 'connecting');
+    console.log('[MoodRadar][YouTube] Approach 1: innertube next API (client version: ' + YT_CLIENT_VERSION + ')');
     var nextBody = JSON.stringify({
       context: { client: { clientName: 'WEB', clientVersion: YT_CLIENT_VERSION } },
       videoId: videoId
@@ -2594,27 +2680,46 @@ async function connectYouTube(conn) {
     if (nextRes) {
       var nextData = await nextRes.json();
       continuation = _ytFindContinuation(nextData);
+      if (continuation) console.log('[MoodRadar][YouTube] Got continuation token via innertube next');
+      else console.warn('[MoodRadar][YouTube] innertube next returned data but no continuation token');
+    } else {
+      console.warn('[MoodRadar][YouTube] innertube next API call failed (all proxies)');
     }
-  } catch (e) { /* fall through */ }
+  } catch (e) {
+    console.warn('[MoodRadar][YouTube] Approach 1 error:', e.message);
+  }
 
   // === Approach 2: Scrape live_chat page as fallback ===
   if (!continuation) {
     try {
       setSlotStatus(conn.id, 'Trying chat page...', 'connecting');
+      console.log('[MoodRadar][YouTube] Approach 2: scraping live_chat page');
       var chatPageUrl = 'https://www.youtube.com/live_chat?is_popout=1&v=' + videoId;
       var pageRes = await fetchViaCorsProxy(chatPageUrl, 15000);
       if (pageRes) {
         var html = await pageRes.text();
         var m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
         if (m) {
-          try { continuation = _ytFindContinuation(JSON.parse(m[1])); } catch(e) {}
+          try {
+            continuation = _ytFindContinuation(JSON.parse(m[1]));
+            if (continuation) console.log('[MoodRadar][YouTube] Got continuation token via chat page scraping');
+          } catch(e) {
+            console.warn('[MoodRadar][YouTube] Failed to parse ytInitialData from chat page');
+          }
+        } else {
+          console.warn('[MoodRadar][YouTube] No ytInitialData found in chat page HTML');
         }
+      } else {
+        console.warn('[MoodRadar][YouTube] Chat page fetch failed (all proxies)');
       }
-    } catch (e) { /* fall through */ }
+    } catch (e) {
+      console.warn('[MoodRadar][YouTube] Approach 2 error:', e.message);
+    }
   }
 
   if (continuation) {
     // Go live with innertube polling
+    console.log('[MoodRadar][YouTube] LIVE — starting innertube polling for video ' + videoId);
     conn.status = 'live';
     conn.reconnectAttempt = 0;
     saveChannelToHistory(conn.channelName);
@@ -2665,11 +2770,13 @@ async function connectYouTube(conn) {
         if (conn.loggingActive) conn.pollTimer = setTimeout(pollInnertube, Math.max(interval, 2000));
       }).catch(function(e) {
         ytCtx.attempt++;
+        console.warn('[MoodRadar][YouTube] Poll error (attempt ' + ytCtx.attempt + '/5):', e.message);
         if (ytCtx.attempt < 5 && conn.loggingActive) {
           conn.pollTimer = setTimeout(pollInnertube, 8000);
         } else {
           conn.status = 'error';
-          setSlotStatus(conn.id, 'Poll failed', 'error');
+          console.error('[MoodRadar][YouTube] Polling gave up after 5 attempts');
+          setSlotStatus(conn.id, 'Poll failed — check console for details', 'error');
           conn.loggingActive = false;
         }
       });
@@ -2679,6 +2786,7 @@ async function connectYouTube(conn) {
   }
 
   // === Approach 3: YouTube Data API v3 (requires API key in localStorage) ===
+  console.log('[MoodRadar][YouTube] Approaches 1 & 2 failed. Trying API key fallback...');
   var YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
   var apiKey = '';
   try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
@@ -2686,10 +2794,10 @@ async function connectYouTube(conn) {
     conn.loggingActive = false;
     conn.status = 'error';
     setSlotStatus(conn.id, 'CORS proxies failed. Set API key in console.', 'error');
-    console.log('[Mood Radar] YouTube: All CORS proxy methods failed.\n' +
+    console.log('%c[MoodRadar][YouTube] All CORS proxy methods failed.\n' +
       'To use YouTube, set a Data API v3 key:\n' +
       '  localStorage.setItem("moodradar_yt_apikey_v1", "YOUR_KEY")\n' +
-      'Get a free key at console.cloud.google.com (enable YouTube Data API v3).');
+      'Get a free key at console.cloud.google.com (enable YouTube Data API v3).', 'color: #ff4800; font-weight: bold');
     if (btn) btn.disabled = false;
     return;
   }
@@ -2772,6 +2880,7 @@ async function connectYouTube(conn) {
 // --- Rumble REST polling ---
 async function connectRumble(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
+  console.log('[MoodRadar][Rumble] Connecting for: ' + conn.channelName);
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
   var channelInput = conn.channelName;
 
@@ -2794,8 +2903,9 @@ async function connectRumble(conn) {
   for (var p = 0; p < pageUrls.length && !chatId; p++) {
     try {
       setSlotStatus(conn.id, 'Trying Rumble page ' + (p + 1) + '/' + pageUrls.length + '...', 'connecting');
+      console.log('[MoodRadar][Rumble] Trying page: ' + pageUrls[p]);
       var pageRes = await fetchViaCorsProxy(pageUrls[p], 12000);
-      if (!pageRes) continue;
+      if (!pageRes) { console.warn('[MoodRadar][Rumble] No response for ' + pageUrls[p]); continue; }
       var html = await pageRes.text();
       // Look for chat ID patterns in the page HTML
       var chatMatch = html.match(/"chat_id"\s*:\s*(\d+)/) ||
@@ -2806,12 +2916,18 @@ async function connectRumble(conn) {
                       html.match(/chat\/api\/chat\/(\d+)/);
       if (chatMatch) {
         chatId = chatMatch[1];
+        console.log('[MoodRadar][Rumble] Found chat ID: ' + chatId);
+      } else {
+        console.warn('[MoodRadar][Rumble] No chat ID found in page HTML (length: ' + html.length + ')');
       }
-    } catch (e) { /* try next URL */ }
+    } catch (e) {
+      console.warn('[MoodRadar][Rumble] Page fetch error:', e.message);
+    }
   }
 
   // --- Approach 2: If we found a chat ID, try direct polling via CORS proxy ---
   if (chatId) {
+    console.log('[MoodRadar][Rumble] Starting direct polling with chat ID: ' + chatId);
     conn.status = 'live';
     conn.reconnectAttempt = 0;
     saveChannelToHistory(conn.channelName);
@@ -2859,6 +2975,7 @@ async function connectRumble(conn) {
   }
 
   // --- Approach 3: Fall back to custom proxy URL ---
+  console.log('[MoodRadar][Rumble] Direct resolution failed. Trying custom proxy fallback.');
   var RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
   var proxyUrl = '';
   try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch(e) {}

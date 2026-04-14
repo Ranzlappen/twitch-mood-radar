@@ -15,19 +15,28 @@ import { sanitize, setStatus } from '../utils/dom.js';
 
 const YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
 const YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
-const YT_CLIENT_VERSION = '2.20250410.01.00';
+const YT_CLIENT_VERSION = '2.20260414.01.00';
 
 async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
   timeoutMs = timeoutMs || 10000;
   fetchOptions = fetchOptions || {};
   const isPost = fetchOptions.method && fetchOptions.method.toUpperCase() === 'POST';
+  const enc = encodeURIComponent(url);
   const attempts = isPost
-    ? [url, 'https://corsproxy.io/?' + encodeURIComponent(url)]
+    ? [
+        url,
+        'https://corsproxy.io/?' + enc,
+        'https://api.allorigins.win/raw?url=' + enc,
+        'https://cors-anywhere.herokuapp.com/' + url,
+        'https://crossorigin.me/' + url,
+      ]
     : [
         url,
-        'https://corsproxy.io/?' + encodeURIComponent(url),
-        'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-        'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+        'https://corsproxy.io/?' + enc,
+        'https://api.allorigins.win/raw?url=' + enc,
+        'https://api.codetabs.com/v1/proxy?quest=' + enc,
+        'https://cors-anywhere.herokuapp.com/' + url,
+        'https://crossorigin.me/' + url,
       ];
   for (const tryUrl of attempts) {
     try {
@@ -36,9 +45,15 @@ async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
       const opts = { ...fetchOptions, signal: controller.signal };
       const res = await fetch(tryUrl, opts);
       clearTimeout(timer);
-      if (res.ok) return res;
-    } catch (e) { /* continue */ }
+      if (res.ok) {
+        console.log('[MoodRadar][YouTube] CORS proxy succeeded: ' + tryUrl.split('?')[0]);
+        return res;
+      }
+    } catch (e) {
+      console.warn('[MoodRadar][YouTube] Proxy failed: ' + tryUrl.split('?')[0]);
+    }
   }
+  console.error('[MoodRadar][YouTube] All CORS proxies failed for: ' + url);
   return null;
 }
 
