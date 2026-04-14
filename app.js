@@ -2183,6 +2183,29 @@ function setSlotDisconnectedState(slotId, shouldReconnect) {
 }
 
 // =============================================================
+//  CORS Proxy Utility — tries multiple proxies for cross-origin
+// =============================================================
+async function fetchViaCorsProxy(url, timeoutMs) {
+  timeoutMs = timeoutMs || 10000;
+  var attempts = [
+    url,
+    'https://corsproxy.io/?' + encodeURIComponent(url),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+  ];
+  for (var i = 0; i < attempts.length; i++) {
+    try {
+      var controller = new AbortController();
+      var timer = setTimeout(function() { controller.abort(); }, timeoutMs);
+      var res = await fetch(attempts[i], { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) return res;
+    } catch (e) { /* continue to next proxy */ }
+  }
+  return null;
+}
+
+// =============================================================
 //  CONNECT / DISCONNECT — multi-platform, multi-slot
 // =============================================================
 function connectSlot(slotId, isReconnect) {
@@ -2280,43 +2303,46 @@ function connectTwitch(conn) {
 
 // --- Kick Pusher WebSocket ---
 async function connectKick(conn) {
-  const slug = conn.channelName;
+  var slug = conn.channelName;
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
-  let chatroomId;
-  try {
-    // Try direct API first, then CORS proxy fallback
-    let res;
-    try {
-      res = await fetch('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
-    } catch (corsErr) {
-      // Direct fetch blocked by CORS — try proxy fallback
-      res = null;
+  var btn = document.getElementById('slotConnectBtn_' + conn.id);
+  var chatroomId = null;
+
+  // Support direct numeric chatroom ID input (bypasses channel resolution)
+  if (/^\d+$/.test(slug)) {
+    chatroomId = parseInt(slug, 10);
+  } else {
+    // Resolve slug → chatroom ID via Kick API with CORS proxy fallbacks
+    var kickApis = [
+      'https://kick.com/api/v2/channels/' + encodeURIComponent(slug),
+      'https://kick.com/api/v1/channels/' + encodeURIComponent(slug),
+    ];
+    for (var a = 0; a < kickApis.length && !chatroomId; a++) {
+      try {
+        var res = await fetchViaCorsProxy(kickApis[a], 12000);
+        if (res) {
+          var data = await res.json();
+          chatroomId = (data.chatroom && data.chatroom.id) || data.chatroom_id || null;
+        }
+      } catch (e) { /* try next API version */ }
     }
-    if (!res || !res.ok) {
-      // Fallback: try CORS proxy
-      const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://kick.com/api/v2/channels/' + encodeURIComponent(slug));
-      res = await fetch(proxyUrl);
-    }
-    if (!res.ok) throw new Error('not found');
-    const data = await res.json();
-    chatroomId = data.chatroom && data.chatroom.id;
-    if (!chatroomId) throw new Error('no chatroom');
-  } catch (e) {
+  }
+
+  if (!chatroomId) {
     conn.loggingActive = false;
     conn.status = 'error';
-    setSlotStatus(conn.id, 'Not found', 'error');
-    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+    setSlotStatus(conn.id, 'Channel not found. Try numeric chatroom ID.', 'error');
     if (btn) btn.disabled = false;
     return;
   }
 
-  const pusherKey = 'eb1d5f283081a78b932c';
-  const wsUrl = 'wss://ws-us2.pusher.com/app/' + pusherKey + '?protocol=7&client=js&version=7.6.0&flash=false';
+  var pusherKey = 'eb1d5f283081a78b932c';
+  var wsUrl = 'wss://ws-us2.pusher.com/app/' + pusherKey + '?protocol=7&client=js&version=7.6.0&flash=false';
   conn.ws = new WebSocket(wsUrl);
 
-  conn.ws.onmessage = (event) => {
+  conn.ws.onmessage = function(event) {
     try {
-      const data = JSON.parse(event.data);
+      var data = JSON.parse(event.data);
       if (data.event === 'pusher:connection_established') {
         conn.ws.send(JSON.stringify({
           event: 'pusher:subscribe',
@@ -2328,16 +2354,15 @@ async function connectKick(conn) {
         conn.status = 'live';
         saveChannelToHistory(conn.channelName);
         setSlotStatus(conn.id, 'LIVE', 'live');
-        const btn = document.getElementById('slotConnectBtn_' + conn.id);
         if (btn) btn.disabled = false;
         if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
       }
       if (data.event === 'App\\Events\\ChatMessageEvent') {
-        const msgData = JSON.parse(data.data);
-        const user = (msgData.sender && (msgData.sender.username || msgData.sender.slug)) || 'unknown';
-        const msg = msgData.content || '';
+        var msgData = JSON.parse(data.data);
+        var user = (msgData.sender && (msgData.sender.username || msgData.sender.slug)) || 'unknown';
+        var msg = msgData.content || '';
         if (msg) {
-          const now = Date.now();
+          var now = Date.now();
           tsThroughput.push(now);
           enqueue(user, msg, now);
         }
@@ -2347,13 +2372,11 @@ async function connectKick(conn) {
       }
     } catch (e) { /* ignore parse errors */ }
   };
-  conn.ws.onerror = () => {
-    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+  conn.ws.onerror = function() {
     if (btn) btn.disabled = false;
     setSlotDisconnectedState(conn.id, true);
   };
-  conn.ws.onclose = () => {
-    const btn = document.getElementById('slotConnectBtn_' + conn.id);
+  conn.ws.onclose = function() {
     if (btn) btn.disabled = false;
     setSlotDisconnectedState(conn.id, conn.loggingActive);
   };
@@ -2467,46 +2490,155 @@ async function connectYouTube(conn) {
 // --- Rumble REST polling ---
 async function connectRumble(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
-  const btn = document.getElementById('slotConnectBtn_' + conn.id);
+  var btn = document.getElementById('slotConnectBtn_' + conn.id);
+  var channelInput = conn.channelName;
 
-  // Check for proxy URL in localStorage
-  const RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
-  let proxyUrl = '';
+  // --- Approach 1: Try to resolve chat ID from Rumble page via CORS proxy ---
+  var chatId = null;
+  var pageUrls = [
+    'https://rumble.com/' + encodeURIComponent(channelInput),
+    'https://rumble.com/c/' + encodeURIComponent(channelInput),
+    'https://rumble.com/user/' + encodeURIComponent(channelInput),
+  ];
+  // If input looks like a full URL, try it directly
+  if (channelInput.startsWith('http')) {
+    pageUrls.unshift(channelInput);
+  }
+  // If input looks like a video ID (e.g., v4u3abc), prepend rumble.com
+  if (/^v[a-z0-9]+$/i.test(channelInput)) {
+    pageUrls.unshift('https://rumble.com/' + channelInput);
+  }
+
+  for (var p = 0; p < pageUrls.length && !chatId; p++) {
+    try {
+      setSlotStatus(conn.id, 'Trying Rumble page ' + (p + 1) + '/' + pageUrls.length + '...', 'connecting');
+      var pageRes = await fetchViaCorsProxy(pageUrls[p], 12000);
+      if (!pageRes) continue;
+      var html = await pageRes.text();
+      // Look for chat ID patterns in the page HTML
+      var chatMatch = html.match(/"chat_id"\s*:\s*(\d+)/) ||
+                      html.match(/"chatId"\s*:\s*(\d+)/) ||
+                      html.match(/data-chat-id="(\d+)"/) ||
+                      html.match(/chatroom[_-]?id['"]\s*[:=]\s*['"]?(\d+)/i) ||
+                      html.match(/"channel_id"\s*:\s*(\d+)/) ||
+                      html.match(/chat\/api\/chat\/(\d+)/);
+      if (chatMatch) {
+        chatId = chatMatch[1];
+      }
+    } catch (e) { /* try next URL */ }
+  }
+
+  // --- Approach 2: If we found a chat ID, try direct polling via CORS proxy ---
+  if (chatId) {
+    conn.status = 'live';
+    conn.reconnectAttempt = 0;
+    saveChannelToHistory(conn.channelName);
+    setSlotStatus(conn.id, 'LIVE (direct)', 'live');
+    if (btn) btn.disabled = false;
+    if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
+
+    var directPollAttempt = 0;
+    var seenIds = new Set();
+    async function pollRumbleDirect() {
+      if (!conn.loggingActive) return;
+      try {
+        var chatUrl = 'https://rumble.com/chat/api/chat/' + chatId + '/messages';
+        var res = await fetchViaCorsProxy(chatUrl, 10000);
+        if (!res) throw new Error('proxy failed');
+        var data = await res.json();
+        var messages = data.messages || data.data || (Array.isArray(data) ? data : []);
+        var ts = Date.now();
+        for (var i = 0; i < messages.length; i++) {
+          var item = messages[i];
+          var msgId = item.id || (item.time + '_' + (item.username || ''));
+          if (seenIds.has(msgId)) continue;
+          seenIds.add(msgId);
+          // Limit seen set size
+          if (seenIds.size > 2000) { var iter = seenIds.values(); iter.next(); seenIds.delete(iter.next().value); }
+          var user = item.username || (item.user && item.user.username) || item.name || 'unknown';
+          var msg = item.text || item.message || item.content || '';
+          if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
+        }
+        directPollAttempt = 0;
+        if (conn.loggingActive) conn.pollTimer = setTimeout(pollRumbleDirect, 5000);
+      } catch (e) {
+        directPollAttempt++;
+        if (directPollAttempt < 5 && conn.loggingActive) {
+          conn.pollTimer = setTimeout(pollRumbleDirect, 8000);
+        } else {
+          conn.status = 'error';
+          setSlotStatus(conn.id, 'Direct poll failed. Try custom proxy.', 'error');
+          conn.loggingActive = false;
+        }
+      }
+    }
+    pollRumbleDirect();
+    return;
+  }
+
+  // --- Approach 3: Fall back to custom proxy URL ---
+  var RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
+  var proxyUrl = '';
   try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch(e) {}
   if (!proxyUrl) {
-    proxyUrl = (prompt('Rumble requires a Firebase proxy URL.\nEnter your proxy URL (saved to localStorage):') || '').trim();
+    // Prompt as last resort — explain what's needed
+    proxyUrl = (prompt(
+      'Could not resolve Rumble chat directly (CORS).\n\n' +
+      'Rumble requires a proxy server to bypass browser restrictions.\n' +
+      'Enter your proxy URL (e.g., https://your-proxy.web.app):\n\n' +
+      'The proxy must implement: GET /rumble/messages?streamId=...\n' +
+      'Your URL will be saved to localStorage for future use.'
+    ) || '').trim();
     if (!proxyUrl) {
       conn.loggingActive = false;
       conn.status = 'error';
-      setSlotStatus(conn.id, 'No proxy URL', 'error');
+      setSlotStatus(conn.id, 'No proxy URL configured', 'error');
       if (btn) btn.disabled = false;
       return;
     }
     try { localStorage.setItem(RUMBLE_PROXY_STORAGE, proxyUrl); } catch(e) {}
   }
 
+  // Validate proxy is reachable before going live
+  setSlotStatus(conn.id, 'Testing proxy...', 'connecting');
+  try {
+    var testRes = await fetch(proxyUrl + '/rumble/messages?streamId=' + encodeURIComponent(channelInput), {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined
+    });
+    if (!testRes.ok) throw new Error('HTTP ' + testRes.status);
+  } catch (e) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'Proxy unreachable (' + (e.message || 'error') + ')', 'error');
+    if (btn) btn.disabled = false;
+    // Clear stored proxy so user can try a different one next time
+    try { localStorage.removeItem(RUMBLE_PROXY_STORAGE); } catch(e2) {}
+    return;
+  }
+
   conn.status = 'live';
   conn.reconnectAttempt = 0;
   saveChannelToHistory(conn.channelName);
-  setSlotStatus(conn.id, 'LIVE', 'live');
+  setSlotStatus(conn.id, 'LIVE (proxy)', 'live');
   if (btn) btn.disabled = false;
   if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
 
-  // Start polling loop
-  let lastMessageId = null;
-  let rumblePollAttempt = 0;
+  // Start polling loop via custom proxy
+  var lastMessageId = null;
+  var rumblePollAttempt = 0;
   async function pollRumble() {
     if (!conn.loggingActive) return;
-    const params = 'streamId=' + encodeURIComponent(conn.channelName) + (lastMessageId ? '&after=' + lastMessageId : '');
+    var params = 'streamId=' + encodeURIComponent(conn.channelName) + (lastMessageId ? '&after=' + lastMessageId : '');
     try {
-      const res = await fetch(proxyUrl + '/rumble/messages?' + params);
+      var res = await fetch(proxyUrl + '/rumble/messages?' + params);
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const messages = data.messages || data.data || [];
-      const ts = Date.now();
-      for (const item of messages) {
-        const user = item.username || (item.user && item.user.username) || 'unknown';
-        const msg = item.text || item.message || '';
+      var data = await res.json();
+      var messages = data.messages || data.data || [];
+      var ts = Date.now();
+      for (var i = 0; i < messages.length; i++) {
+        var item = messages[i];
+        var user = item.username || (item.user && item.user.username) || 'unknown';
+        var msg = item.text || item.message || '';
         if (item.id) lastMessageId = item.id;
         if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
       }

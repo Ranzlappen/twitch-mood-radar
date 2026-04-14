@@ -4,11 +4,38 @@
  * Connects to Kick chat via Pusher WebSocket protocol.
  * No authentication required for reading public chat.
  * Kick uses Pusher channels: chatrooms.<channelId>.v2
+ *
+ * Channel resolution uses multiple CORS proxy fallbacks since
+ * Kick's API blocks cross-origin requests from browsers.
+ * Users can also enter a numeric chatroom ID directly to skip resolution.
  */
 import { PlatformAdapter } from './PlatformAdapter.js';
 import { state } from '../state.js';
 import { sanitize, setStatus } from '../utils/dom.js';
 import { RECONNECT_DELAY_MS } from '../config.js';
+
+/**
+ * Fetch a URL with multiple CORS proxy fallbacks.
+ */
+async function fetchViaCorsProxy(url, timeoutMs) {
+  timeoutMs = timeoutMs || 10000;
+  const attempts = [
+    url,
+    'https://corsproxy.io/?' + encodeURIComponent(url),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+  ];
+  for (const tryUrl of attempts) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch(tryUrl, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) return res;
+    } catch (e) { /* continue to next proxy */ }
+  }
+  return null;
+}
 
 export class KickAdapter extends PlatformAdapter {
   constructor() {
@@ -28,29 +55,39 @@ export class KickAdapter extends PlatformAdapter {
 
   /**
    * Resolve a Kick channel slug to its chatroom ID via the public API.
+   * Tries v2 and v1 APIs with multiple CORS proxy fallbacks.
    */
   async _resolveChannel(slug) {
-    try {
-      const res = await fetch(`https://kick.com/api/v2/channels/${encodeURIComponent(slug)}`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      return {
-        chatroomId: data.chatroom?.id,
-        channelId: data.id,
-        channelName: data.slug || slug,
-      };
-    } catch (e) {
-      return null;
+    // Support direct numeric chatroom ID
+    if (/^\d+$/.test(slug)) {
+      return { chatroomId: parseInt(slug, 10), channelId: null, channelName: slug };
     }
+
+    const apis = [
+      `https://kick.com/api/v2/channels/${encodeURIComponent(slug)}`,
+      `https://kick.com/api/v1/channels/${encodeURIComponent(slug)}`,
+    ];
+    for (const apiUrl of apis) {
+      try {
+        const res = await fetchViaCorsProxy(apiUrl, 12000);
+        if (!res) continue;
+        const data = await res.json();
+        const chatroomId = (data.chatroom && data.chatroom.id) || data.chatroom_id || null;
+        if (chatroomId) {
+          return { chatroomId, channelId: data.id, channelName: data.slug || slug };
+        }
+      } catch (e) { /* try next API version */ }
+    }
+    return null;
   }
 
   /**
-   * Connect to Kick chat for a given channel slug.
+   * Connect to Kick chat for a given channel slug or numeric chatroom ID.
    */
   async connect(isReconnect) {
     const input = document.getElementById('channelInput');
     const raw = sanitize((input ? input.value : '').trim().toLowerCase());
-    if (!raw) { setStatus('Enter a channel name first.', 'error'); return; }
+    if (!raw) { setStatus('Enter a channel name or chatroom ID.', 'error'); return; }
 
     // Close existing
     if (this._ws) { this._ws.close(); this._ws = null; }
@@ -71,7 +108,7 @@ export class KickAdapter extends PlatformAdapter {
     // Resolve channel slug to chatroom ID
     const info = await this._resolveChannel(raw);
     if (!info || !info.chatroomId) {
-      setStatus('Could not find Kick channel: ' + raw, 'error');
+      setStatus('Channel not found. Try a numeric chatroom ID.', 'error');
       if (btn) btn.disabled = false;
       this._loggingActive = false;
       return;
