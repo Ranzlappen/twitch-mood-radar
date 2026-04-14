@@ -10,9 +10,35 @@ const DEFAULT_OPTIONS = {
   pieLabels:true, pieAnimation:true, radarAnimation:true, radarGrid:true,
   timelineHeight:320, tlGrid:true, tlSmooth:true,
   approvalMini:true, approvalVerdict:true,
+  wakeLockEnabled:false,
   cardVisibility:{}
 };
 let drawerOptions = { ...DEFAULT_OPTIONS };
+
+// =============================================================
+//  WAKE LOCK — prevent screen from dimming/locking
+// =============================================================
+let wakeLockSentinel = null;
+
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  if (wakeLockSentinel) return;
+  try {
+    wakeLockSentinel = await navigator.wakeLock.request('screen');
+    wakeLockSentinel.addEventListener('release', () => {
+      wakeLockSentinel = null;
+    });
+  } catch (e) {
+    wakeLockSentinel = null;
+  }
+}
+
+async function releaseWakeLock() {
+  if (wakeLockSentinel) {
+    await wakeLockSentinel.release();
+    wakeLockSentinel = null;
+  }
+}
 
 function loadOptions() {
   try {
@@ -177,6 +203,12 @@ function setOptApprovalVerdict(c) {
   document.getElementById('approvalVerdict').style.display = c ? '' : 'none';
   saveOptions();
 }
+function setOptWakeLock(c) {
+  drawerOptions.wakeLockEnabled = c;
+  if (c) requestWakeLock();
+  else releaseWakeLock();
+  saveOptions();
+}
 function setOptCardVisibility(id, vis) {
   if (!drawerOptions.cardVisibility) drawerOptions.cardVisibility = {};
   drawerOptions.cardVisibility[id] = vis;
@@ -249,6 +281,8 @@ function applyAllOptions() {
   chk('optApprovalVerdict', o.approvalVerdict);
   const verdEl = document.getElementById('approvalVerdict');
   if (verdEl) verdEl.style.display = o.approvalVerdict ? '' : 'none';
+  // Wake lock
+  chk('optWakeLock', o.wakeLockEnabled);
   // Card visibility
   const visMap = {
     pieCard:'optShowPie', radarCard:'optShowRadar', bubbleCard:'optShowBubble',
@@ -3614,6 +3648,13 @@ window.onload = function() {
   // Load and apply Options Drawer settings
   loadOptions();
   applyAllOptions();
+
+  // Re-acquire wake lock when tab becomes visible again
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && drawerOptions.wakeLockEnabled) {
+      requestWakeLock();
+    }
+  });
 
   // Re-trigger chart resize after sizes restored, then release guard
   setTimeout(() => {

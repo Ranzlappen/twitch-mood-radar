@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '10' },
-    { url: '/index.html', revision: '10' },
+    { url: '/', revision: '11' },
+    { url: '/index.html', revision: '11' },
     { url: '/css/main.css', revision: '1' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '1' },
@@ -18,8 +18,8 @@ if (workbox) {
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '2' },
-    { url: '/js/config.js', revision: '1' },
+    { url: '/js/app.js', revision: '3' },
+    { url: '/js/config.js', revision: '2' },
     { url: '/js/state.js', revision: '1' },
     { url: '/js/processing.js', revision: '2' },
     // Utils
@@ -47,6 +47,7 @@ if (workbox) {
     { url: '/js/ui/settings.js', revision: '1' },
     { url: '/js/ui/layout.js', revision: '1' },
     { url: '/js/ui/help.js', revision: '1' },
+    { url: '/js/ui/wake-lock.js', revision: '1' },
     // Assets
     { url: '/manifest.json', revision: '1' },
     { url: '/icons/icon-192x192.png', revision: '1' },

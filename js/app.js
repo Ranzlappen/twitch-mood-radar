@@ -23,6 +23,7 @@ import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAl
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { saveSizes, restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, saveLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
+import { requestWakeLock, releaseWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc, setStatus, fmtNum } from './utils/dom.js';
 import { hexAlpha, lerpColor } from './utils/color.js';
 import { startProcessingLoop, flushChatterData } from './processing.js';
@@ -34,7 +35,8 @@ import {
   setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity, setOptBubbleHeight,
   setOptPieLabels, setOptPieAnimation, setOptRadarAnimation, setOptRadarGrid,
   setOptTimelineHeight, setOptTlGrid, setOptTlSmooth,
-  setOptApprovalMini, setOptApprovalVerdict, setOptCardVisibility
+  setOptApprovalMini, setOptApprovalVerdict, setOptCardVisibility,
+  setOptWakeLock
 } from './ui/options.js';
 
 // =============================================================
@@ -140,6 +142,7 @@ window.setOptTlSmooth = setOptTlSmooth;
 window.setOptApprovalMini = setOptApprovalMini;
 window.setOptApprovalVerdict = setOptApprovalVerdict;
 window.setOptCardVisibility = setOptCardVisibility;
+window.setOptWakeLock = setOptWakeLock;
 window.resetAllOptions = resetAllOptions;
 
 // Help
@@ -300,6 +303,13 @@ window.onload = function() {
   // Load and apply Options Drawer settings
   loadOptions();
   applyAllOptions();
+
+  // Re-acquire wake lock when tab becomes visible again
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.drawerOptions.wakeLockEnabled) {
+      requestWakeLock();
+    }
+  });
 
   // Re-trigger chart resize, then release guard
   setTimeout(() => {

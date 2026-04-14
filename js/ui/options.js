@@ -212,6 +212,16 @@ export function setOptApprovalVerdict(c) {
   saveOptions();
 }
 
+export function setOptWakeLock(c) {
+  state.drawerOptions.wakeLockEnabled = c;
+  if (c) {
+    import('./wake-lock.js').then(m => m.requestWakeLock());
+  } else {
+    import('./wake-lock.js').then(m => m.releaseWakeLock());
+  }
+  saveOptions();
+}
+
 export function setOptCardVisibility(id, vis) {
   if (!state.drawerOptions.cardVisibility) state.drawerOptions.cardVisibility = {};
   state.drawerOptions.cardVisibility[id] = vis;
@@ -290,6 +300,8 @@ export function applyAllOptions() {
   chk('optApprovalVerdict', o.approvalVerdict);
   const verdEl = document.getElementById('approvalVerdict');
   if (verdEl) verdEl.style.display = o.approvalVerdict ? '' : 'none';
+  // Wake lock
+  chk('optWakeLock', o.wakeLockEnabled);
   // Card visibility
   const visMap = {
     pieCard:'optShowPie', radarCard:'optShowRadar', bubbleCard:'optShowBubble',

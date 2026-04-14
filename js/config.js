@@ -41,6 +41,7 @@ export const DEFAULT_OPTIONS = {
   pieLabels:true, pieAnimation:true, radarAnimation:true, radarGrid:true,
   timelineHeight:320, tlGrid:true, tlSmooth:true,
   approvalMini:true, approvalVerdict:true,
+  wakeLockEnabled:false,
   cardVisibility:{}
 };
 
