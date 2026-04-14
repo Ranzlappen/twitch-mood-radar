@@ -2191,10 +2191,11 @@ async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
   var isPost = fetchOptions.method && fetchOptions.method.toUpperCase() === 'POST';
   var attempts;
   if (isPost) {
-    // Only corsproxy.io reliably forwards POST requests
     attempts = [
       url,
       'https://corsproxy.io/?' + encodeURIComponent(url),
+      'https://thingproxy.freeboard.io/fetch/' + url,
+      'https://cors.eu.org/' + url,
     ];
   } else {
     attempts = [
@@ -2202,6 +2203,8 @@ async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
       'https://corsproxy.io/?' + encodeURIComponent(url),
       'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
       'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+      'https://thingproxy.freeboard.io/fetch/' + url,
+      'https://cors.eu.org/' + url,
     ];
   }
   for (var i = 0; i < attempts.length; i++) {
@@ -2412,39 +2415,88 @@ function _ytParseVideoId(input) {
   return m ? m[1] : null;
 }
 
-// Call innertube 'resolve_url' to turn a channel URL into a browse endpoint
+// Resolve a channel name/@handle to a live video ID.
+// Strategy 1: innertube search API (JSON POST, no HTML scraping)
+// Strategy 2: scrape channel /live page via CORS proxy
 async function _ytResolveChannelToLive(input, statusCb) {
   var raw = input.trim();
 
-  // Build candidate channel URLs
+  // --- Strategy 1: Innertube search API ---
+  // Search for "{channel} live" with live stream filter (params "EgJAAQ==")
+  if (statusCb) statusCb('Searching for live stream...');
+  try {
+    var searchBody = JSON.stringify({
+      context: { client: { clientName: 'WEB', clientVersion: YT_CLIENT_VERSION } },
+      query: raw + ' live',
+      params: 'EgJAAQ=='
+    });
+    var searchRes = await fetchViaCorsProxy(
+      'https://www.youtube.com/youtubei/v1/search?key=' + YT_INNERTUBE_KEY,
+      15000,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: searchBody }
+    );
+    if (searchRes) {
+      var searchData = await searchRes.json();
+      try {
+        var sections = searchData.contents &&
+          searchData.contents.twoColumnSearchResultsRenderer &&
+          searchData.contents.twoColumnSearchResultsRenderer.primaryContents &&
+          searchData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer &&
+          searchData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents;
+        if (sections) {
+          // First pass: find a result with a LIVE badge
+          for (var s = 0; s < sections.length; s++) {
+            var items = sections[s].itemSectionRenderer && sections[s].itemSectionRenderer.contents;
+            if (!items) continue;
+            for (var i = 0; i < items.length; i++) {
+              var vr = items[i].videoRenderer;
+              if (!vr || !vr.videoId) continue;
+              var isLive = false;
+              if (vr.badges) {
+                for (var b = 0; b < vr.badges.length; b++) {
+                  var lbl = vr.badges[b].metadataBadgeRenderer && vr.badges[b].metadataBadgeRenderer.label;
+                  if (lbl && lbl.toUpperCase().indexOf('LIVE') !== -1) isLive = true;
+                }
+              }
+              if (vr.thumbnailOverlays) {
+                for (var o = 0; o < vr.thumbnailOverlays.length; o++) {
+                  var sty = vr.thumbnailOverlays[o].thumbnailOverlayTimeStatusRenderer &&
+                            vr.thumbnailOverlays[o].thumbnailOverlayTimeStatusRenderer.style;
+                  if (sty === 'LIVE') isLive = true;
+                }
+              }
+              if (isLive) return vr.videoId;
+            }
+          }
+          // Second pass: return first video result as best guess
+          for (var s2 = 0; s2 < sections.length; s2++) {
+            var items2 = sections[s2].itemSectionRenderer && sections[s2].itemSectionRenderer.contents;
+            if (!items2) continue;
+            for (var i2 = 0; i2 < items2.length; i2++) {
+              if (items2[i2].videoRenderer && items2[i2].videoRenderer.videoId) return items2[i2].videoRenderer.videoId;
+            }
+          }
+        }
+      } catch (e) { /* parse error, fall through */ }
+    }
+  } catch (e) { /* search failed, try page scraping */ }
+
+  // --- Strategy 2: Scrape channel /live page via CORS proxy ---
   var urls = [];
-  if (/^https?:\/\//.test(raw)) {
-    urls.push(raw);
-  }
+  if (/^https?:\/\//.test(raw)) urls.push(raw);
   var handle = raw.startsWith('@') ? raw : '@' + raw.replace(/\s+/g, '');
   urls.push('https://www.youtube.com/' + handle + '/live');
-  urls.push('https://www.youtube.com/' + handle + '/streams');
   var slug = raw.replace(/^@/, '').replace(/\s+/g, '');
   urls.push('https://www.youtube.com/c/' + slug + '/live');
 
-  // Try each URL via innertube 'navigation/resolve_url' to find the channel,
-  // then check their /live page for a video ID
   for (var u = 0; u < urls.length; u++) {
-    if (statusCb) statusCb('Resolving channel (' + (u + 1) + '/' + urls.length + ')...');
+    if (statusCb) statusCb('Trying channel page (' + (u + 1) + '/' + urls.length + ')...');
     try {
       var res = await fetchViaCorsProxy(urls[u], 12000);
       if (!res) continue;
       var html = await res.text();
-
-      // Look for video ID patterns in the page
-      var liveMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLive"\s*:\s*true/) ||
-                      html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLiveContent"\s*:\s*true/);
+      var liveMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLive"\s*:\s*true/);
       if (liveMatch) return liveMatch[1];
-
-      var canonMatch = html.match(/rel="canonical"\s+href="[^"]*[?&]v=([a-zA-Z0-9_-]{11})/);
-      if (canonMatch && (html.indexOf('"isLive":true') !== -1 || html.indexOf('LIVE_STREAM') !== -1)) return canonMatch[1];
-
-      // For /live pages, the first videoId is usually the live stream
       if (urls[u].indexOf('/live') !== -1) {
         var vidMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
         if (vidMatch) return vidMatch[1];
@@ -2626,26 +2678,20 @@ async function connectYouTube(conn) {
     return;
   }
 
-  // === Approach 3: YouTube Data API v3 (requires API key) ===
+  // === Approach 3: YouTube Data API v3 (requires API key in localStorage) ===
   var YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
   var apiKey = '';
   try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
   if (!apiKey) {
-    apiKey = (prompt(
-      'Could not connect via YouTube innertube (CORS).\n\n' +
-      'Fallback: Enter a YouTube Data API v3 key.\n' +
-      'Get one free at console.cloud.google.com\n' +
-      '(enable "YouTube Data API v3").\n\n' +
-      'Your key will be saved to localStorage.'
-    ) || '').trim();
-    if (!apiKey) {
-      conn.loggingActive = false;
-      conn.status = 'error';
-      setSlotStatus(conn.id, 'No API key', 'error');
-      if (btn) btn.disabled = false;
-      return;
-    }
-    try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch(e) {}
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'CORS proxies failed. Set API key in console.', 'error');
+    console.log('[Mood Radar] YouTube: All CORS proxy methods failed.\n' +
+      'To use YouTube, set a Data API v3 key:\n' +
+      '  localStorage.setItem("moodradar_yt_apikey_v1", "YOUR_KEY")\n' +
+      'Get a free key at console.cloud.google.com (enable YouTube Data API v3).');
+    if (btn) btn.disabled = false;
+    return;
   }
 
   setSlotStatus(conn.id, 'Resolving via API key...', 'connecting');
