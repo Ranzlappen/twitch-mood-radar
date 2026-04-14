@@ -2097,7 +2097,7 @@ let slotIdCounter = 0;
 
 const PLATFORM_PLACEHOLDERS = {
   twitch: 'channel name', kick: 'channel name',
-  youtube: 'video ID or URL', rumble: 'stream ID or channel'
+  youtube: 'channel name, @handle, or video URL', rumble: 'stream ID or channel'
 };
 const PLATFORM_PREFIXES = {
   twitch: '#', kick: '#', youtube: '\u25b6', rumble: '\u25b6'
@@ -2397,7 +2397,13 @@ async function connectKick(conn) {
 }
 
 // --- YouTube Live Chat ---
-// Helpers: parse video ID, extract innertube context from chat page
+// Uses innertube JSON APIs via CORS proxy — no API key required.
+// Channel names, @handles, and URLs are all resolved to video IDs.
+
+// Known YouTube innertube API key (public, embedded in YouTube's frontend)
+var YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+var YT_CLIENT_VERSION = '2.20250410.01.00';
+
 function _ytParseVideoId(input) {
   if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
   var m = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
@@ -2406,21 +2412,46 @@ function _ytParseVideoId(input) {
   return m ? m[1] : null;
 }
 
-function _ytParseInitialData(html) {
-  // Extract ytInitialData JSON from the live chat page
-  var m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
-  if (!m) return null;
-  try { return JSON.parse(m[1]); } catch (e) { return null; }
-}
+// Call innertube 'resolve_url' to turn a channel URL into a browse endpoint
+async function _ytResolveChannelToLive(input, statusCb) {
+  var raw = input.trim();
 
-function _ytExtractContinuation(data) {
-  try {
-    var conts = data.contents.liveChatRenderer.continuations;
-    if (!conts || !conts[0]) return null;
-    return conts[0].invalidationContinuationData && conts[0].invalidationContinuationData.continuation ||
-           conts[0].timedContinuationData && conts[0].timedContinuationData.continuation ||
-           conts[0].reloadContinuationData && conts[0].reloadContinuationData.continuation || null;
-  } catch (e) { return null; }
+  // Build candidate channel URLs
+  var urls = [];
+  if (/^https?:\/\//.test(raw)) {
+    urls.push(raw);
+  }
+  var handle = raw.startsWith('@') ? raw : '@' + raw.replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/' + handle + '/live');
+  urls.push('https://www.youtube.com/' + handle + '/streams');
+  var slug = raw.replace(/^@/, '').replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/c/' + slug + '/live');
+
+  // Try each URL via innertube 'navigation/resolve_url' to find the channel,
+  // then check their /live page for a video ID
+  for (var u = 0; u < urls.length; u++) {
+    if (statusCb) statusCb('Resolving channel (' + (u + 1) + '/' + urls.length + ')...');
+    try {
+      var res = await fetchViaCorsProxy(urls[u], 12000);
+      if (!res) continue;
+      var html = await res.text();
+
+      // Look for video ID patterns in the page
+      var liveMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLive"\s*:\s*true/) ||
+                      html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLiveContent"\s*:\s*true/);
+      if (liveMatch) return liveMatch[1];
+
+      var canonMatch = html.match(/rel="canonical"\s+href="[^"]*[?&]v=([a-zA-Z0-9_-]{11})/);
+      if (canonMatch && (html.indexOf('"isLive":true') !== -1 || html.indexOf('LIVE_STREAM') !== -1)) return canonMatch[1];
+
+      // For /live pages, the first videoId is usually the live stream
+      if (urls[u].indexOf('/live') !== -1) {
+        var vidMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
+        if (vidMatch) return vidMatch[1];
+      }
+    } catch (e) { /* try next */ }
+  }
+  return null;
 }
 
 function _ytExtractMessages(actions) {
@@ -2428,7 +2459,6 @@ function _ytExtractMessages(actions) {
   for (var i = 0; i < (actions || []).length; i++) {
     var action = actions[i];
     var item = (action.addChatItemAction && action.addChatItemAction.item) || null;
-    // Also handle replay wrapper
     if (!item && action.replayChatItemAction && action.replayChatItemAction.actions) {
       var inner = action.replayChatItemAction.actions[0];
       item = inner && inner.addChatItemAction && inner.addChatItemAction.item;
@@ -2446,56 +2476,92 @@ function _ytExtractMessages(actions) {
   return msgs;
 }
 
+// Extract a chat continuation token from a nested innertube response object
+function _ytFindContinuation(obj) {
+  if (!obj) return null;
+  // liveChatRenderer path (from 'next' or chat page responses)
+  try {
+    var conts = obj.contents && obj.contents.liveChatRenderer && obj.contents.liveChatRenderer.continuations;
+    if (conts && conts[0]) {
+      return (conts[0].invalidationContinuationData && conts[0].invalidationContinuationData.continuation) ||
+             (conts[0].timedContinuationData && conts[0].timedContinuationData.continuation) ||
+             (conts[0].reloadContinuationData && conts[0].reloadContinuationData.continuation) || null;
+    }
+  } catch(e) {}
+  // conversationBar path (from 'next' endpoint for video pages)
+  try {
+    var bar = obj.contents && obj.contents.twoColumnWatchNextResults && obj.contents.twoColumnWatchNextResults.conversationBar;
+    var chatRenderer = bar && bar.liveChatRenderer;
+    if (chatRenderer && chatRenderer.continuations && chatRenderer.continuations[0]) {
+      return (chatRenderer.continuations[0].reloadContinuationData && chatRenderer.continuations[0].reloadContinuationData.continuation) ||
+             (chatRenderer.continuations[0].invalidationContinuationData && chatRenderer.continuations[0].invalidationContinuationData.continuation) ||
+             (chatRenderer.continuations[0].timedContinuationData && chatRenderer.continuations[0].timedContinuationData.continuation) || null;
+    }
+  } catch(e) {}
+  return null;
+}
+
 async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
 
+  // Try to parse as a direct video ID or video URL first
   var videoId = _ytParseVideoId(conn.channelName);
+
+  // If not a video ID, treat as channel name/@handle and resolve to live stream
   if (!videoId) {
-    conn.loggingActive = false;
-    conn.status = 'error';
-    setSlotStatus(conn.id, 'Invalid video ID or URL', 'error');
-    if (btn) btn.disabled = false;
-    return;
+    setSlotStatus(conn.id, 'Looking for live stream...', 'connecting');
+    videoId = await _ytResolveChannelToLive(conn.channelName, function(msg) {
+      setSlotStatus(conn.id, msg, 'connecting');
+    });
+    if (!videoId) {
+      conn.loggingActive = false;
+      conn.status = 'error';
+      setSlotStatus(conn.id, 'No live stream found for this channel', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
   }
 
-  // === Approach 1: Innertube via CORS proxy (no API key needed) ===
-  var innertubeKey = null;
-  var clientVersion = null;
+  // === Approach 1: Innertube 'next' API — get chat continuation token ===
+  // This calls YouTube's JSON API directly (no HTML scraping) so it works
+  // reliably through CORS proxies without hitting consent/bot pages.
   var continuation = null;
 
   try {
-    setSlotStatus(conn.id, 'Fetching live chat page...', 'connecting');
-    var chatPageUrl = 'https://www.youtube.com/live_chat?is_popout=1&v=' + videoId;
-    var pageRes = await fetchViaCorsProxy(chatPageUrl, 15000);
-    if (pageRes) {
-      var html = await pageRes.text();
-      // Extract innertube API key and client version
-      var keyMatch = html.match(/"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"/);
-      var verMatch = html.match(/"clientVersion"\s*:\s*"([^"]+)"/);
-      if (keyMatch) innertubeKey = keyMatch[1];
-      if (verMatch) clientVersion = verMatch[1];
+    setSlotStatus(conn.id, 'Connecting to chat...', 'connecting');
+    var nextBody = JSON.stringify({
+      context: { client: { clientName: 'WEB', clientVersion: YT_CLIENT_VERSION } },
+      videoId: videoId
+    });
+    var nextRes = await fetchViaCorsProxy(
+      'https://www.youtube.com/youtubei/v1/next?key=' + YT_INNERTUBE_KEY,
+      15000,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: nextBody }
+    );
+    if (nextRes) {
+      var nextData = await nextRes.json();
+      continuation = _ytFindContinuation(nextData);
+    }
+  } catch (e) { /* fall through */ }
 
-      // Parse ytInitialData for continuation token and initial messages
-      var initialData = _ytParseInitialData(html);
-      if (initialData) {
-        continuation = _ytExtractContinuation(initialData);
-        // Process initial messages
-        var initActions = null;
-        try { initActions = initialData.contents.liveChatRenderer.actions; } catch(e) {}
-        var initMsgs = _ytExtractMessages(initActions);
-        if (initMsgs.length > 0) {
-          var ts = Date.now();
-          for (var im = 0; im < initMsgs.length; im++) {
-            tsThroughput.push(ts);
-            enqueue(initMsgs[im].user, initMsgs[im].msg, ts);
-          }
+  // === Approach 2: Scrape live_chat page as fallback ===
+  if (!continuation) {
+    try {
+      setSlotStatus(conn.id, 'Trying chat page...', 'connecting');
+      var chatPageUrl = 'https://www.youtube.com/live_chat?is_popout=1&v=' + videoId;
+      var pageRes = await fetchViaCorsProxy(chatPageUrl, 15000);
+      if (pageRes) {
+        var html = await pageRes.text();
+        var m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
+        if (m) {
+          try { continuation = _ytFindContinuation(JSON.parse(m[1])); } catch(e) {}
         }
       }
-    }
-  } catch (e) { /* fall through to API key approach */ }
+    } catch (e) { /* fall through */ }
+  }
 
-  if (innertubeKey && continuation) {
+  if (continuation) {
     // Go live with innertube polling
     conn.status = 'live';
     conn.reconnectAttempt = 0;
@@ -2504,26 +2570,24 @@ async function connectYouTube(conn) {
     if (btn) btn.disabled = false;
     if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
 
-    var ytCtx = { key: innertubeKey, version: clientVersion || '2.20240101.00.00', cont: continuation, attempt: 0 };
+    var ytCtx = { cont: continuation, attempt: 0 };
     function pollInnertube() {
       if (!conn.loggingActive) return;
       var body = JSON.stringify({
-        context: { client: { clientName: 'WEB', clientVersion: ytCtx.version } },
+        context: { client: { clientName: 'WEB', clientVersion: YT_CLIENT_VERSION } },
         continuation: ytCtx.cont
       });
-      var apiUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat?key=' + ytCtx.key;
-      fetchViaCorsProxy(apiUrl, 12000, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: body
-      }).then(function(res) {
+      fetchViaCorsProxy(
+        'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat?key=' + YT_INNERTUBE_KEY,
+        12000,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }
+      ).then(function(res) {
         if (!res) throw new Error('all proxies failed');
         return res.json();
       }).then(function(data) {
         var liveChatCont = data.continuationContents && data.continuationContents.liveChatContinuation;
         if (!liveChatCont) throw new Error('no chat data');
 
-        // Process messages
         var actions = liveChatCont.actions || [];
         var msgs = _ytExtractMessages(actions);
         var ts = Date.now();
@@ -2532,7 +2596,6 @@ async function connectYouTube(conn) {
           enqueue(msgs[m].user, msgs[m].msg, ts);
         }
 
-        // Update continuation token
         var conts = liveChatCont.continuations;
         if (conts && conts[0]) {
           ytCtx.cont = (conts[0].invalidationContinuationData && conts[0].invalidationContinuationData.continuation) ||
@@ -2541,7 +2604,6 @@ async function connectYouTube(conn) {
                        ytCtx.cont;
         }
 
-        // Determine poll interval
         var interval = 5000;
         if (conts && conts[0] && conts[0].timedContinuationData && conts[0].timedContinuationData.timeoutMs) {
           interval = parseInt(conts[0].timedContinuationData.timeoutMs) || 5000;
@@ -2564,7 +2626,7 @@ async function connectYouTube(conn) {
     return;
   }
 
-  // === Approach 2: YouTube Data API v3 (requires API key) ===
+  // === Approach 3: YouTube Data API v3 (requires API key) ===
   var YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
   var apiKey = '';
   try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
@@ -2586,7 +2648,6 @@ async function connectYouTube(conn) {
     try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch(e) {}
   }
 
-  // Resolve liveChatId via Data API
   setSlotStatus(conn.id, 'Resolving via API key...', 'connecting');
   var liveChatId;
   try {
@@ -2600,7 +2661,6 @@ async function connectYouTube(conn) {
     conn.status = 'error';
     setSlotStatus(conn.id, 'Resolve failed', 'error');
     if (btn) btn.disabled = false;
-    // Clear stored key if it failed (might be invalid)
     try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch(e2) {}
     return;
   }
