@@ -2185,19 +2185,33 @@ function setSlotDisconnectedState(slotId, shouldReconnect) {
 // =============================================================
 //  CORS Proxy Utility — tries multiple proxies for cross-origin
 // =============================================================
-async function fetchViaCorsProxy(url, timeoutMs) {
+async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
   timeoutMs = timeoutMs || 10000;
-  var attempts = [
-    url,
-    'https://corsproxy.io/?' + encodeURIComponent(url),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
-  ];
+  fetchOptions = fetchOptions || {};
+  var isPost = fetchOptions.method && fetchOptions.method.toUpperCase() === 'POST';
+  var attempts;
+  if (isPost) {
+    // Only corsproxy.io reliably forwards POST requests
+    attempts = [
+      url,
+      'https://corsproxy.io/?' + encodeURIComponent(url),
+    ];
+  } else {
+    attempts = [
+      url,
+      'https://corsproxy.io/?' + encodeURIComponent(url),
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    ];
+  }
   for (var i = 0; i < attempts.length; i++) {
     try {
       var controller = new AbortController();
       var timer = setTimeout(function() { controller.abort(); }, timeoutMs);
-      var res = await fetch(attempts[i], { signal: controller.signal });
+      var opts = {};
+      for (var k in fetchOptions) { if (fetchOptions.hasOwnProperty(k)) opts[k] = fetchOptions[k]; }
+      opts.signal = controller.signal;
+      var res = await fetch(attempts[i], opts);
       clearTimeout(timer);
       if (res.ok) return res;
     } catch (e) { /* continue to next proxy */ }
@@ -2382,27 +2396,186 @@ async function connectKick(conn) {
   };
 }
 
-// --- YouTube Data API polling ---
+// --- YouTube Live Chat ---
+// Helpers: parse video ID, extract innertube context from chat page
+function _ytParseVideoId(input) {
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+  var m = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
+          input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/) ||
+          input.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function _ytParseInitialData(html) {
+  // Extract ytInitialData JSON from the live chat page
+  var m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
+  if (!m) return null;
+  try { return JSON.parse(m[1]); } catch (e) { return null; }
+}
+
+function _ytExtractContinuation(data) {
+  try {
+    var conts = data.contents.liveChatRenderer.continuations;
+    if (!conts || !conts[0]) return null;
+    return conts[0].invalidationContinuationData && conts[0].invalidationContinuationData.continuation ||
+           conts[0].timedContinuationData && conts[0].timedContinuationData.continuation ||
+           conts[0].reloadContinuationData && conts[0].reloadContinuationData.continuation || null;
+  } catch (e) { return null; }
+}
+
+function _ytExtractMessages(actions) {
+  var msgs = [];
+  for (var i = 0; i < (actions || []).length; i++) {
+    var action = actions[i];
+    var item = (action.addChatItemAction && action.addChatItemAction.item) || null;
+    // Also handle replay wrapper
+    if (!item && action.replayChatItemAction && action.replayChatItemAction.actions) {
+      var inner = action.replayChatItemAction.actions[0];
+      item = inner && inner.addChatItemAction && inner.addChatItemAction.item;
+    }
+    var renderer = item && (item.liveChatTextMessageRenderer || item.liveChatPaidMessageRenderer);
+    if (!renderer) continue;
+    var user = (renderer.authorName && renderer.authorName.simpleText) || 'unknown';
+    var runs = (renderer.message && renderer.message.runs) || [];
+    var msg = '';
+    for (var r = 0; r < runs.length; r++) {
+      msg += runs[r].text || (runs[r].emoji && runs[r].emoji.emojiId) || '';
+    }
+    if (msg) msgs.push({ user: user, msg: msg });
+  }
+  return msgs;
+}
+
 async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
-  const btn = document.getElementById('slotConnectBtn_' + conn.id);
+  var btn = document.getElementById('slotConnectBtn_' + conn.id);
 
-  // Parse video ID from URL or raw input
-  let videoId = conn.channelName;
-  if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) { /* already a bare ID */ }
-  else {
-    const m = videoId.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
-              videoId.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/) ||
-              videoId.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
-    if (m) videoId = m[1];
+  var videoId = _ytParseVideoId(conn.channelName);
+  if (!videoId) {
+    conn.loggingActive = false;
+    conn.status = 'error';
+    setSlotStatus(conn.id, 'Invalid video ID or URL', 'error');
+    if (btn) btn.disabled = false;
+    return;
   }
 
-  // Check for API key in localStorage
-  const YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
-  let apiKey = '';
+  // === Approach 1: Innertube via CORS proxy (no API key needed) ===
+  var innertubeKey = null;
+  var clientVersion = null;
+  var continuation = null;
+
+  try {
+    setSlotStatus(conn.id, 'Fetching live chat page...', 'connecting');
+    var chatPageUrl = 'https://www.youtube.com/live_chat?is_popout=1&v=' + videoId;
+    var pageRes = await fetchViaCorsProxy(chatPageUrl, 15000);
+    if (pageRes) {
+      var html = await pageRes.text();
+      // Extract innertube API key and client version
+      var keyMatch = html.match(/"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"/);
+      var verMatch = html.match(/"clientVersion"\s*:\s*"([^"]+)"/);
+      if (keyMatch) innertubeKey = keyMatch[1];
+      if (verMatch) clientVersion = verMatch[1];
+
+      // Parse ytInitialData for continuation token and initial messages
+      var initialData = _ytParseInitialData(html);
+      if (initialData) {
+        continuation = _ytExtractContinuation(initialData);
+        // Process initial messages
+        var initActions = null;
+        try { initActions = initialData.contents.liveChatRenderer.actions; } catch(e) {}
+        var initMsgs = _ytExtractMessages(initActions);
+        if (initMsgs.length > 0) {
+          var ts = Date.now();
+          for (var im = 0; im < initMsgs.length; im++) {
+            tsThroughput.push(ts);
+            enqueue(initMsgs[im].user, initMsgs[im].msg, ts);
+          }
+        }
+      }
+    }
+  } catch (e) { /* fall through to API key approach */ }
+
+  if (innertubeKey && continuation) {
+    // Go live with innertube polling
+    conn.status = 'live';
+    conn.reconnectAttempt = 0;
+    saveChannelToHistory(conn.channelName);
+    setSlotStatus(conn.id, 'LIVE', 'live');
+    if (btn) btn.disabled = false;
+    if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
+
+    var ytCtx = { key: innertubeKey, version: clientVersion || '2.20240101.00.00', cont: continuation, attempt: 0 };
+    function pollInnertube() {
+      if (!conn.loggingActive) return;
+      var body = JSON.stringify({
+        context: { client: { clientName: 'WEB', clientVersion: ytCtx.version } },
+        continuation: ytCtx.cont
+      });
+      var apiUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat?key=' + ytCtx.key;
+      fetchViaCorsProxy(apiUrl, 12000, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body
+      }).then(function(res) {
+        if (!res) throw new Error('all proxies failed');
+        return res.json();
+      }).then(function(data) {
+        var liveChatCont = data.continuationContents && data.continuationContents.liveChatContinuation;
+        if (!liveChatCont) throw new Error('no chat data');
+
+        // Process messages
+        var actions = liveChatCont.actions || [];
+        var msgs = _ytExtractMessages(actions);
+        var ts = Date.now();
+        for (var m = 0; m < msgs.length; m++) {
+          tsThroughput.push(ts);
+          enqueue(msgs[m].user, msgs[m].msg, ts);
+        }
+
+        // Update continuation token
+        var conts = liveChatCont.continuations;
+        if (conts && conts[0]) {
+          ytCtx.cont = (conts[0].invalidationContinuationData && conts[0].invalidationContinuationData.continuation) ||
+                       (conts[0].timedContinuationData && conts[0].timedContinuationData.continuation) ||
+                       (conts[0].reloadContinuationData && conts[0].reloadContinuationData.continuation) ||
+                       ytCtx.cont;
+        }
+
+        // Determine poll interval
+        var interval = 5000;
+        if (conts && conts[0] && conts[0].timedContinuationData && conts[0].timedContinuationData.timeoutMs) {
+          interval = parseInt(conts[0].timedContinuationData.timeoutMs) || 5000;
+        }
+
+        ytCtx.attempt = 0;
+        if (conn.loggingActive) conn.pollTimer = setTimeout(pollInnertube, Math.max(interval, 2000));
+      }).catch(function(e) {
+        ytCtx.attempt++;
+        if (ytCtx.attempt < 5 && conn.loggingActive) {
+          conn.pollTimer = setTimeout(pollInnertube, 8000);
+        } else {
+          conn.status = 'error';
+          setSlotStatus(conn.id, 'Poll failed', 'error');
+          conn.loggingActive = false;
+        }
+      });
+    }
+    pollInnertube();
+    return;
+  }
+
+  // === Approach 2: YouTube Data API v3 (requires API key) ===
+  var YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
+  var apiKey = '';
   try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
   if (!apiKey) {
-    apiKey = (prompt('YouTube requires a Data API v3 key.\nEnter your API key (saved to localStorage):') || '').trim();
+    apiKey = (prompt(
+      'Could not connect via YouTube innertube (CORS).\n\n' +
+      'Fallback: Enter a YouTube Data API v3 key.\n' +
+      'Get one free at console.cloud.google.com\n' +
+      '(enable "YouTube Data API v3").\n\n' +
+      'Your key will be saved to localStorage.'
+    ) || '').trim();
     if (!apiKey) {
       conn.loggingActive = false;
       conn.status = 'error';
@@ -2413,26 +2586,29 @@ async function connectYouTube(conn) {
     try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch(e) {}
   }
 
-  // Resolve liveChatId
-  let liveChatId;
+  // Resolve liveChatId via Data API
+  setSlotStatus(conn.id, 'Resolving via API key...', 'connecting');
+  var liveChatId;
   try {
-    const res = await fetch('https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey);
+    var res = await fetch('https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const items = data.items || [];
+    var data = await res.json();
+    var items = data.items || [];
     liveChatId = items[0] && items[0].liveStreamingDetails && items[0].liveStreamingDetails.activeLiveChatId;
   } catch (e) {
     conn.loggingActive = false;
     conn.status = 'error';
     setSlotStatus(conn.id, 'Resolve failed', 'error');
     if (btn) btn.disabled = false;
+    // Clear stored key if it failed (might be invalid)
+    try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch(e2) {}
     return;
   }
 
   if (!liveChatId) {
     conn.loggingActive = false;
     conn.status = 'error';
-    setSlotStatus(conn.id, 'No live chat', 'error');
+    setSlotStatus(conn.id, 'No live chat found', 'error');
     if (btn) btn.disabled = false;
     return;
   }
@@ -2444,15 +2620,14 @@ async function connectYouTube(conn) {
   if (btn) btn.disabled = false;
   if (!rafHandle) { lastTimelineTs = Date.now(); rafHandle = requestAnimationFrame(processingLoop); }
 
-  // Start polling loop
-  let nextPageToken = null;
-  let ytPollAttempt = 0;
+  var nextPageToken = null;
+  var ytPollAttempt = 0;
   async function pollYouTube() {
     if (!conn.loggingActive) return;
-    const params = 'liveChatId=' + liveChatId + '&part=snippet,authorDetails&maxResults=200&key=' + apiKey +
+    var params = 'liveChatId=' + liveChatId + '&part=snippet,authorDetails&maxResults=200&key=' + apiKey +
       (nextPageToken ? '&pageToken=' + nextPageToken : '');
     try {
-      const res = await fetch('https://www.googleapis.com/youtube/v3/liveChat/messages?' + params);
+      var res = await fetch('https://www.googleapis.com/youtube/v3/liveChat/messages?' + params);
       if (!res.ok) {
         if (res.status === 403) {
           conn.status = 'error';
@@ -2462,13 +2637,14 @@ async function connectYouTube(conn) {
         }
         throw new Error('HTTP ' + res.status);
       }
-      const data = await res.json();
+      var data = await res.json();
       nextPageToken = data.nextPageToken || null;
-      const interval = data.pollingIntervalMillis || 3000;
-      const ts = Date.now();
-      for (const item of (data.items || [])) {
-        const user = (item.authorDetails && item.authorDetails.displayName) || 'unknown';
-        const msg = (item.snippet && item.snippet.displayMessage) || '';
+      var interval = data.pollingIntervalMillis || 3000;
+      var ts = Date.now();
+      for (var i = 0; i < (data.items || []).length; i++) {
+        var item = data.items[i];
+        var user = (item.authorDetails && item.authorDetails.displayName) || 'unknown';
+        var msg = (item.snippet && item.snippet.displayMessage) || '';
         if (msg) { tsThroughput.push(ts); enqueue(user, msg, ts); }
       }
       ytPollAttempt = 0;

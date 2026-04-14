@@ -35,7 +35,7 @@ if (workbox) {
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '1' },
     { url: '/js/platform/KickAdapter.js', revision: '2' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '1' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '2' },
     { url: '/js/platform/RumbleAdapter.js', revision: '2' },
     { url: '/js/platform/emotes.js', revision: '1' },
     // UI
