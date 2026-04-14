@@ -140,6 +140,10 @@ DATE: 2026-04-02
     </label>
     <button class="btn btn-disconnect-all" id="disconnectAllBtn" onclick="disconnectAll()">Disconnect All</button>
     <button class="btn btn-flush-data" id="flushDataBtn" onclick="flushChatterData()">Flush Data</button>
+    <label class="bot-toggle-wrap" title="Keep screen awake while monitoring">
+      <input type="checkbox" id="optWakeLock" onchange="setOptWakeLock(this.checked)"/>
+      <span class="bot-toggle-label">Screen on</span>
+    </label>
   </div>
 </div>
 
@@ -527,16 +531,6 @@ DATE: 2026-04-02
         <label class="opt-toggle">
           <input type="checkbox" id="optApprovalVerdict" checked onchange="setOptApprovalVerdict(this.checked)">
           <span class="opt-label">Show verdict text</span>
-        </label>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Display</summary>
-      <div class="opt-content">
-        <label class="opt-toggle">
-          <input type="checkbox" id="optWakeLock" onchange="setOptWakeLock(this.checked)">
-          <span class="opt-label">Keep screen awake</span>
         </label>
       </div>
     </details>
