@@ -139,7 +139,7 @@ export class TwitchAdapter extends PlatformAdapter {
         const user = line.slice(userStart, bangIdx);
 
         if (this._onMessageCallback) {
-          this._onMessageCallback({ user, msg: msgText, ts: now });
+          this._onMessageCallback({ user, msg: msgText, ts: now, platform: 'twitch' });
         }
       }
     };

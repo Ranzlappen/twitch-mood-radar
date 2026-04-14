@@ -204,7 +204,7 @@ export class KickAdapter extends PlatformAdapter {
           const ts = Date.now();
 
           if (this._onMessageCallback && msg) {
-            this._onMessageCallback({ user, msg, ts });
+            this._onMessageCallback({ user, msg, ts, platform: 'kick' });
           }
         }
 

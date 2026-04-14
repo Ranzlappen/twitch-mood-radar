@@ -191,7 +191,7 @@ export class YouTubeAdapter extends PlatformAdapter {
       const msgs = _extractMessages(liveChatCont.actions || []);
       const ts = Date.now();
       for (const m of msgs) {
-        if (this._onMessageCallback) this._onMessageCallback({ user: m.user, msg: m.msg, ts });
+        if (this._onMessageCallback) this._onMessageCallback({ user: m.user, msg: m.msg, ts, platform: 'youtube' });
       }
 
       const conts = liveChatCont.continuations;
@@ -314,7 +314,7 @@ export class YouTubeAdapter extends PlatformAdapter {
           for (const item of (d.items || [])) {
             const user = item.authorDetails?.displayName || 'unknown';
             const msg = item.snippet?.displayMessage || '';
-            if (self._onMessageCallback && msg) self._onMessageCallback({ user, msg, ts });
+            if (self._onMessageCallback && msg) self._onMessageCallback({ user, msg, ts, platform: 'youtube' });
           }
           if (self._polling) self._pollTimer = setTimeout(pollApiKey, Math.max(interval, 2000));
         } catch (e) {

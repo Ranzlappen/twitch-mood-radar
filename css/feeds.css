@@ -12,7 +12,12 @@
   margin-bottom:var(--gap);
 }
 .feed-title { font-family:'Orbitron',sans-serif; font-size:.58em; letter-spacing:.2em; color:var(--muted); margin-bottom:7px; display:flex; align-items:center; gap:4px }
-.feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:auto 1fr 62px 80px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }
+.feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:8px auto 1fr 62px 80px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }
+.feed-plat { width:8px; height:8px; border-radius:50%; flex-shrink:0; align-self:center }
+.feed-plat-twitch  { background:#9146ff }
+.feed-plat-youtube { background:#ff0000 }
+.feed-plat-kick    { background:#53fc18 }
+.feed-plat-rumble  { background:#85c742 }
 @keyframes fadeIn { from { opacity:0; transform:translateY(3px) } }
 .feed-user { color:var(--accent); min-width:66px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .feed-msg { color:#6a6a8e; word-break:break-word; white-space:normal }
