@@ -8,10 +8,10 @@ DATE: 2026-04-02
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>MOOD RADAR - Twitch Chat Pulse</title>
+<title>MOOD RADAR - Live Chat Pulse</title>
 <!-- PWA meta tags -->
 <meta name="theme-color" content="#06060f"/>
-<meta name="description" content="Real-time Twitch chat mood analyzer with live visualizations"/>
+<meta name="description" content="Real-time multi-platform chat mood analyzer with live visualizations"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Mood Radar"/>
@@ -21,8 +21,73 @@ DATE: 2026-04-02
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="/css/main.css">
+<style id="authGateStyles">
+  .auth-gate{position:fixed;inset:0;z-index:99999;background:#06060f;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace}
+  .auth-gate-box{text-align:center;padding:40px;border:1px solid #1a1a36;border-radius:14px;background:#0d0d1f;box-shadow:0 0 40px rgba(0,255,229,.06);max-width:360px;width:90%}
+  .auth-gate-title{font-size:1.6em;font-weight:900;letter-spacing:.12em;color:#00ffe5;margin-bottom:8px}
+  .auth-gate-sub{font-size:.7em;color:#4a4a7a;margin-bottom:28px;letter-spacing:.06em}
+  .auth-gate input{width:100%;padding:12px 14px;background:#06060f;border:1px solid #1a1a36;border-radius:8px;color:#d8d8f8;font-family:'Share Tech Mono',monospace;font-size:1em;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.1em}
+  .auth-gate input:focus{border-color:#00ffe5;box-shadow:0 0 12px rgba(0,255,229,.15)}
+  .auth-gate button{width:100%;padding:10px;background:linear-gradient(135deg,#00ffe5 0%,#00b8a3 100%);border:none;border-radius:8px;color:#06060f;font-family:'Orbitron',monospace;font-weight:700;font-size:.85em;letter-spacing:.1em;cursor:pointer;transition:opacity .2s}
+  .auth-gate button:hover{opacity:.85}
+  .auth-gate-error{color:#ff4800;font-size:.75em;margin-top:10px;min-height:1.2em;font-family:'Share Tech Mono',monospace}
+  .app-locked-body .app,.app-locked-body .options-drawer,.app-locked-body .options-drawer-overlay,.app-locked-body .sr-only-focusable,.app-locked-body #bubbleTip{display:none!important}
+</style>
 </head>
 <body>
+<!-- Auth gate — blocks app until correct password is entered -->
+<div class="auth-gate" id="authGate" style="display:none">
+  <div class="auth-gate-box">
+    <div class="auth-gate-title">MOOD RADAR</div>
+    <div class="auth-gate-sub">ACCESS RESTRICTED</div>
+    <form id="authForm" onsubmit="return attemptAuth(event)">
+      <input type="password" id="authPassword" placeholder="enter password" autocomplete="off" autofocus/>
+      <button type="submit">AUTHENTICATE</button>
+    </form>
+    <div class="auth-gate-error" id="authError"></div>
+  </div>
+</div>
+<script>
+// --- Password Gate ---
+// To set your password, replace the hash below with the SHA-256 hex of your password.
+// Generate it with:  echo -n "yourpassword" | sha256sum
+// Or in browser console:  crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('')))
+const PASS_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // default: "password"
+const AUTH_KEY = 'moodradar_auth_v1';
+
+(function checkAuth() {
+  if (localStorage.getItem(AUTH_KEY) === PASS_HASH) return unlockApp();
+  document.getElementById('authGate').style.display = 'flex';
+  document.body.classList.add('app-locked-body');
+})();
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function attemptAuth(e) {
+  e.preventDefault();
+  const input = document.getElementById('authPassword').value;
+  if (!input) return false;
+  const hash = await sha256(input);
+  if (hash === PASS_HASH) {
+    localStorage.setItem(AUTH_KEY, PASS_HASH);
+    unlockApp();
+  } else {
+    document.getElementById('authError').textContent = 'Incorrect password';
+    document.getElementById('authPassword').value = '';
+    document.getElementById('authPassword').focus();
+  }
+  return false;
+}
+
+function unlockApp() {
+  document.getElementById('authGate').style.display = 'none';
+  document.body.classList.remove('app-locked-body');
+}
+</script>
+
 <!-- Skip link for keyboard users -->
 <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
 
@@ -44,8 +109,8 @@ DATE: 2026-04-02
      ==================================================== -->
 <header>
   <div class="header-center">
-    <div class="title">TWITCH CHAT MOOD Radar <a href='https://ko-fi.com/F1F1140LWT' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> </div>
-    <div class="subtitle">Time Weighted - Live Twitch Consensus - still in development and experimental</div>
+    <div class="title">MOOD RADAR <a href='https://ko-fi.com/F1F1140LWT' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> </div>
+    <div class="subtitle">Time Weighted - Live Chat Consensus - Multi-Platform - Experimental</div>
   </div>
 
   <div class="header-actions">
@@ -375,6 +440,12 @@ DATE: 2026-04-02
 </div>
 
 <div id="customLayoutContainer"></div>
+
+<footer class="app-disclaimer">
+  <p><strong>Disclaimer:</strong> Mood Radar is an independent, open-source tool. It is not affiliated with, endorsed by, or sponsored by Twitch, YouTube, Kick, Rumble, or any of their parent companies.</p>
+  <p>Platform connections use publicly available methods. Some platforms may not have official public APIs and are accessed via unofficial, experimental methods.</p>
+  <p>Provided as-is for personal, non-commercial use. Use at your own risk.</p>
+</footer>
 
 </div><!-- .app -->
 

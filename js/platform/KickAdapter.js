@@ -94,6 +94,7 @@ export class KickAdapter extends PlatformAdapter {
    * Connect to Kick chat for a given channel slug or numeric chatroom ID.
    */
   async connect(isReconnect) {
+    console.info('[MoodRadar][Kick] Kick connection uses unofficial Pusher WebSocket. No official API available.');
     const input = document.getElementById('channelInput');
     const raw = sanitize((input ? input.value : '').trim().toLowerCase());
     if (!raw) { setStatus('Enter a channel name or chatroom ID.', 'error'); return; }

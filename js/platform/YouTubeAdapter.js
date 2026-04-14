@@ -219,6 +219,7 @@ export class YouTubeAdapter extends PlatformAdapter {
   }
 
   async connect(isReconnect) {
+    console.info('[MoodRadar][YouTube] YouTube connection uses unofficial methods. For compliant access, use a YouTube Data API v3 key.');
     const input = document.getElementById('channelInput');
     const raw = sanitize((input ? input.value : '').trim());
     if (!raw) { setStatus('Enter a channel name, @handle, or video URL.', 'error'); return; }
