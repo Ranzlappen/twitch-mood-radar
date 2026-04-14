@@ -2097,7 +2097,7 @@ let slotIdCounter = 0;
 
 const PLATFORM_PLACEHOLDERS = {
   twitch: 'channel name', kick: 'channel name',
-  youtube: 'video ID or URL', rumble: 'stream ID or channel'
+  youtube: 'channel name, @handle, or video URL', rumble: 'stream ID or channel'
 };
 const PLATFORM_PREFIXES = {
   twitch: '#', kick: '#', youtube: '\u25b6', rumble: '\u25b6'
@@ -2397,13 +2397,81 @@ async function connectKick(conn) {
 }
 
 // --- YouTube Live Chat ---
-// Helpers: parse video ID, extract innertube context from chat page
+// Helpers: parse video ID, resolve channels, extract innertube context
+
+// Try to extract a video ID from a URL or bare 11-char ID. Returns null if not a video reference.
 function _ytParseVideoId(input) {
   if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
   var m = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
           input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/) ||
           input.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
   return m ? m[1] : null;
+}
+
+// Build a YouTube channel URL from user input (handle, channel name, or URL).
+function _ytBuildChannelUrl(input) {
+  // Already a full URL
+  if (/^https?:\/\//.test(input)) return input;
+  // @handle
+  if (input.startsWith('@')) return 'https://www.youtube.com/' + input;
+  // Bare handle without @
+  return 'https://www.youtube.com/@' + input.replace(/\s+/g, '');
+}
+
+// Scrape a YouTube channel/page to find the current live stream video ID.
+async function _ytResolveChannelToLive(input, statusCb) {
+  // Try the channel page and look for a live video ID
+  var urls = [];
+  var raw = input.trim();
+
+  // If it's a full URL, try it directly
+  if (/^https?:\/\//.test(raw)) {
+    urls.push(raw);
+  }
+  // @handle or handle
+  var handle = raw.startsWith('@') ? raw : '@' + raw.replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/' + handle + '/live');
+  urls.push('https://www.youtube.com/' + handle);
+  // Also try /c/ and /user/ paths for older channel formats
+  var slug = raw.replace(/^@/, '').replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/c/' + slug + '/live');
+  urls.push('https://www.youtube.com/c/' + encodeURIComponent(raw.replace(/^@/, '')) + '/live');
+
+  for (var u = 0; u < urls.length; u++) {
+    if (statusCb) statusCb('Trying channel page ' + (u + 1) + '/' + urls.length + '...');
+    try {
+      var res = await fetchViaCorsProxy(urls[u], 15000);
+      if (!res) continue;
+      var html = await res.text();
+
+      // Look for live video ID in the page — multiple patterns
+      // Pattern: "videoId":"xxxxxxxxxxx" near "isLive":true or liveBroadcastContent
+      var liveMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLive"\s*:\s*true/);
+      if (liveMatch) return liveMatch[1];
+
+      // Pattern: canonical URL with video ID on a /watch page
+      var canonMatch = html.match(/rel="canonical"\s+href="[^"]*[?&]v=([a-zA-Z0-9_-]{11})/);
+      if (canonMatch) {
+        // Verify it's a live page (check for live indicators)
+        if (html.indexOf('"isLive":true') !== -1 || html.indexOf('"isLiveContent":true') !== -1 || html.indexOf('LIVE_STREAM') !== -1) {
+          return canonMatch[1];
+        }
+      }
+
+      // Pattern: /live redirect resolves to a watch page with video ID
+      var watchMatch = html.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/);
+      if (watchMatch && (html.indexOf('"isLive":true') !== -1 || html.indexOf('"isLiveContent":true') !== -1)) {
+        return watchMatch[1];
+      }
+
+      // Pattern: first videoId found in ytInitialData for a /live page
+      if (urls[u].indexOf('/live') !== -1) {
+        var vidMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
+        if (vidMatch) return vidMatch[1];
+      }
+    } catch (e) { /* try next URL */ }
+  }
+  return null;
 }
 
 function _ytParseInitialData(html) {
@@ -2450,13 +2518,22 @@ async function connectYouTube(conn) {
   setSlotStatus(conn.id, 'Resolving...', 'connecting');
   var btn = document.getElementById('slotConnectBtn_' + conn.id);
 
+  // Try to parse as a direct video ID or video URL first
   var videoId = _ytParseVideoId(conn.channelName);
+
+  // If not a video ID, treat as channel name/@handle and resolve to live stream
   if (!videoId) {
-    conn.loggingActive = false;
-    conn.status = 'error';
-    setSlotStatus(conn.id, 'Invalid video ID or URL', 'error');
-    if (btn) btn.disabled = false;
-    return;
+    setSlotStatus(conn.id, 'Looking for live stream...', 'connecting');
+    videoId = await _ytResolveChannelToLive(conn.channelName, function(msg) {
+      setSlotStatus(conn.id, msg, 'connecting');
+    });
+    if (!videoId) {
+      conn.loggingActive = false;
+      conn.status = 'error';
+      setSlotStatus(conn.id, 'No live stream found for this channel', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
   }
 
   // === Approach 1: Innertube via CORS proxy (no API key needed) ===

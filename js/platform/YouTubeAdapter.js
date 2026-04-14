@@ -52,6 +52,49 @@ function _parseVideoId(input) {
   return m ? m[1] : null;
 }
 
+/**
+ * Resolve a channel name, @handle, or channel URL to the current live stream video ID.
+ */
+async function _resolveChannelToLive(input) {
+  const raw = input.trim();
+  const urls = [];
+
+  if (/^https?:\/\//.test(raw)) urls.push(raw);
+  const handle = raw.startsWith('@') ? raw : '@' + raw.replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/' + handle + '/live');
+  urls.push('https://www.youtube.com/' + handle);
+  const slug = raw.replace(/^@/, '').replace(/\s+/g, '');
+  urls.push('https://www.youtube.com/c/' + slug + '/live');
+  urls.push('https://www.youtube.com/c/' + encodeURIComponent(raw.replace(/^@/, '')) + '/live');
+
+  for (const pageUrl of urls) {
+    try {
+      const res = await fetchViaCorsProxy(pageUrl, 15000);
+      if (!res) continue;
+      const html = await res.text();
+
+      const liveMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"[^}]*?"isLive"\s*:\s*true/);
+      if (liveMatch) return liveMatch[1];
+
+      const canonMatch = html.match(/rel="canonical"\s+href="[^"]*[?&]v=([a-zA-Z0-9_-]{11})/);
+      if (canonMatch && (html.includes('"isLive":true') || html.includes('"isLiveContent":true') || html.includes('LIVE_STREAM'))) {
+        return canonMatch[1];
+      }
+
+      const watchMatch = html.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/);
+      if (watchMatch && (html.includes('"isLive":true') || html.includes('"isLiveContent":true'))) {
+        return watchMatch[1];
+      }
+
+      if (pageUrl.includes('/live')) {
+        const vidMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
+        if (vidMatch) return vidMatch[1];
+      }
+    } catch (e) { /* try next URL */ }
+  }
+  return null;
+}
+
 function _parseInitialData(html) {
   const m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
   if (!m) return null;
@@ -231,16 +274,23 @@ export class YouTubeAdapter extends PlatformAdapter {
   async connect(isReconnect) {
     const input = document.getElementById('channelInput');
     const raw = sanitize((input ? input.value : '').trim());
-    if (!raw) { setStatus('Enter a YouTube video ID or URL.', 'error'); return; }
+    if (!raw) { setStatus('Enter a channel name, @handle, or video URL.', 'error'); return; }
 
     const btn = document.getElementById('connectBtn');
     if (btn) btn.disabled = true;
 
-    const videoId = _parseVideoId(raw);
+    // Try to parse as a direct video ID or video URL first
+    let videoId = _parseVideoId(raw);
+
+    // If not a video ID, treat as channel name/@handle and resolve to live stream
     if (!videoId) {
-      setStatus('Invalid YouTube video ID or URL.', 'error');
-      if (btn) btn.disabled = false;
-      return;
+      setStatus('Looking for live stream...', '');
+      videoId = await _resolveChannelToLive(raw);
+      if (!videoId) {
+        setStatus('No live stream found for this channel.', 'error');
+        if (btn) btn.disabled = false;
+        return;
+      }
     }
     this._videoId = videoId;
 
