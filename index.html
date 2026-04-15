@@ -19,7 +19,7 @@ DATE: 2026-04-02
 <link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
 <!-- End PWA meta tags -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/css/main.css">
 <style id="authGateStyles">
   .auth-gate{position:fixed;inset:0;z-index:99999;background:#06060f;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace}
@@ -49,10 +49,13 @@ DATE: 2026-04-02
 </div>
 <script>
 // --- Password Gate ---
-// To set your password, replace the hash below with the SHA-256 hex of your password.
+// ⚠ SECURITY WARNING: The default password is "password". Change it before deploying!
+// To set your password, replace the hash below with the SHA-256 hex of your chosen password.
 // Generate it with:  echo -n "yourpassword" | sha256sum
 // Or in browser console:  crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('')))
-const PASS_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // default: "password"
+// NOTE: This is client-side auth only. It deters casual access but is NOT a security boundary.
+// The hash and all app code are visible in the browser. Do not rely on this for sensitive data.
+const PASS_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // default: "password" — CHANGE THIS
 const AUTH_KEY = 'moodradar_auth_v1';
 
 (function checkAuth() {
