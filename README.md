@@ -1,6 +1,6 @@
 # Mood Radar
 
-https://twitch-mood-radar.ranzlappen.com/
+[twitch-mood-radar.ranzlappen.com](https://twitch-mood-radar.ranzlappen.com/)
 
 ### Real-time Multi-Platform Chat Mood Analyzer
 
