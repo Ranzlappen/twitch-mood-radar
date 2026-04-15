@@ -1,6 +1,6 @@
 // Main processing loop — dequeues messages, classifies, updates visuals
 import { state } from './state.js';
-import { MOODS, MOOD_COLORS, QUEUE_CAP, WINDOW_MS } from './config.js';
+import { MOODS, MOOD_COLORS, QUEUE_CAP } from './config.js';
 import { classifyMessage } from './analysis/sentiment.js';
 import { detectBot } from './analysis/botDetector.js';
 import { computeWeightedMoods, computeKeywordWeights, getDominant } from './analysis/ewma.js';

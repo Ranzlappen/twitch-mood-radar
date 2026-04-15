@@ -10,7 +10,6 @@
  * Users can also enter a numeric chatroom ID directly to skip resolution.
  */
 import { PlatformAdapter } from './PlatformAdapter.js';
-import { state } from '../state.js';
 import { sanitize, setStatus } from '../utils/dom.js';
 import { RECONNECT_DELAY_MS } from '../config.js';
 import { fetchViaCorsProxy } from '../utils/cors.js';
@@ -54,7 +53,7 @@ export class KickAdapter extends PlatformAdapter {
         if (chatroomId) {
           return { chatroomId, channelId: data.id, channelName: data.slug || slug };
         }
-      } catch (e) { /* try next API version */ }
+      } catch (e) { console.warn('[MoodRadar] Kick channel resolution failed, trying next API version:', e.message); }
     }
     return null;
   }
@@ -136,7 +135,7 @@ export class KickAdapter extends PlatformAdapter {
               if (this._ws) { this._ws.close(); this._ws = null; }
               resolve(false);
             }
-          } catch (e) { /* ignore */ }
+          } catch { /* non-JSON frame, ignore */ }
         };
         this._ws.onerror = () => { clearTimeout(handshakeTimer); resolve(false); };
         this._ws.onclose = () => { clearTimeout(handshakeTimer); };
@@ -182,7 +181,7 @@ export class KickAdapter extends PlatformAdapter {
         }
 
       } catch (e) {
-        // Ignore parse errors on non-JSON frames
+        console.warn('[MoodRadar] Kick WebSocket message parse error:', e.message);
       }
     };
 
@@ -222,7 +221,7 @@ export class KickAdapter extends PlatformAdapter {
     }
   }
 
-  async sendMessage(channel, msg) {
+  async sendMessage(_channel, _msg) {
     // Kick requires authentication for sending — not supported in anonymous mode
     setStatus('Sending messages on Kick requires authentication (not yet supported).', 'error');
   }

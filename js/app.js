@@ -9,12 +9,11 @@ import { state, initState } from './state.js';
 import * as config from './config.js';
 import { ConnectionManager } from './platform/ConnectionManager.js';
 import { enqueue, processingLoop, flushChatterData } from './processing.js';
-import { initCharts, pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
-import { resizeBubbleCanvas } from './ui/bubbles.js';
+import { initCharts, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
 import { updateFeedFontSize, applyFeedFontSize, updateOutlierFontSize, applyOutlierFontSize, updateFilteredFeedFontSize, applyFilteredFeedFontSize, updateFilteredFeedRegex, openRegexHistory, closeRegexHistory, selectRegexHistory, deleteRegexFromHistory } from './ui/feeds.js';
 import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
-import { saveSizes, restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
+import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
@@ -65,6 +64,7 @@ connMgr.onAllDisconnected(() => {
 // Multi-feed connection management
 window.connectSlot = (slotId, isReconnect) => connMgr.connectSlot(slotId, isReconnect);
 window.disconnectSlot = (slotId) => connMgr.disconnectSlot(slotId);
+window.disconnectAll = () => connMgr.disconnectAll();
 window.addSlot = () => connMgr.addSlot();
 window.removeSlot = (slotId) => connMgr.removeSlot(slotId);
 window.switchSlotPlatform = (slotId, platform) => connMgr.switchSlotPlatform(slotId, platform);
@@ -191,6 +191,12 @@ window.filterEmotePicker = (q) => connMgr.getFirstAdapter()?.filterEmotePicker?.
 window.insertEmote = (c) => connMgr.getFirstAdapter()?.insertEmote?.(c);
 window.copyAuthError = () => connMgr.getFirstAdapter()?.copyAuthError?.();
 
+// Bot filter toggle (used by inline checkbox in index.html)
+Object.defineProperty(window, 'botFilterEnabled', {
+  get() { return state.botFilterEnabled; },
+  set(v) { state.botFilterEnabled = v; },
+});
+
 // Utility exposed for inline handlers
 window.sanitize = sanitize;
 window.esc = esc;
@@ -269,7 +275,59 @@ window.onload = function () {
   // Render mood legend
   renderMoodLegend();
 
-  // Load layout config
+  // --- Tablet viewport defaults on first visit ---
+  // If no preset has been saved yet, this is a first visit. On tablet-sized
+  // viewports, seed localStorage with a dense custom layout before loadLayout()
+  // reads it. This gives tablet users a better default experience.
+  const isFirstVisit = localStorage.getItem(config.PRESET_STORAGE_KEY) === null;
+  const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1366;
+  if (isFirstVisit && isTablet) {
+    // Compact parameters for tablet
+    state.labelScale = 0.6;
+    state.bubbleScale = 0.4;
+    state.TIMELINE_POINTS = 100;
+    state.TIMELINE_INTERVAL = 500;
+    state.currentPreset = 'custom';
+    state.drawerOptions.density = 'dense';
+
+    // Update sliders to reflect new values
+    const lsSlider = document.getElementById('labelScaleSlider');
+    if (lsSlider) lsSlider.value = state.labelScale;
+    document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
+    if (bsSlider) bsSlider.value = state.bubbleScale;
+    document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
+    if (tlPtsSlider) tlPtsSlider.value = state.TIMELINE_POINTS;
+    document.getElementById('tlPointsVal').textContent = state.TIMELINE_POINTS;
+    if (tlIntSlider) tlIntSlider.value = state.TIMELINE_INTERVAL;
+    document.getElementById('tlIntervalVal').textContent = state.TIMELINE_INTERVAL + 'ms';
+
+    // Seed localStorage so loadLayout() and restoreSizes() pick up the defaults
+    const tabletLayout = {
+      order: config.LAYOUT_SECTIONS.map(s => s.id),
+      inline: {
+        pieCard: true, radarCard: true, bubbleCard: true,
+        approvalTimelineCard: true, throughputTimelineCard: true, timelineLinearCard: true,
+      },
+      alignItems: 'start',
+      justifyContent: 'start',
+    };
+    try {
+      localStorage.setItem(config.LAYOUT_STORAGE_KEY, JSON.stringify(tabletLayout));
+      localStorage.setItem(config.RESIZE_STORAGE_KEY, JSON.stringify({
+        pieCard: { h: 200 }, radarCard: { h: 200 },
+        bubbleCard: { h: 200 }, approvalCard: { h: 200 },
+      }));
+      localStorage.setItem(config.LABEL_SCALE_KEY, String(state.labelScale));
+      localStorage.setItem(config.BUBBLE_SCALE_KEY, String(state.bubbleScale));
+      localStorage.setItem(config.TL_POINTS_KEY, String(state.TIMELINE_POINTS));
+      localStorage.setItem(config.TL_INTERVAL_KEY, String(state.TIMELINE_INTERVAL));
+    } catch { /* private browsing */ }
+
+    savePreset('custom');
+    saveOptions();
+  }
+
+  // Load layout config (reads from localStorage, including tablet defaults if seeded above)
   loadLayout();
 
   // Initialize charts and resize observer

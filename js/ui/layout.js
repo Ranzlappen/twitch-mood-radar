@@ -8,7 +8,6 @@ import {
   HALFLIFE_KEY, LABEL_SCALE_KEY, BUBBLE_SCALE_KEY
 } from '../config.js';
 import { load, save } from '../utils/storage.js';
-import { esc } from '../utils/dom.js';
 import { resizeBubbleCanvas } from './bubbles.js';
 
 /* ── module-level layout state ───────────────────────── */
@@ -178,7 +177,7 @@ export function loadLayout() {
     }
     if (saved && saved.alignItems) layoutAlignItems = saved.alignItems;
     if (saved && saved.justifyContent) layoutJustifyContent = saved.justifyContent;
-  } catch(e) {}
+  } catch { }
 }
 
 export function saveLayout() {
@@ -349,7 +348,7 @@ export function restoreDefaultDOM() {
   customContainer.innerHTML = '';
 
   // Ensure we have exactly 3 section dividers in the app
-  let dividers = Array.from(app.querySelectorAll('.section-divider'));
+  const dividers = Array.from(app.querySelectorAll('.section-divider'));
   while (dividers.length < 3) {
     const d = document.createElement('div');
     d.className = 'section-divider';
@@ -417,13 +416,13 @@ export function setLayoutJustify(val) {
 export function updateHalfLife(v) {
   state.HALF_LIFE_MS = parseInt(v) * 1000;
   document.getElementById('hlVal').textContent = v + 's';
-  try { localStorage.setItem(HALFLIFE_KEY, v); } catch(e) {}
+  try { localStorage.setItem(HALFLIFE_KEY, v); } catch { }
 }
 
 export function updateLabelScale(v) {
   state.labelScale = Math.min(2.5, Math.max(0.4, parseFloat(v)));
   document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
-  try { localStorage.setItem(LABEL_SCALE_KEY, state.labelScale); } catch(e) {}
+  try { localStorage.setItem(LABEL_SCALE_KEY, state.labelScale); } catch { }
   // Pie redraws on next update cycle; bubble redraws on next animation frame
   if (state.pieChart) state.pieChart.update('none');
 }
@@ -431,5 +430,5 @@ export function updateLabelScale(v) {
 export function updateBubbleScale(v) {
   state.bubbleScale = Math.min(1.5, Math.max(0.3, parseFloat(v)));
   document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
-  try { localStorage.setItem(BUBBLE_SCALE_KEY, state.bubbleScale); } catch(e) {}
+  try { localStorage.setItem(BUBBLE_SCALE_KEY, state.bubbleScale); } catch { }
 }

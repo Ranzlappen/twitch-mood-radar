@@ -28,6 +28,8 @@ export default [
         Promise: 'readonly',
         Chart: 'readonly',
         Date: 'readonly',
+        ResizeObserver: 'readonly',
+        prompt: 'readonly',
       },
     },
     rules: {

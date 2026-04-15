@@ -14,7 +14,7 @@ export async function requestWakeLock() {
     wakeLockSentinel.addEventListener('release', () => {
       wakeLockSentinel = null;
     });
-  } catch (e) {
+  } catch {
     wakeLockSentinel = null;
   }
 }

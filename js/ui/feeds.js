@@ -9,16 +9,7 @@ import {
   FEED_FONT_KEY, OUTLIER_FONT_KEY, FILTERED_FEED_FONT_KEY,
   REGEX_STORAGE_KEY, REGEX_HISTORY_KEY
 } from '../config.js';
-import { saveRaw, loadRaw, save, load } from '../utils/storage.js';
-
-/* ── Platform colors ─────────────────────────────────── */
-
-const PLATFORM_COLORS = {
-  twitch: '#9146ff',
-  kick: '#53fc18',
-  youtube: '#ff0000',
-  rumble: '#85c742'
-};
+import { saveRaw, save, load } from '../utils/storage.js';
 
 /* ── FeedRenderer class ──────────────────────────────── */
 
@@ -162,7 +153,7 @@ export function updateFilteredFeedRegex(v) {
     input.classList.remove('regex-error');
     saveRaw(REGEX_STORAGE_KEY, v);
     saveRegexToHistory(v);
-  } catch(e) {
+  } catch {
     state.filteredFeedRegex = null;
     input.classList.add('regex-error');
   }

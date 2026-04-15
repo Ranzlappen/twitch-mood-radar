@@ -48,7 +48,7 @@ async function _resolveChannelToLive(input) {
         const vidMatch = html.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
         if (vidMatch) return vidMatch[1];
       }
-    } catch (e) { /* try next */ }
+    } catch (e) { console.warn('[MoodRadar] YouTube channel resolve failed, trying next URL:', e.message); }
   }
   return null;
 }
@@ -79,7 +79,7 @@ function _findContinuation(obj) {
              conts[0].timedContinuationData?.continuation ||
              conts[0].reloadContinuationData?.continuation || null;
     }
-  } catch(e) {}
+  } catch { }
   try {
     const bar = obj.contents?.twoColumnWatchNextResults?.conversationBar;
     const conts = bar?.liveChatRenderer?.continuations;
@@ -88,7 +88,7 @@ function _findContinuation(obj) {
              conts[0].invalidationContinuationData?.continuation ||
              conts[0].timedContinuationData?.continuation || null;
     }
-  } catch(e) {}
+  } catch { }
   return null;
 }
 
@@ -129,7 +129,7 @@ export class YouTubeAdapter extends PlatformAdapter {
     const html = await res.text();
     const m = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
     if (!m) return null;
-    try { return _findContinuation(JSON.parse(m[1])); } catch(e) { return null; }
+    try { return _findContinuation(JSON.parse(m[1])); } catch { return null; }
   }
 
   async _pollInnertube() {
@@ -172,6 +172,7 @@ export class YouTubeAdapter extends PlatformAdapter {
       this._reconnectAttempt = 0;
       if (this._polling) this._pollTimer = setTimeout(() => this._pollInnertube(), Math.max(interval, 2000));
     } catch (e) {
+      console.warn('[MoodRadar] YouTube innertube poll failed, will retry:', e.message);
       this._reconnectAttempt++;
       if (this._reconnectAttempt < 5 && this._polling) {
         this._pollTimer = setTimeout(() => this._pollInnertube(), 8000);
@@ -179,7 +180,7 @@ export class YouTubeAdapter extends PlatformAdapter {
     }
   }
 
-  async connect(channel, isReconnect) {
+  async connect(channel, _isReconnect) {
     console.info('[MoodRadar][YouTube] YouTube connection uses unofficial methods. For compliant access, use a YouTube Data API v3 key.');
     const raw = sanitize(typeof channel === 'string' ? channel : '').trim();
     if (!raw) { setStatus('Enter a channel name, @handle, or video URL.', 'error'); return; }
@@ -202,11 +203,11 @@ export class YouTubeAdapter extends PlatformAdapter {
     // Approach 1: innertube 'next' API
     setStatus('Connecting to chat...', '');
     let continuation = null;
-    try { continuation = await this._getContinuationViaNext(videoId); } catch(e) {}
+    try { continuation = await this._getContinuationViaNext(videoId); } catch(e) { console.warn('[MoodRadar] YouTube innertube next API failed, trying chat page scrape:', e.message); }
 
     // Approach 2: scrape chat page
     if (!continuation) {
-      try { continuation = await this._getContinuationViaChatPage(videoId); } catch(e) {}
+      try { continuation = await this._getContinuationViaChatPage(videoId); } catch(e) { console.warn('[MoodRadar] YouTube chat page scrape failed:', e.message); }
     }
 
     if (continuation) {
@@ -223,7 +224,7 @@ export class YouTubeAdapter extends PlatformAdapter {
 
     // Approach 3: API key fallback
     let apiKey = '';
-    try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch(e) {}
+    try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch { }
     if (!apiKey) {
       apiKey = (prompt(
         'Could not connect via innertube (CORS).\n\n' +
@@ -236,7 +237,7 @@ export class YouTubeAdapter extends PlatformAdapter {
         if (btn) btn.disabled = false;
         return;
       }
-      try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch(e) {}
+      try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch { }
     }
 
     setStatus('Resolving via API key...', '');
@@ -278,14 +279,16 @@ export class YouTubeAdapter extends PlatformAdapter {
           }
           if (self._polling) self._pollTimer = setTimeout(pollApiKey, Math.max(interval, 2000));
         } catch (e) {
+          console.warn('[MoodRadar] YouTube Data API poll failed, will retry:', e.message);
           if (self._polling) self._pollTimer = setTimeout(pollApiKey, 5000);
         }
       }
       pollApiKey();
     } catch (e) {
+      console.warn('[MoodRadar] YouTube live chat resolution via API key failed:', e.message);
       setStatus('Failed to resolve live chat.', 'error');
       if (btn) btn.disabled = false;
-      try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch(e2) {}
+      try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch { }
     }
   }
 
@@ -300,7 +303,7 @@ export class YouTubeAdapter extends PlatformAdapter {
     if (btn) btn.disabled = false;
   }
 
-  async sendMessage(channel, msg) {
+  async sendMessage(_channel, _msg) {
     setStatus('Sending YouTube messages requires OAuth (not yet supported).', 'error');
   }
 }
