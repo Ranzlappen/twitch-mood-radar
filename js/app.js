@@ -159,7 +159,7 @@ window.updateTimelineInterval = updateTimelineInterval;
 window.showDecayRecommendation = () => {
   const now = Date.now();
   const cut3 = now - 3000;
-  const currentMps = parseFloat((state.tsThroughput.filter(t => t >= cut3).length / 3).toFixed(1));
+  const currentMps = parseFloat((state.tsThroughput.countWhere(t => t >= cut3) / 3).toFixed(1));
   let rec, details;
   if (currentMps < 2) { rec = '20-40s'; details = 'Low throughput (' + currentMps.toFixed(1) + ' msg/s). Use a higher decay so sparse messages linger long enough.'; }
   else if (currentMps < 10) { rec = '10-20s'; details = 'Moderate throughput (' + currentMps.toFixed(1) + ' msg/s). Balanced decay for responsive charts.'; }

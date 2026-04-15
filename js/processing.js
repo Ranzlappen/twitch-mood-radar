@@ -149,10 +149,10 @@ export function updateVisuals() {
   document.getElementById('statBotMsgs').textContent = fmtNum(state.botMessagesFiltered);
   document.getElementById('statBotUsers').textContent = fmtNum(state.botUsersDetected.size);
   const cut60 = now2 - 60000;
-  while (state.msgTimestamps.length && state.msgTimestamps[0] < cut60) state.msgTimestamps.shift();
+  while (state.msgTimestamps.length && state.msgTimestamps.peekFirst() < cut60) state.msgTimestamps.shift();
   document.getElementById('statRate').textContent = state.msgTimestamps.length;
   const cut3 = now2 - 3000;
-  while (state.tsThroughput.length && state.tsThroughput[0] < cut3) state.tsThroughput.shift();
+  while (state.tsThroughput.length && state.tsThroughput.peekFirst() < cut3) state.tsThroughput.shift();
   const mps = (state.tsThroughput.length / 3).toFixed(1);
   const bp = Math.min(100, state.tsThroughput.length / 3 / 50 * 100);
   const fill = document.getElementById('tbarFill');
@@ -166,12 +166,12 @@ export function flushChatterData() {
   state.scoredMessages.length = 0;
   state.keywordStore.clear();
   state.approvalStore.length = 0;
-  state.msgQueue.length = 0;
+  state.msgQueue.clear();
   state.droppedMessages = 0;
   state.totalMessages = 0;
   state.uniqueUsers.clear();
-  state.msgTimestamps.length = 0;
-  state.tsThroughput.length = 0;
+  state.msgTimestamps.clear();
+  state.tsThroughput.clear();
   state.prevDominant = null;
   state.frameIdx = 0;
 

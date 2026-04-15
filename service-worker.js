@@ -20,15 +20,16 @@ if (workbox) {
     // JS modules
     { url: '/js/app.js', revision: '4' },
     { url: '/js/config.js', revision: '2' },
-    { url: '/js/state.js', revision: '1' },
+    { url: '/js/state.js', revision: '2' },
     { url: '/js/processing.js', revision: '3' },
     // Utils
     { url: '/js/utils/dom.js', revision: '1' },
     { url: '/js/utils/color.js', revision: '1' },
     { url: '/js/utils/storage.js', revision: '1' },
     { url: '/js/utils/cors.js', revision: '1' },
+    { url: '/js/utils/CircularBuffer.js', revision: '1' },
     // Analysis
-    { url: '/js/analysis/sentiment.js', revision: '1' },
+    { url: '/js/analysis/sentiment.js', revision: '2' },
     { url: '/js/analysis/approval.js', revision: '1' },
     { url: '/js/analysis/botDetector.js', revision: '1' },
     { url: '/js/analysis/ewma.js', revision: '1' },
