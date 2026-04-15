@@ -6,7 +6,7 @@
 
 Analyzes the emotional tone of live chat across Twitch, Kick, YouTube, and Rumble in real time. Connect up to 10 simultaneous feeds and visualize chat mood through interactive charts, bubbles, timelines, and more.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F1140LWT)
+<a href="https://ko-fi.com/F1F1140LWT"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=6" alt="Buy Me a Coffee at ko-fi.com" height="36"></a>
 
 ## Key Features
 
