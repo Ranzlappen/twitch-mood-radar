@@ -289,6 +289,7 @@ window.onload = function () {
     state.TIMELINE_INTERVAL = 500;
     state.currentPreset = 'custom';
     state.drawerOptions.density = 'dense';
+    state.drawerOptions.timelineHeight = 220;
 
     // Update sliders to reflect new values
     const lsSlider = document.getElementById('labelScaleSlider');
@@ -316,6 +317,8 @@ window.onload = function () {
       localStorage.setItem(config.RESIZE_STORAGE_KEY, JSON.stringify({
         pieCard: { h: 200 }, radarCard: { h: 200 },
         bubbleCard: { h: 200 }, approvalCard: { h: 200 },
+        approvalTimelineCard: { h: 220 }, throughputTimelineCard: { h: 220 },
+        timelineLinearCard: { h: 220 }, timelineLogCard: { h: 220 },
       }));
       localStorage.setItem(config.LABEL_SCALE_KEY, String(state.labelScale));
       localStorage.setItem(config.BUBBLE_SCALE_KEY, String(state.bubbleScale));
