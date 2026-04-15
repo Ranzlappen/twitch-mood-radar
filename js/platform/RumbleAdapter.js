@@ -16,40 +16,9 @@
  */
 import { PlatformAdapter } from './PlatformAdapter.js';
 import { sanitize, setStatus } from '../utils/dom.js';
+import { fetchViaCorsProxy } from '../utils/cors.js';
 
 const RUMBLE_PROXY_STORAGE = 'moodradar_rumble_proxy_v1';
-
-/**
- * Fetch a URL with multiple CORS proxy fallbacks.
- */
-async function fetchViaCorsProxy(url, timeoutMs) {
-  timeoutMs = timeoutMs || 10000;
-  const enc = encodeURIComponent(url);
-  const attempts = [
-    url,
-    'https://corsproxy.io/?' + enc,
-    'https://api.allorigins.win/raw?url=' + enc,
-    'https://api.codetabs.com/v1/proxy?quest=' + enc,
-    'https://cors-anywhere.herokuapp.com/' + url,
-    'https://crossorigin.me/' + url,
-  ];
-  for (const tryUrl of attempts) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(tryUrl, { signal: controller.signal });
-      clearTimeout(timer);
-      if (res.ok) {
-        console.log('[MoodRadar][Rumble] CORS proxy succeeded: ' + tryUrl.split('?')[0]);
-        return res;
-      }
-    } catch (e) {
-      console.warn('[MoodRadar][Rumble] Proxy failed: ' + tryUrl.split('?')[0]);
-    }
-  }
-  console.error('[MoodRadar][Rumble] All CORS proxies failed for: ' + url);
-  return null;
-}
 
 export class RumbleAdapter extends PlatformAdapter {
   constructor() {
@@ -171,10 +140,9 @@ export class RumbleAdapter extends PlatformAdapter {
     }
   }
 
-  async connect(isReconnect) {
+  async connect(channel, isReconnect) {
     console.info('[MoodRadar][Rumble] Rumble connection uses unofficial methods. No official API available.');
-    const input = document.getElementById('channelInput');
-    const raw = sanitize((input ? input.value : '').trim());
+    const raw = sanitize(typeof channel === 'string' ? channel : '').trim();
     if (!raw) { setStatus('Enter a Rumble stream ID or channel.', 'error'); return; }
 
     const btn = document.getElementById('connectBtn');
