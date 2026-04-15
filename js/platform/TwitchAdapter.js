@@ -228,7 +228,7 @@ export class TwitchAdapter extends PlatformAdapter {
           this._bttvEmotes.set(e.code, { url: 'https://cdn.betterttv.net/emote/' + e.id + '/1x', id: e.id, source: 'bttv' });
         }
       }
-    } catch (e) { /* silently fail -- emotes are optional */ }
+    } catch (e) { console.warn('[MoodRadar] BTTV emote fetch failed:', e.message); }
   }
 
   async _fetch7TVEmotes(roomId) {
@@ -264,7 +264,7 @@ export class TwitchAdapter extends PlatformAdapter {
           }
         }
       }
-    } catch (e) { /* silently fail */ }
+    } catch (e) { console.warn('[MoodRadar] 7TV emote fetch failed:', e.message); }
   }
 
   async _fetchFFZEmotes(channelName) {
@@ -288,7 +288,7 @@ export class TwitchAdapter extends PlatformAdapter {
       };
       if (globalRes.ok) extractFFZ(await globalRes.json());
       if (channelRes.ok) extractFFZ(await channelRes.json());
-    } catch (e) { /* silently fail */ }
+    } catch (e) { console.warn('[MoodRadar] FFZ emote fetch failed:', e.message); }
   }
 
   // ------------------------------------------------------------------
@@ -318,7 +318,7 @@ export class TwitchAdapter extends PlatformAdapter {
       this._userLogin = data.login || '';
       this._oauthToken = clean;
       return true;
-    } catch (e) { return false; }
+    } catch (e) { console.warn('[MoodRadar] Token validation request failed:', e.message); return false; }
   }
 
   async setOAuthToken() {
@@ -381,7 +381,7 @@ export class TwitchAdapter extends PlatformAdapter {
         if (el) { el.textContent = err.message || 'send failed'; el.style.color = '#ff4800'; }
         this.showCopyErrorBtn();
       }
-    } catch (e) {
+    } catch {
       const el = document.getElementById('chatAuthStatus');
       if (el) { el.textContent = 'network error'; el.style.color = '#ff4800'; }
       this.showCopyErrorBtn();
@@ -494,7 +494,7 @@ export class TwitchAdapter extends PlatformAdapter {
   }
 
   deleteChannelFromHistory(name) {
-    let hist = this.loadChannelHistory().filter(h => h !== name);
+    const hist = this.loadChannelHistory().filter(h => h !== name);
     save(CHANNEL_HISTORY_KEY, hist);
     this.renderChannelHistory();
   }

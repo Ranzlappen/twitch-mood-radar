@@ -18,6 +18,31 @@ DATE: 2026-04-02
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
 <!-- End PWA meta tags -->
+<!-- Content Security Policy -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src https://fonts.gstatic.com;
+  img-src 'self' data: https://cdn.betterttv.net https://cdn.7tv.app https://cdn.frankerfacez.com;
+  connect-src 'self'
+    wss://irc-ws.chat.twitch.tv
+    wss://ws-us2.pusher.com
+    https://id.twitch.tv
+    https://api.twitch.tv
+    https://api.betterttv.net
+    https://7tv.io
+    https://api.frankerfacez.com
+    https://kick.com
+    https://www.youtube.com
+    https://www.googleapis.com
+    https://rumble.com
+    https://corsproxy.io
+    https://api.allorigins.win
+    https://api.codetabs.com
+    https://cors-anywhere.herokuapp.com
+    https://crossorigin.me;
+"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/css/main.css">

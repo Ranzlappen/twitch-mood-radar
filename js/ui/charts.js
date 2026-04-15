@@ -324,7 +324,7 @@ export function pushThroughputTimelineSnapshot() {
 export function updateTimelinePoints(v) {
   const pts = Math.min(1000, Math.max(50, parseInt(v)));
   document.getElementById('tlPointsVal').textContent = pts;
-  try { localStorage.setItem('moodradar_tlpoints_v1', pts); } catch(e) {}
+  try { localStorage.setItem('moodradar_tlpoints_v1', pts); } catch { }
   resizeTimelineData(pts);
   state.TIMELINE_POINTS = pts;
 }
@@ -332,7 +332,7 @@ export function updateTimelinePoints(v) {
 export function updateTimelineInterval(v) {
   state.TIMELINE_INTERVAL = Math.min(5000, Math.max(200, parseInt(v)));
   document.getElementById('tlIntervalVal').textContent = state.TIMELINE_INTERVAL + 'ms';
-  try { localStorage.setItem('moodradar_tlinterval_v1', state.TIMELINE_INTERVAL); } catch(e) {}
+  try { localStorage.setItem('moodradar_tlinterval_v1', state.TIMELINE_INTERVAL); } catch { }
 }
 
 export function resizeTimelineData(newPts) {

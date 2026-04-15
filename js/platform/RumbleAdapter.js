@@ -64,7 +64,7 @@ export class RumbleAdapter extends PlatformAdapter {
                   html.match(/"channel_id"\s*:\s*(\d+)/) ||
                   html.match(/chat\/api\/chat\/(\d+)/);
         if (m) return m[1];
-      } catch (e) { /* try next URL */ }
+      } catch (e) { console.warn('[MoodRadar] Rumble chat ID resolution failed, trying next URL:', e.message); }
     }
     return null;
   }
@@ -99,6 +99,7 @@ export class RumbleAdapter extends PlatformAdapter {
       this._reconnectAttempt = 0;
       if (this._polling) this._pollTimer = setTimeout(() => this._pollDirect(), this._pollIntervalMs);
     } catch (e) {
+      console.warn('[MoodRadar] Rumble direct poll failed, will retry:', e.message);
       this._reconnectAttempt++;
       if (this._reconnectAttempt < 5 && this._polling) {
         this._pollTimer = setTimeout(() => this._pollDirect(), 8000);
@@ -133,6 +134,7 @@ export class RumbleAdapter extends PlatformAdapter {
       this._reconnectAttempt = 0;
       if (this._polling) this._pollTimer = setTimeout(() => this._pollProxy(), this._pollIntervalMs);
     } catch (e) {
+      console.warn('[MoodRadar] Rumble proxy poll failed, will retry:', e.message);
       this._reconnectAttempt++;
       if (this._reconnectAttempt < 5 && this._polling) {
         this._pollTimer = setTimeout(() => this._pollProxy(), 8000);
@@ -140,7 +142,7 @@ export class RumbleAdapter extends PlatformAdapter {
     }
   }
 
-  async connect(channel, isReconnect) {
+  async connect(channel, _isReconnect) {
     console.info('[MoodRadar][Rumble] Rumble connection uses unofficial methods. No official API available.');
     const raw = sanitize(typeof channel === 'string' ? channel : '').trim();
     if (!raw) { setStatus('Enter a Rumble stream ID or channel.', 'error'); return; }
@@ -171,7 +173,7 @@ export class RumbleAdapter extends PlatformAdapter {
 
     // --- Approach 2: Fall back to custom proxy URL ---
     let proxyUrl = '';
-    try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch(e) {}
+    try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch { }
     if (!proxyUrl) {
       proxyUrl = (prompt(
         'Could not resolve Rumble chat directly (CORS).\n\n' +
@@ -184,7 +186,7 @@ export class RumbleAdapter extends PlatformAdapter {
         if (btn) btn.disabled = false;
         return;
       }
-      try { localStorage.setItem(RUMBLE_PROXY_STORAGE, proxyUrl); } catch(e) {}
+      try { localStorage.setItem(RUMBLE_PROXY_STORAGE, proxyUrl); } catch { }
     }
 
     this._proxyUrl = proxyUrl;
@@ -216,7 +218,7 @@ export class RumbleAdapter extends PlatformAdapter {
     if (btn) btn.disabled = false;
   }
 
-  async sendMessage(channel, msg) {
+  async sendMessage(_channel, _msg) {
     setStatus('Sending Rumble messages requires authentication (not yet supported).', 'error');
   }
 }
