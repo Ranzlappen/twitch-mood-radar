@@ -1,0 +1,20 @@
+{
+  "name": "twitch-mood-radar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Real-time multi-platform chat mood analyzer with live visualizations",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint js/",
+    "lint:fix": "eslint js/ --fix",
+    "format": "prettier --write 'js/**/*.js' 'css/**/*.css'",
+    "format:check": "prettier --check 'js/**/*.js' 'css/**/*.css'"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.0",
+    "vitest": "^3.1.0"
+  }
+}

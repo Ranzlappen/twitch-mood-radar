@@ -12,50 +12,11 @@
  */
 import { PlatformAdapter } from './PlatformAdapter.js';
 import { sanitize, setStatus } from '../utils/dom.js';
+import { fetchViaCorsProxy } from '../utils/cors.js';
 
 const YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
 const YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
 const YT_CLIENT_VERSION = '2.20260414.01.00';
-
-async function fetchViaCorsProxy(url, timeoutMs, fetchOptions) {
-  timeoutMs = timeoutMs || 10000;
-  fetchOptions = fetchOptions || {};
-  const isPost = fetchOptions.method && fetchOptions.method.toUpperCase() === 'POST';
-  const enc = encodeURIComponent(url);
-  const attempts = isPost
-    ? [
-        url,
-        'https://corsproxy.io/?' + enc,
-        'https://api.allorigins.win/raw?url=' + enc,
-        'https://cors-anywhere.herokuapp.com/' + url,
-        'https://crossorigin.me/' + url,
-      ]
-    : [
-        url,
-        'https://corsproxy.io/?' + enc,
-        'https://api.allorigins.win/raw?url=' + enc,
-        'https://api.codetabs.com/v1/proxy?quest=' + enc,
-        'https://cors-anywhere.herokuapp.com/' + url,
-        'https://crossorigin.me/' + url,
-      ];
-  for (const tryUrl of attempts) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      const opts = { ...fetchOptions, signal: controller.signal };
-      const res = await fetch(tryUrl, opts);
-      clearTimeout(timer);
-      if (res.ok) {
-        console.log('[MoodRadar][YouTube] CORS proxy succeeded: ' + tryUrl.split('?')[0]);
-        return res;
-      }
-    } catch (e) {
-      console.warn('[MoodRadar][YouTube] Proxy failed: ' + tryUrl.split('?')[0]);
-    }
-  }
-  console.error('[MoodRadar][YouTube] All CORS proxies failed for: ' + url);
-  return null;
-}
 
 function _parseVideoId(input) {
   if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
@@ -218,10 +179,9 @@ export class YouTubeAdapter extends PlatformAdapter {
     }
   }
 
-  async connect(isReconnect) {
+  async connect(channel, isReconnect) {
     console.info('[MoodRadar][YouTube] YouTube connection uses unofficial methods. For compliant access, use a YouTube Data API v3 key.');
-    const input = document.getElementById('channelInput');
-    const raw = sanitize((input ? input.value : '').trim());
+    const raw = sanitize(typeof channel === 'string' ? channel : '').trim();
     if (!raw) { setStatus('Enter a channel name, @handle, or video URL.', 'error'); return; }
 
     const btn = document.getElementById('connectBtn');

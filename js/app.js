@@ -1,32 +1,23 @@
 // =============================================================
 //  APP.JS — Main orchestrator (ES module entry point)
-//  Imports all modules, wires platform adapter to processing
-//  pipeline, assigns handlers to window for inline HTML events.
+//  Uses ConnectionManager for multi-feed slot connections,
+//  wires message pipeline to processing loop, and exposes
+//  functions to window for inline HTML event handlers.
 // =============================================================
 
 import { state, initState } from './state.js';
 import * as config from './config.js';
-import { createTwitchAdapter } from './platform/TwitchAdapter.js';
-import { createKickAdapter } from './platform/KickAdapter.js';
-import { createYouTubeAdapter } from './platform/YouTubeAdapter.js';
-import { createRumbleAdapter } from './platform/RumbleAdapter.js';
-import { renderEmotes } from './platform/emotes.js';
-import { classifyMessage } from './analysis/sentiment.js';
-import { detectBot } from './analysis/botDetector.js';
-import { computeApproval, approvalVerdict } from './analysis/approval.js';
-import { expWeight, computeWeightedMoods, computeKeywordWeights, getDominant } from './analysis/ewma.js';
+import { ConnectionManager } from './platform/ConnectionManager.js';
+import { enqueue, processingLoop, flushChatterData } from './processing.js';
 import { initCharts, pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
-import { resizeBubbleCanvas, initBubbles, updateBubbles } from './ui/bubbles.js';
-import { mainFeed, outlierFeed, filteredFeed, updateFeedFontSize, applyFeedFontSize, updateOutlierFontSize, applyOutlierFontSize, updateFilteredFeedFontSize, applyFilteredFeedFontSize, updateFilteredFeedRegex, openRegexHistory, closeRegexHistory, selectRegexHistory, deleteRegexFromHistory } from './ui/feeds.js';
-import { updateApprovalMeter } from './ui/approval-meter.js';
+import { resizeBubbleCanvas } from './ui/bubbles.js';
+import { updateFeedFontSize, applyFeedFontSize, updateOutlierFontSize, applyOutlierFontSize, updateFilteredFeedFontSize, applyFilteredFeedFontSize, updateFilteredFeedRegex, openRegexHistory, closeRegexHistory, selectRegexHistory, deleteRegexFromHistory } from './ui/feeds.js';
 import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
-import { saveSizes, restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, saveLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
+import { saveSizes, restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
-import { requestWakeLock, releaseWakeLock } from './ui/wake-lock.js';
-import { sanitize, esc, setStatus, fmtNum } from './utils/dom.js';
-import { hexAlpha, lerpColor } from './utils/color.js';
-import { startProcessingLoop, flushChatterData } from './processing.js';
+import { requestWakeLock } from './ui/wake-lock.js';
+import { sanitize, esc } from './utils/dom.js';
 
 // --- Import all setOpt* functions from options ---
 import {
@@ -40,53 +31,58 @@ import {
 } from './ui/options.js';
 
 // =============================================================
-//  Platform Adapter Setup — supports runtime switching
+//  Connection Manager — multi-feed slot system
 // =============================================================
-const adapters = {
-  twitch: createTwitchAdapter,
-  kick: createKickAdapter,
-  youtube: createYouTubeAdapter,
-  rumble: createRumbleAdapter,
-};
+const connMgr = new ConnectionManager();
 
-let currentPlatform = 'twitch';
-let adapter = adapters.twitch();
+// Wire incoming messages to the processing pipeline
+connMgr.onMessage(({ user, msg, ts, platform }) => {
+  enqueue(user, msg, ts, platform);
+});
 
-const platformPlaceholders = {
-  twitch: 'channel name',
-  kick: 'channel name',
-  youtube: 'video ID or URL',
-  rumble: 'stream ID or channel',
-};
-const platformPrefixes = {
-  twitch: '#',
-  kick: '#',
-  youtube: '▶',
-  rumble: '▶',
-};
+// Start the processing loop when first slot connects
+connMgr.onFirstConnect(() => {
+  initCharts();
+  if (!state.rafHandle) {
+    state.lastTimelineTs = Date.now();
+    state.rafHandle = requestAnimationFrame(processingLoop);
+  }
+});
 
-function switchPlatform(platform) {
-  if (adapter && adapter.isConnected) adapter.disconnect();
-  currentPlatform = platform;
-  adapter = adapters[platform]();
-  // Update input placeholder and prefix
-  const input = document.getElementById('channelInput');
-  const prefix = document.getElementById('inputPrefix');
-  if (input) input.placeholder = platformPlaceholders[platform] || 'channel name';
-  if (prefix) prefix.textContent = platformPrefixes[platform] || '#';
-}
+// Stop the processing loop when all slots disconnect
+connMgr.onAllDisconnected(() => {
+  if (state.rafHandle) {
+    cancelAnimationFrame(state.rafHandle);
+    state.rafHandle = null;
+  }
+  state.msgQueue.length = 0;
+});
 
 // =============================================================
 //  Window assignments — expose functions for inline HTML handlers
 // =============================================================
 
-// Platform switching
-window.switchPlatform = switchPlatform;
+// Multi-feed connection management
+window.connectSlot = (slotId, isReconnect) => connMgr.connectSlot(slotId, isReconnect);
+window.disconnectSlot = (slotId) => connMgr.disconnectSlot(slotId);
+window.addSlot = () => connMgr.addSlot();
+window.removeSlot = (slotId) => connMgr.removeSlot(slotId);
+window.switchSlotPlatform = (slotId, platform) => connMgr.switchSlotPlatform(slotId, platform);
 
-// Connection
-window.connectChat = (isReconnect) => adapter.connect(isReconnect);
-window.disconnectChat = () => adapter.disconnect();
+// Backward-compat wrappers
+window.connectChat = (isReconnect) => {
+  const slots = connMgr.slots;
+  if (slots.length > 0) connMgr.connectSlot(slots[0].id, isReconnect);
+};
+window.disconnectChat = () => connMgr.disconnectAll();
 window.flushChatterData = flushChatterData;
+
+// Channel history (slot-scoped)
+window.openChannelHistory = (slotId) => connMgr.openChannelHistory(slotId);
+window.closeChannelHistory = (slotId) => connMgr.closeChannelHistory(slotId);
+window.selectChannel = (slotId, name) => connMgr.selectChannel(slotId, name);
+window.deleteChannelFromHistory = (name, slotId) => connMgr.deleteChannelFromHistory(name, slotId);
+window.handleChannelKey = (slotId, e) => connMgr.handleChannelKey(slotId, e);
 
 // Settings & Presets
 window.toggleSettings = toggleSettings;
@@ -108,7 +104,7 @@ window.applyPreset = (preset) => {
     state.drawerOptions.density = 'dense';
   } else if (preset === 'dashboard' || preset === 'list') {
     state.drawerOptions.density = 'normal';
-    document.body.classList.remove('preset-dense','preset-loose');
+    document.body.classList.remove('preset-dense', 'preset-loose');
   }
   const dEl = document.getElementById('optDensity');
   if (dEl) dEl.value = state.drawerOptions.density;
@@ -163,7 +159,7 @@ window.updateTimelineInterval = updateTimelineInterval;
 window.showDecayRecommendation = () => {
   const now = Date.now();
   const cut3 = now - 3000;
-  const currentMps = parseFloat((state.tsThroughput.filter(t => t >= cut3).length / 3).toFixed(1));
+  const currentMps = parseFloat((state.tsThroughput.countWhere(t => t >= cut3) / 3).toFixed(1));
   let rec, details;
   if (currentMps < 2) { rec = '20-40s'; details = 'Low throughput (' + currentMps.toFixed(1) + ' msg/s). Use a higher decay so sparse messages linger long enough.'; }
   else if (currentMps < 10) { rec = '10-20s'; details = 'Moderate throughput (' + currentMps.toFixed(1) + ' msg/s). Balanced decay for responsive charts.'; }
@@ -186,19 +182,14 @@ window.closeRegexHistory = closeRegexHistory;
 window.selectRegexHistory = selectRegexHistory;
 window.deleteRegexFromHistory = deleteRegexFromHistory;
 
-// Platform adapter methods exposed to window (safe: checks if method exists)
-window.setOAuthToken = () => adapter.setOAuthToken?.();
-window.sendChatMessage = () => adapter.sendMessage?.();
-window.toggleEmotePicker = () => adapter.toggleEmotePicker?.();
-window.switchEmoteTab = (s) => adapter.switchEmoteTab?.(s);
-window.filterEmotePicker = (q) => adapter.filterEmotePicker?.(q);
-window.insertEmote = (c) => adapter.insertEmote?.(c);
-window.selectChannel = (n) => adapter.selectChannel?.(n);
-window.deleteChannelFromHistory = (n) => adapter.deleteChannelFromHistory?.(n);
-window.handleChannelKey = (e) => adapter.handleChannelKey?.(e);
-window.openChannelHistory = () => adapter.openChannelHistory?.();
-window.closeChannelHistory = () => adapter.closeChannelHistory?.();
-window.copyAuthError = () => adapter.copyAuthError?.();
+// Platform adapter methods exposed to window — delegate to first Twitch adapter
+window.setOAuthToken = () => connMgr.getFirstAdapter()?.setOAuthToken?.();
+window.sendChatMessage = () => connMgr.getFirstAdapter()?.sendMessage?.();
+window.toggleEmotePicker = () => connMgr.getFirstAdapter()?.toggleEmotePicker?.();
+window.switchEmoteTab = (s) => connMgr.getFirstAdapter()?.switchEmoteTab?.(s);
+window.filterEmotePicker = (q) => connMgr.getFirstAdapter()?.filterEmotePicker?.(q);
+window.insertEmote = (c) => connMgr.getFirstAdapter()?.insertEmote?.(c);
+window.copyAuthError = () => connMgr.getFirstAdapter()?.copyAuthError?.();
 
 // Utility exposed for inline handlers
 window.sanitize = sanitize;
@@ -207,9 +198,12 @@ window.esc = esc;
 // =============================================================
 //  Initialization
 // =============================================================
-window.onload = function() {
+window.onload = function () {
   // Initialize state from localStorage
   initState();
+
+  // Render initial slot UI
+  connMgr.renderAllSlots();
 
   // Init label scale slider
   const slider = document.getElementById('labelScaleSlider');
@@ -308,6 +302,13 @@ window.onload = function() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && state.drawerOptions.wakeLockEnabled) {
       requestWakeLock();
+    }
+  });
+
+  // Close channel history dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.input-wrap')) {
+      for (const slot of connMgr.slots) connMgr.closeChannelHistory(slot.id);
     }
   });
 

@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '12' },
-    { url: '/index.html', revision: '12' },
+    { url: '/', revision: '13' },
+    { url: '/index.html', revision: '13' },
     { url: '/css/main.css', revision: '1' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -18,25 +18,28 @@ if (workbox) {
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '3' },
+    { url: '/js/app.js', revision: '4' },
     { url: '/js/config.js', revision: '2' },
-    { url: '/js/state.js', revision: '1' },
+    { url: '/js/state.js', revision: '2' },
     { url: '/js/processing.js', revision: '3' },
     // Utils
     { url: '/js/utils/dom.js', revision: '1' },
     { url: '/js/utils/color.js', revision: '1' },
     { url: '/js/utils/storage.js', revision: '1' },
+    { url: '/js/utils/cors.js', revision: '1' },
+    { url: '/js/utils/CircularBuffer.js', revision: '1' },
     // Analysis
-    { url: '/js/analysis/sentiment.js', revision: '1' },
+    { url: '/js/analysis/sentiment.js', revision: '2' },
     { url: '/js/analysis/approval.js', revision: '1' },
     { url: '/js/analysis/botDetector.js', revision: '1' },
     { url: '/js/analysis/ewma.js', revision: '1' },
     // Platform
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
-    { url: '/js/platform/KickAdapter.js', revision: '5' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '6' },
-    { url: '/js/platform/RumbleAdapter.js', revision: '5' },
+    { url: '/js/platform/KickAdapter.js', revision: '6' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '7' },
+    { url: '/js/platform/RumbleAdapter.js', revision: '6' },
+    { url: '/js/platform/ConnectionManager.js', revision: '1' },
     { url: '/js/platform/emotes.js', revision: '1' },
     // UI
     { url: '/js/ui/charts.js', revision: '1' },

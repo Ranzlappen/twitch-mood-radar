@@ -303,7 +303,7 @@ export function pushThroughputTimelineSnapshot() {
   const now = Date.now();
   const cut3 = now - 3000;
   // Use tsThroughput already maintained in updateVisuals
-  const mps = parseFloat((state.tsThroughput.filter(t => t >= cut3).length / 3).toFixed(1));
+  const mps = parseFloat((state.tsThroughput.countWhere(t => t >= cut3) / 3).toFixed(1));
   const label = new Date().toLocaleTimeString([], { minute: '2-digit', second: '2-digit' });
   state.throughputTimelineChart.data.labels.push(label);
   state.throughputTimelineChart.data.labels.shift();

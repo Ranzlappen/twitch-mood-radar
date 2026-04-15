@@ -1,6 +1,8 @@
 // Centralized mutable application state
 // All modules import this and read/write properties directly
 
+import { CircularBuffer } from './utils/CircularBuffer.js';
+
 export const state = {
   // Connection
   ws: null,
@@ -11,12 +13,12 @@ export const state = {
   currentChannelName: '',
 
   // Message processing
-  msgQueue: [],
+  msgQueue: new CircularBuffer(8192),
   scoredMessages: [],
   keywordStore: new Map(),
   approvalStore: [],
-  msgTimestamps: [],
-  tsThroughput: [],
+  msgTimestamps: new CircularBuffer(4096),
+  tsThroughput: new CircularBuffer(1024),
   droppedMessages: 0,
   totalMessages: 0,
   uniqueUsers: new Set(),
