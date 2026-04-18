@@ -30,6 +30,13 @@ export default [
         Date: 'readonly',
         ResizeObserver: 'readonly',
         prompt: 'readonly',
+        indexedDB: 'readonly',
+        IDBKeyRange: 'readonly',
+        IDBDatabase: 'readonly',
+        IDBTransaction: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLButtonElement: 'readonly',
       },
     },
     rules: {

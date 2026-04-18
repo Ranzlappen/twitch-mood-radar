@@ -130,6 +130,25 @@ function unlockApp() {
   </div>
 </div>
 
+<!-- User history modal -->
+<div class="help-overlay user-history-overlay" id="userHistoryOverlay"
+     onclick="if(event.target===this)closeUserHistory()"
+     role="dialog" aria-modal="true" aria-labelledby="userHistoryTitle" hidden>
+  <div class="help-modal user-history-modal">
+    <button class="help-close" onclick="closeUserHistory()" aria-label="Close user history">x</button>
+    <h3 id="userHistoryTitle">USER HISTORY</h3>
+    <div id="userHistoryStats" class="user-history-stats"></div>
+    <div class="user-history-controls">
+      <label><input type="radio" name="userHistScope" value="channel" checked> This channel</label>
+      <label><input type="radio" name="userHistScope" value="all"> All channels</label>
+      <label><input type="checkbox" id="userHistBots"> Show bot messages</label>
+      <button class="user-hist-clear" onclick="clearCurrentUserHistory()">Clear this user</button>
+    </div>
+    <div id="userHistoryList" class="user-history-list" role="log"></div>
+    <button class="user-hist-load-more" id="userHistLoadMore" hidden>Load older</button>
+  </div>
+</div>
+
 <div class="app" id="main-content">
 
 <!-- ====================================================
@@ -631,6 +650,29 @@ function unlockApp() {
           <input type="checkbox" id="optApprovalVerdict" checked onchange="setOptApprovalVerdict(this.checked)">
           <span class="opt-label">Show verdict text</span>
         </label>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>User History (IndexedDB)</summary>
+      <div class="opt-content">
+        <label class="opt-toggle">
+          <input type="checkbox" id="optHistoryEnabled" checked onchange="setHistoryEnabled(this.checked)">
+          <span class="opt-label">Log messages per-user</span>
+        </label>
+        <div class="opt-row">
+          <span class="opt-label">RETAIN</span>
+          <input type="range" id="optHistoryDays" min="1" max="90" step="1" value="14" oninput="setHistoryRetentionDays(this.value)">
+          <span class="opt-val" id="optHistoryDaysVal">14d</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">MAX ROWS</span>
+          <input type="range" id="optHistoryRows" min="5000" max="500000" step="5000" value="50000" oninput="setHistoryMaxRows(this.value)">
+          <span class="opt-val" id="optHistoryRowsVal">50,000</span>
+        </div>
+        <div style="padding:8px 0">
+          <button class="opt-reset-btn" onclick="clearAllUserHistory()" style="background:transparent;border:1px solid var(--accent2);color:var(--accent2)">CLEAR ALL HISTORY</button>
+        </div>
       </div>
     </details>
 

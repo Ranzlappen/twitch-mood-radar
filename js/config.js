@@ -19,6 +19,20 @@ export const FILTERED_FEED_FONT_KEY = 'moodradar_filteredfeedfont_v1';
 export const RESIZE_STORAGE_KEY = 'moodradar_sizes_v2';
 export const LAYOUT_STORAGE_KEY = 'moodradar_layout_v1';
 
+// User-message history (IndexedDB)
+export const HISTORY_DB_NAME = 'moodradar_history_v1';
+export const HISTORY_DB_VERSION = 1;
+export const HISTORY_DB_STORE = 'messages';
+export const HISTORY_RETENTION_DAYS_KEY = 'moodradar_histdays_v1';
+export const HISTORY_MAX_ROWS_KEY = 'moodradar_histrows_v1';
+export const HISTORY_ENABLED_KEY = 'moodradar_histenabled_v1';
+export const DEFAULT_HISTORY_RETENTION_DAYS = 14;
+export const DEFAULT_HISTORY_MAX_ROWS = 50_000;
+export const HISTORY_FLUSH_MS = 3000;
+export const HISTORY_FLUSH_BATCH = 500;
+export const HISTORY_PRUNE_INTERVAL_MS = 1_800_000;
+export const HISTORY_QUOTA_TRIM_FRACTION = 0.2;
+
 // --- Processing Constants ---
 export const WINDOW_MS = 120_000;
 export const QUEUE_CAP = 5000;

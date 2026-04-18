@@ -17,7 +17,7 @@ export function closeHelp() {
 
 /**
  * Attach Escape key handler that closes help, settings dropdown,
- * and options drawer.
+ * options drawer, and the user-history modal.
  */
 export function initHelpKeys() {
   document.addEventListener('keydown', e => {
@@ -26,6 +26,11 @@ export function initHelpKeys() {
       document.getElementById('settingsDropdown').classList.remove('open');
       document.getElementById('optionsDrawer').classList.remove('open');
       document.getElementById('optionsOverlay').classList.remove('open');
+      const userHist = document.getElementById('userHistoryOverlay');
+      if (userHist && userHist.classList.contains('open')) {
+        userHist.classList.remove('open');
+        userHist.hidden = true;
+      }
     }
   });
 }
