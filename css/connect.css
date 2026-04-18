@@ -145,6 +145,127 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 .help-close { position:absolute; top:14px; right:16px; background:transparent; border:none; color:var(--muted); font-size:1.1em; cursor:pointer; line-height:1; padding:4px }
 .help-close:hover { color:var(--accent) }
 
+/* ============================================================
+   USER HISTORY MODAL — reuses .help-overlay backdrop pattern
+   ============================================================ */
+.user-history-overlay.open { display:flex }
+.user-history-modal {
+  max-width: 640px;
+  width: 100%;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px 20px 16px;
+}
+.user-history-stats {
+  font-size: .72em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
+}
+.user-history-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+}
+.user-history-stat-label {
+  color: #5a5a8a;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .85em;
+  margin-right: 4px;
+}
+.user-history-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-size: .72em;
+  color: #9898c8;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+  margin-bottom: 10px;
+}
+.user-history-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.user-history-controls input[type=radio],
+.user-history-controls input[type=checkbox] {
+  cursor: pointer;
+}
+.user-hist-clear {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .9em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: .04em;
+}
+.user-hist-clear:hover {
+  background: var(--accent2);
+  color: var(--panel);
+}
+.user-history-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.user-history-list::-webkit-scrollbar { width: 4px }
+.user-history-list::-webkit-scrollbar-thumb { background: var(--border) }
+.user-history-row {
+  display: grid;
+  grid-template-columns: 134px 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.user-history-ts {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.user-history-row .feed-item {
+  border-bottom: none;
+  padding: 0;
+}
+.user-history-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: .8em;
+}
+.user-hist-load-more {
+  margin: 10px auto 0;
+  display: block;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .78em;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: .04em;
+}
+.user-hist-load-more:hover {
+  border-color: var(--accent);
+  background: rgba(0,255,229,.08);
+}
+.user-hist-load-more[hidden] { display: none; }
+
 /* Disconnected pulsing red inlaid border — applied when logging was active but connection was lost */
 body.disconnected {
   background:var(--bg);

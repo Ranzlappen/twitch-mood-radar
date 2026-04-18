@@ -5,10 +5,11 @@ import { classifyMessage } from './analysis/sentiment.js';
 import { detectBot } from './analysis/botDetector.js';
 import { computeWeightedMoods, computeKeywordWeights, getDominant } from './analysis/ewma.js';
 import { hexAlpha } from './utils/color.js';
-import { fmtNum, setStatus } from './utils/dom.js';
+import { fmtNum, setStatus, sanitize } from './utils/dom.js';
 import { updateBubbles } from './ui/bubbles.js';
 import { updateApprovalMeter } from './ui/approval-meter.js';
 import { pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot } from './ui/charts.js';
+import { enqueueHistory } from './history/historyDb.js';
 
 // Feed instances — imported lazily to avoid circular deps
 let _mainFeed = null;
@@ -28,9 +29,9 @@ async function getFeeds() {
 // Eagerly resolve feeds on first import
 getFeeds();
 
-export function enqueue(user, msg, ts, platform) {
+export function enqueue(user, msg, ts, platform, channel) {
   if (state.msgQueue.length >= QUEUE_CAP) { state.msgQueue.shift(); state.droppedMessages++; }
-  state.msgQueue.push({ user, msg, ts, platform: platform || '' });
+  state.msgQueue.push({ user, msg, ts, platform: platform || '', channel: channel || '' });
 }
 
 export function processingLoop() {
@@ -41,7 +42,9 @@ export function processingLoop() {
   const n = Math.min(state.msgQueue.length, burst);
 
   for (let i = 0; i < n; i++) {
-    const { user, msg, ts, platform } = state.msgQueue.shift();
+    const { user, msg, ts, platform, channel } = state.msgQueue.shift();
+    // Derive userKey the same way feeds.js does so click-to-history matches.
+    const userKey = sanitize(user || '').toLowerCase();
     if (state.botFilterEnabled) {
       const { botScore, isBot } = detectBot(user, msg, ts);
       if (isBot) {
@@ -51,6 +54,7 @@ export function processingLoop() {
           _mainFeed.add(user, msg, 'bot', botScore, 0, platform);
           if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform);
         }
+        enqueueHistory({ user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true });
         continue;
       }
     }
@@ -68,6 +72,7 @@ export function processingLoop() {
       _mainFeed.add(user, msg, mood, 0, approvalVote, platform);
       if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform);
     }
+    enqueueHistory({ user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false });
     // Outlier detection: flag messages whose mood is underrepresented
     if (mood !== 'neutral' && strength >= 1.0 && state.totalMessages > 20) {
       const pct = computeWeightedMoods(ts);

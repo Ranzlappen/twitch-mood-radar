@@ -17,6 +17,8 @@ import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, rende
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
+import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
+import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
 
 // --- Import all setOpt* functions from options ---
 import {
@@ -34,9 +36,12 @@ import {
 // =============================================================
 const connMgr = new ConnectionManager();
 
+// Expose ConnectionManager for the user-history modal to read live channel/platform.
+window.__connMgr = connMgr;
+
 // Wire incoming messages to the processing pipeline
-connMgr.onMessage(({ user, msg, ts, platform }) => {
-  enqueue(user, msg, ts, platform);
+connMgr.onMessage(({ user, msg, ts, platform, channel }) => {
+  enqueue(user, msg, ts, platform, channel);
 });
 
 // Start the processing loop when first slot connects
@@ -144,6 +149,33 @@ window.resetAllOptions = resetAllOptions;
 // Help
 window.showHelp = showHelp;
 window.closeHelp = closeHelp;
+
+// User history modal
+window.openUserHistory = openUserHistory;
+window.closeUserHistory = closeUserHistory;
+window.clearCurrentUserHistory = clearCurrentUserHistory;
+window.clearAllUserHistory = async () => {
+  if (!window.confirm('Delete ALL logged user-history messages across every channel?\n\nThis cannot be undone.')) return;
+  await clearAllHistory();
+  // If the modal is open, refresh it.
+  const ov = document.getElementById('userHistoryOverlay');
+  if (ov && ov.classList.contains('open')) closeUserHistory();
+};
+window.setHistoryEnabled = (v) => {
+  setHistoryEnabled(v);
+  const cb = document.getElementById('optHistoryEnabled');
+  if (cb) cb.checked = isHistoryEnabled();
+};
+window.setHistoryRetentionDays = (v) => {
+  const n = setRetentionDays(v);
+  const valEl = document.getElementById('optHistoryDaysVal');
+  if (valEl) valEl.textContent = n + 'd';
+};
+window.setHistoryMaxRows = (v) => {
+  const n = setMaxRows(v);
+  const valEl = document.getElementById('optHistoryRowsVal');
+  if (valEl) valEl.textContent = n.toLocaleString();
+};
 
 // Layout
 window.toggleLayoutInline = toggleLayoutInline;
@@ -339,6 +371,22 @@ window.onload = function () {
 
   // Initialize help keyboard shortcuts
   initHelpKeys();
+
+  // Initialize per-user message history (IndexedDB) and modal click-to-open
+  initHistoryDb();
+  initUserHistoryModal();
+
+  // Sync history settings UI to stored values
+  const histCb = document.getElementById('optHistoryEnabled');
+  if (histCb) histCb.checked = isHistoryEnabled();
+  const histDays = document.getElementById('optHistoryDays');
+  const histDaysVal = document.getElementById('optHistoryDaysVal');
+  if (histDays) histDays.value = getRetentionDays();
+  if (histDaysVal) histDaysVal.textContent = getRetentionDays() + 'd';
+  const histRows = document.getElementById('optHistoryRows');
+  const histRowsVal = document.getElementById('optHistoryRowsVal');
+  if (histRows) histRows.value = getMaxRows();
+  if (histRowsVal) histRowsVal.textContent = getMaxRows().toLocaleString();
 
   // Guard against ResizeObserver overwriting saved sizes during init
   state.isRestoringLayout = true;

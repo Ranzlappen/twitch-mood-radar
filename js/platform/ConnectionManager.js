@@ -293,10 +293,14 @@ export class ConnectionManager {
   }
 
   _wireAdapter(slot) {
-    // Wire adapter's onMessage to push through to the manager's callback
+    // Wire adapter's onMessage to push through to the manager's callback.
+    // Inject the slot's channel so downstream consumers (history log) can
+    // partition by stream without each adapter needing to know.
     slot.adapter.onMessage((msg) => {
       state.tsThroughput.push(msg.ts);
-      if (this._onMessageCallback) this._onMessageCallback(msg);
+      if (this._onMessageCallback) {
+        this._onMessageCallback({ ...msg, channel: msg.channel || slot.channelName });
+      }
     });
 
     // Wire adapter's onStatus to update slot status
