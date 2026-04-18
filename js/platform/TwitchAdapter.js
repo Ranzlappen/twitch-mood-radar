@@ -138,8 +138,17 @@ export class TwitchAdapter extends PlatformAdapter {
         if (bangIdx < 0) continue;
         const user = line.slice(userStart, bangIdx);
 
+        // Parse IRCv3 tags (atStart === line begins with '@') and rewrite native
+        // Twitch emote positions into [emote:twitch:<id>:<name>] placeholders so
+        // renderEmotes() can swap them for CDN images.
+        let finalMsg = msgText;
+        if (atStart) {
+          const emotesTag = this._readIrcTag(line, 'emotes');
+          if (emotesTag) finalMsg = this._rewriteTwitchEmotes(msgText, emotesTag);
+        }
+
         if (this._onMessageCallback) {
-          this._onMessageCallback({ user, msg: msgText, ts: now, platform: 'twitch' });
+          this._onMessageCallback({ user, msg: finalMsg, ts: now, platform: 'twitch' });
         }
       }
     };
@@ -185,6 +194,69 @@ export class TwitchAdapter extends PlatformAdapter {
         if (this._loggingActive) this.connect(this._currentChannelName, true);
       }, RECONNECT_DELAY_MS);
     }
+  }
+
+  // ------------------------------------------------------------------
+  //  IRCv3 tag parsing — native Twitch emote rewriting
+  // ------------------------------------------------------------------
+
+  /**
+   * Read a single IRCv3 tag value from the prefix of a tagged IRC line.
+   * Returns '' when the tag is absent or empty. Expects `line[0] === '@'`.
+   */
+  _readIrcTag(line, name) {
+    const spaceIdx = line.indexOf(' ');
+    if (spaceIdx < 2) return '';
+    const prefix = line.slice(1, spaceIdx);
+    const key = name + '=';
+    let i = 0;
+    while (i < prefix.length) {
+      const end = prefix.indexOf(';', i);
+      const part = end < 0 ? prefix.slice(i) : prefix.slice(i, end);
+      if (part.startsWith(key)) return part.slice(key.length);
+      if (end < 0) break;
+      i = end + 1;
+    }
+    return '';
+  }
+
+  /**
+   * Rewrite native Twitch emote positions (from the `emotes` IRCv3 tag) into
+   * source-tagged placeholders understood by renderEmotes().
+   *
+   * Tag format: `id:start-end,start-end/id:start-end` — positions are
+   * code-point indices (not UTF-16 code units), so we split the message into
+   * a code-point array before splicing.
+   */
+  _rewriteTwitchEmotes(msgText, emotesTag) {
+    if (!emotesTag) return msgText;
+    const ranges = [];
+    for (const group of emotesTag.split('/')) {
+      const colon = group.indexOf(':');
+      if (colon < 0) continue;
+      const id = group.slice(0, colon);
+      if (!/^\d+$/.test(id)) continue;
+      for (const span of group.slice(colon + 1).split(',')) {
+        const dash = span.indexOf('-');
+        if (dash < 0) continue;
+        const start = parseInt(span.slice(0, dash), 10);
+        const end = parseInt(span.slice(dash + 1), 10);
+        if (!isFinite(start) || !isFinite(end) || end < start) continue;
+        ranges.push({ id, start, end });
+      }
+    }
+    if (!ranges.length) return msgText;
+    ranges.sort((a, b) => b.start - a.start); // splice from the right so earlier indices stay valid
+
+    const cps = Array.from(msgText);
+    for (const r of ranges) {
+      if (r.start < 0 || r.end >= cps.length) continue;
+      const nameRaw = cps.slice(r.start, r.end + 1).join('');
+      const name = nameRaw.replace(/[^A-Za-z0-9_]/g, '');
+      if (!name) continue;
+      cps.splice(r.start, r.end - r.start + 1, `[emote:twitch:${r.id}:${name}]`);
+    }
+    return cps.join('');
   }
 
   // ------------------------------------------------------------------

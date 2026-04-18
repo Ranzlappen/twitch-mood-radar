@@ -219,7 +219,9 @@ export const APPROVAL_TERMS = new Map([
 export const APPROVAL_KEYS = [...APPROVAL_TERMS.keys()];
 
 // --- Emote Map (text → emoji) ---
-export const EMOTE_MAP = new Map([
+// Authored with natural punctuation; keys are HTML-escaped at load time so
+// matching works against messages that have already been passed through esc().
+const _RAW_EMOTE_MAP = new Map([
   ['PogChamp','😲'],['Kappa','😏'],['KEKW','🤣'],['OMEGALUL','😂'],['LUL','😆'],
   ['4Head','😄'],['Kreygasm','😫'],['BibleThump','😢'],['ResidentSleeper','😴'],
   ['PepeHands','😭'],['Sadge','😞'],['monkaS','😰'],['monkaW','😨'],['COPIUM','🤡'],
@@ -236,6 +238,10 @@ export const EMOTE_MAP = new Map([
   [':cap:','🧢'],[':goat:','🐐'],[':W:','🔥'],[':L:','💀'],
   [':clap:','👏'],[':thumbsup:','👍'],[':thumbsdown:','👎'],
 ]);
+const _escEmoteKey = (s) => String(s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const EMOTE_MAP = new Map();
+for (const [k, v] of _RAW_EMOTE_MAP) EMOTE_MAP.set(_escEmoteKey(k), v);
 export const EMOTE_REGEX = new RegExp(
   [...EMOTE_MAP.keys()].map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'),
   'g'

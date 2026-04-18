@@ -14,6 +14,21 @@ import { sanitize, setStatus } from '../utils/dom.js';
 import { RECONNECT_DELAY_MS } from '../config.js';
 import { fetchViaCorsProxy } from '../utils/cors.js';
 
+/**
+ * Normalise Kick's chat emote placeholders into the shared
+ *   [emote:<source>:<id>:<name>]
+ * format consumed by renderEmotes(). Kick sends two observed variants:
+ *   [emote:<id>:<name>]                (3 parts, modern)
+ *   [emote:<extra>:<id>:<name>]        (4 parts, occasionally)
+ */
+function normalizeKickEmotes(text) {
+  if (!text || text.indexOf('[emote:') === -1) return text;
+  return text
+    // 4-part variant first so the 3-part regex doesn't grab its tail
+    .replace(/\[emote:([^:\]]+):(\d+):([A-Za-z0-9_]+)\]/g, '[emote:kick:$1:$2:$3]')
+    .replace(/\[emote:(\d+):([A-Za-z0-9_]+)\]/g, '[emote:kick:$1:$2]');
+}
+
 export class KickAdapter extends PlatformAdapter {
   constructor() {
     super();
@@ -167,7 +182,7 @@ export class KickAdapter extends PlatformAdapter {
         if (data.event === 'App\\Events\\ChatMessageEvent') {
           const msgData = JSON.parse(data.data);
           const user = msgData.sender?.username || msgData.sender?.slug || 'unknown';
-          const msg = msgData.content || '';
+          const msg = normalizeKickEmotes(msgData.content || '');
           const ts = Date.now();
 
           if (this._onMessageCallback && msg) {
