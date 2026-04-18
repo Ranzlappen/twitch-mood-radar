@@ -20,8 +20,9 @@ Analyzes the emotional tone of live chat across Twitch, Kick, YouTube, and Rumbl
   - Consensus bubbles (custom canvas physics engine)
   - Approval gauge with mini-bar history
   - Timeline charts (linear, logarithmic, approval, throughput)
-  - Live feeds (main, regex-filtered, standout messages)
+  - Live feeds (main, regex-filtered, standout messages) with Twitch-style sticky-bottom scroll — scrolling up pauses auto-scroll and shows a "Chat Paused — click to resume" pill
 - **Bot detection** — multi-criteria scoring with behavioral profiling
+- **Per-user message history** — click any chatter's name to open a modal with every message they've posted. Stored in IndexedDB (mobile-friendly defaults: 14 days / 50k rows, configurable), scoped per channel + platform, with "All channels" and "Show bot messages" toggles
 - **30+ customization options** — density presets, drag-and-drop layout, CRT effects, font scaling
 - **PWA** — installable, works offline, screen wake lock
 - **Auto-reconnect** with per-slot status tracking
@@ -31,6 +32,7 @@ Analyzes the emotional tone of live chat across Twitch, Kick, YouTube, and Rumbl
 - Vanilla HTML/CSS/JS (ES modules)
 - Chart.js v4.4.1 (CDN)
 - Workbox 7.3.0 (service worker)
+- IndexedDB for persistent per-user message history
 - Vitest (85 tests), ESLint, Prettier
 
 ## How to Use
