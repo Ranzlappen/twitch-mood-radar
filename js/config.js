@@ -323,13 +323,20 @@ export const HELP_CONTENT = {
   },
   filteredFeed: {
     title: 'FILTERED FEED',
-    body: `<p>A secondary live feed that shows only messages matching your filter in real time. Click the <strong>FILTER</strong> button in the feed title to edit the filter in a modal.</p>
-<p><strong>Two fields, combined with AND:</strong></p>
+    body: `<p>A secondary live feed that shows only messages matching your filter in real time. Click the <strong>FILTER</strong> pill in the feed's title bar to open the editor.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">TWO FIELDS (combined with AND)</h4>
 <ul>
-  <li><strong>MESSAGE REGEX</strong> — case-insensitive JavaScript regular expression tested against the message text</li>
-  <li><strong>USERNAME CONTAINS</strong> — literal substring, case-insensitive, tested against the username</li>
+  <li><strong>MESSAGE REGEX</strong> — a case-insensitive JavaScript regular expression tested against the message text. Invalid regex is highlighted red and won't apply.</li>
+  <li><strong>USERNAME CONTAINS</strong> — a literal substring, case-insensitive, tested against the sender's name. Suggestions are populated from chatters seen so far.</li>
 </ul>
-<p><strong>Regex Examples:</strong></p>
+<p>Leave either one empty to skip that filter. Leave both empty and the filtered feed shows nothing.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">LIVE PREVIEW</h4>
+<p>While the modal is open, you'll see a running match count ("X of Y recent") and a small preview of the most recent matches. Preview data is only collected while the modal is open — close and reopen to start fresh.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">PERSISTENCE</h4>
+<p>Click <strong>Apply</strong> to activate the filter. It keeps running in the background whether the modal is open or closed, and is restored on reload. The button in the title bar lights up with your current filter when active. Click <strong>Clear</strong> to turn the filter off.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">SAVED FILTERS</h4>
+<p>Every applied filter is remembered (up to 20, newest first). Click one to restore, or press <strong>×</strong> to delete it. Press Escape or click outside the modal to close without applying.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">REGEX EXAMPLES</h4>
 <ul>
   <li><code>\\\\?</code> — Messages containing a question mark</li>
   <li><code>^!</code> — Messages starting with !commands</li>
@@ -337,8 +344,7 @@ export const HELP_CONTENT = {
   <li><code>\\\\bgg\\\\b</code> — Match "gg" as a whole word</li>
   <li><code>^[A-Z\\\\s]+$</code> — ALL CAPS messages only</li>
   <li><code>hype|pog</code> — Messages mentioning hype or pog</li>
-</ul>
-<p>The live preview inside the modal counts matches against messages arriving while the modal is open. The active filter itself keeps running whether or not the modal is open.</p>`
+</ul>`
   },
   outlier: {
     title: 'STANDOUT MESSAGES',

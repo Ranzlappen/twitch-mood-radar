@@ -20,7 +20,7 @@ if (workbox) {
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '6' },
-    { url: '/js/config.js', revision: '4' },
+    { url: '/js/config.js', revision: '5' },
     { url: '/js/state.js', revision: '3' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
