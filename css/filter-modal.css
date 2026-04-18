@@ -1,0 +1,229 @@
+/* ============================================================
+   FILTERED FEED — filter editor modal
+   Overlays the help-modal base with wider layout + input fields
+   and a live preview panel.
+   ============================================================ */
+
+.filter-overlay.help-overlay[hidden] { display:none }
+
+.filter-modal.help-modal {
+  max-width: 560px;
+  padding: 22px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-modal h3 {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-field-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .56em;
+  letter-spacing: .18em;
+  color: var(--muted);
+}
+
+.filter-field input[type=text] {
+  background: #080814;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .82em;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-field input[type=text]::placeholder { color: var(--muted); opacity: .6 }
+
+.filter-field input[type=text]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 255, 229, .2);
+}
+
+.filter-field input[type=text].regex-error {
+  border-color: var(--accent2);
+  box-shadow: 0 0 8px rgba(255, 45, 120, .25);
+}
+
+/* --- Live feedback panel --- */
+
+.filter-feedback {
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-match-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .72em;
+  color: var(--accent);
+  letter-spacing: .05em;
+}
+
+.filter-preview {
+  max-height: 168px;
+  overflow-y: auto;
+  font-size: .9em;
+  line-height: 1.35;
+}
+
+.filter-preview::-webkit-scrollbar { width: 3px }
+.filter-preview::-webkit-scrollbar-thumb { background: var(--border) }
+
+.filter-preview .feed-item {
+  border-bottom: 1px solid rgba(255, 255, 255, .04);
+  animation: none;
+}
+
+.filter-preview .feed-item:last-child { border-bottom: none }
+
+.filter-preview-hint {
+  color: var(--muted);
+  font-size: .7em;
+  padding: 12px 6px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* --- Action buttons --- */
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Orbitron', sans-serif;
+  font-size: .62em;
+  letter-spacing: .18em;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s, box-shadow .2s;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filter-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filter-btn-primary {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 255, 229, .06);
+}
+
+.filter-btn-primary:hover {
+  background: var(--accent);
+  color: var(--panel);
+  box-shadow: 0 0 10px rgba(0, 255, 229, .35);
+}
+
+/* --- History list --- */
+
+.filter-history-section {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-history-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .56em;
+  letter-spacing: .18em;
+  color: var(--muted);
+}
+
+.filter-history-list {
+  max-height: 140px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filter-history-list::-webkit-scrollbar { width: 3px }
+.filter-history-list::-webkit-scrollbar-thumb { background: var(--border) }
+
+.filter-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.filter-history-item:hover { background: rgba(0, 255, 229, .07) }
+.filter-history-item:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px }
+
+.fh-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .74em;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.fh-rx { color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.fh-user { color: var(--accent3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.fh-empty { color: var(--muted); opacity: .5 }
+
+.fh-delete {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1em;
+  line-height: 1;
+  padding: 2px 6px;
+  opacity: .5;
+  transition: color .15s, opacity .15s;
+  flex-shrink: 0;
+}
+
+.fh-delete:hover { color: var(--accent2); opacity: 1 }
+
+.filter-history-empty {
+  color: var(--muted);
+  font-size: .7em;
+  padding: 8px;
+  text-align: center;
+  font-style: italic;
+}

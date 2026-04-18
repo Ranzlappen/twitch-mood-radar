@@ -31,6 +31,11 @@ export function initHelpKeys() {
         userHist.classList.remove('open');
         userHist.hidden = true;
       }
+      const filterOv = document.getElementById('filterOverlay');
+      if (filterOv && filterOv.classList.contains('open')) {
+        if (typeof window.closeFilterModal === 'function') window.closeFilterModal();
+        else { filterOv.classList.remove('open'); filterOv.hidden = true; }
+      }
     }
   });
 }

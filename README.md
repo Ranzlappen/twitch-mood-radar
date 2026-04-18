@@ -20,7 +20,8 @@ Analyzes the emotional tone of live chat across Twitch, Kick, YouTube, and Rumbl
   - Consensus bubbles (custom canvas physics engine)
   - Approval gauge with mini-bar history
   - Timeline charts (linear, logarithmic, approval, throughput)
-  - Live feeds (main, regex-filtered, standout messages) with Twitch-style sticky-bottom scroll — scrolling up pauses auto-scroll and shows a "Chat Paused — click to resume" pill
+  - Live feeds (main, filtered, standout messages) with Twitch-style sticky-bottom scroll — scrolling up pauses auto-scroll and shows a "Chat Paused — click to resume" pill
+  - **Filtered feed editor** — click the `FILTER` pill on the filtered feed to open a modal with two combinable fields: a case-insensitive message regex and a username-contains substring (suggested from chatters seen so far). A live preview counts matches and shows recent hits while you type; Apply persists the filter across reloads. Saved filters (up to 20) can be re-applied or deleted
 - **Bot detection** — multi-criteria scoring with behavioral profiling
 - **Per-user message history** — click any chatter's name to open a modal with every message they've posted. Stored in IndexedDB (mobile-friendly defaults: 14 days / 50k rows, configurable), scoped per channel + platform, with "All channels" and "Show bot messages" toggles
 - **30+ customization options** — density presets, drag-and-drop layout, CRT effects, font scaling
@@ -49,7 +50,7 @@ Nothing is ever sent to a server. Two layers are used, each with a different pur
 
 | Layer | What it holds | Typical size | Cleared by |
 |---|---|---|---|
-| **`localStorage`** | UI settings only (font sizes, layout, presets, regex filter history, OAuth token, retention settings) | a few KB | browser site-data wipe |
+| **`localStorage`** | UI settings only (font sizes, layout, presets, active filter + saved filter history, OAuth token, retention settings) | a few KB | browser site-data wipe |
 | **IndexedDB** (`moodradar_history_v1`) | The full per-user chat log | bounded — see defaults below | retention pruning, per-user Clear, global Clear All |
 
 The history database is visible in DevTools → **Application → Storage → IndexedDB → `moodradar_history_v1` → `messages`**. You can inspect or export it from there if you want.

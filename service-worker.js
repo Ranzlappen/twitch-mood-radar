@@ -4,23 +4,24 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '14' },
-    { url: '/index.html', revision: '14' },
-    { url: '/css/main.css', revision: '1' },
+    { url: '/', revision: '15' },
+    { url: '/index.html', revision: '15' },
+    { url: '/css/main.css', revision: '2' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
     { url: '/css/header.css', revision: '1' },
     { url: '/css/connect.css', revision: '4' },
     { url: '/css/cards.css', revision: '1' },
-    { url: '/css/feeds.css', revision: '3' },
+    { url: '/css/feeds.css', revision: '4' },
+    { url: '/css/filter-modal.css', revision: '1' },
     { url: '/css/layout-mgr.css', revision: '1' },
     { url: '/css/presets.css', revision: '1' },
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '5' },
-    { url: '/js/config.js', revision: '3' },
-    { url: '/js/state.js', revision: '2' },
+    { url: '/js/app.js', revision: '6' },
+    { url: '/js/config.js', revision: '5' },
+    { url: '/js/state.js', revision: '3' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
     { url: '/js/utils/dom.js', revision: '1' },
@@ -46,12 +47,12 @@ if (workbox) {
     // UI
     { url: '/js/ui/charts.js', revision: '1' },
     { url: '/js/ui/bubbles.js', revision: '1' },
-    { url: '/js/ui/feeds.js', revision: '3' },
+    { url: '/js/ui/feeds.js', revision: '4' },
     { url: '/js/ui/approval-meter.js', revision: '1' },
     { url: '/js/ui/options.js', revision: '1' },
     { url: '/js/ui/settings.js', revision: '1' },
     { url: '/js/ui/layout.js', revision: '1' },
-    { url: '/js/ui/help.js', revision: '2' },
+    { url: '/js/ui/help.js', revision: '3' },
     { url: '/js/ui/wake-lock.js', revision: '1' },
     { url: '/js/ui/userHistoryModal.js', revision: '1' },
     // Assets
