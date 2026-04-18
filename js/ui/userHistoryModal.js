@@ -4,12 +4,24 @@
  *
  * Default scope is the current channel+platform of the live feed; a toggle
  * widens to "All channels". Bot-flagged messages are hidden by default.
+ *
+ * Supports:
+ *  - live message appends while the modal is open (subscribes to the
+ *    processing loop via onMessageProcessed)
+ *  - a font-size slider for message text inside the list
+ *  - persisted controls (bot checkbox, scope, font size) across reloads
  */
 import { queryByUser, userStats, clearUser } from '../history/historyDb.js';
 import { buildFeedItemHtml } from './feeds.js';
 import { esc } from '../utils/dom.js';
+import { load, save, loadRaw, saveRaw } from '../utils/storage.js';
+import { USER_HIST_FONT_KEY, USER_HIST_BOTS_KEY, USER_HIST_SCOPE_KEY } from '../config.js';
+import { onMessageProcessed } from '../processing.js';
 
 const PAGE_SIZE = 200;
+const FONT_MIN = 0.5;
+const FONT_MAX = 4;
+const FONT_DEFAULT = 1.1;
 
 const _state = {
   user: '',
@@ -18,10 +30,32 @@ const _state = {
   platform: null,
   scope: 'channel',          // 'channel' | 'all'
   includeBots: false,
+  fontSize: FONT_DEFAULT,
   oldestTs: null,
   hasMore: false,
   loading: false,
+  unsubLive: null,
+  // Locally-incremented stats so live appends update the header without
+  // re-querying IndexedDB on every message.
+  stats: { total: 0, firstTs: null, lastTs: null, moodCounts: {} },
 };
+
+// Persisted defaults — read once at module load; updated whenever the user
+// changes a control so subsequent opens honor the most recent choice.
+const _persisted = {
+  fontSize: _clampFont(parseFloat(loadRaw(USER_HIST_FONT_KEY, String(FONT_DEFAULT)))),
+  includeBots: load(USER_HIST_BOTS_KEY, false) === true,
+  scopePref: (() => {
+    const v = loadRaw(USER_HIST_SCOPE_KEY, 'channel');
+    return (v === 'all' || v === 'channel') ? v : 'channel';
+  })(),
+};
+
+function _clampFont(v) {
+  const n = parseFloat(v);
+  if (!isFinite(n)) return FONT_DEFAULT;
+  return Math.min(FONT_MAX, Math.max(FONT_MIN, n));
+}
 
 function _overlay() { return document.getElementById('userHistoryOverlay'); }
 function _list() { return document.getElementById('userHistoryList'); }
@@ -29,6 +63,8 @@ function _stats() { return document.getElementById('userHistoryStats'); }
 function _title() { return document.getElementById('userHistoryTitle'); }
 function _loadMore() { return document.getElementById('userHistLoadMore'); }
 function _botCheckbox() { return document.getElementById('userHistBots'); }
+function _fontSlider() { return document.getElementById('userHistFontSlider'); }
+function _fontVal() { return document.getElementById('userHistFontVal'); }
 
 function _fmtTs(ts) {
   const d = new Date(ts);
@@ -57,6 +93,36 @@ function _topMood(moodCounts) {
   return best;
 }
 
+/**
+ * Build a single .user-history-row element from a history record. Used by
+ * both initial page renders and live appends so the DOM structure stays in
+ * sync.
+ */
+function _buildRow(r) {
+  const wrap = document.createElement('div');
+  wrap.className = 'user-history-row';
+  const tsSpan = document.createElement('span');
+  tsSpan.className = 'user-history-ts';
+  tsSpan.title = _fmtTs(r.ts);
+  tsSpan.textContent = _fmtTs(r.ts);
+
+  const item = document.createElement('div');
+  const built = buildFeedItemHtml({
+    user: r.user,
+    msg: r.msg,
+    mood: r.isBot ? 'bot' : (r.mood || 'neutral'),
+    botScore: r.botScore || 0,
+    approvalVote: r.approvalVote || 0,
+    platform: r.platform || '',
+  });
+  item.className = built.className;
+  item.innerHTML = built.innerHTML;
+
+  wrap.appendChild(tsSpan);
+  wrap.appendChild(item);
+  return wrap;
+}
+
 function _renderRows(rows, append) {
   const list = _list();
   if (!list) return;
@@ -70,30 +136,7 @@ function _renderRows(rows, append) {
   }
 
   const frag = document.createDocumentFragment();
-  for (const r of rows) {
-    const wrap = document.createElement('div');
-    wrap.className = 'user-history-row';
-    const tsSpan = document.createElement('span');
-    tsSpan.className = 'user-history-ts';
-    tsSpan.title = _fmtTs(r.ts);
-    tsSpan.textContent = _fmtTs(r.ts);
-
-    const item = document.createElement('div');
-    const built = buildFeedItemHtml({
-      user: r.user,
-      msg: r.msg,
-      mood: r.isBot ? 'bot' : (r.mood || 'neutral'),
-      botScore: r.botScore || 0,
-      approvalVote: r.approvalVote || 0,
-      platform: r.platform || '',
-    });
-    item.className = built.className;
-    item.innerHTML = built.innerHTML;
-
-    wrap.appendChild(tsSpan);
-    wrap.appendChild(item);
-    frag.appendChild(wrap);
-  }
+  for (const r of rows) frag.appendChild(_buildRow(r));
   list.appendChild(frag);
 }
 
@@ -104,6 +147,23 @@ async function _renderStats() {
     ? { channel: _state.channel, platform: _state.platform, includeBots: _state.includeBots }
     : { includeBots: _state.includeBots };
   const s = await userStats(_state.userKey, scopeOpts);
+  _state.stats = {
+    total: s.total,
+    firstTs: s.firstTs,
+    lastTs: s.lastTs,
+    moodCounts: { ...(s.moodCounts || {}) },
+  };
+  _paintStats();
+}
+
+/**
+ * Paint the stats row from the in-memory _state.stats snapshot. Called after
+ * every live-append so total/last-seen/top-mood tick live.
+ */
+function _paintStats() {
+  const statsEl = _stats();
+  if (!statsEl) return;
+  const s = _state.stats;
   const top = _topMood(s.moodCounts);
   const scopeText = _state.scope === 'channel' && _state.channel
     ? `${_state.platform || '?'} / #${_state.channel}`
@@ -162,23 +222,98 @@ async function _loadOlder() {
   _state.loading = false;
 }
 
+/**
+ * Append a single live row to the top of the list (newest-first ordering).
+ * Preserves scroll position if the user has scrolled into older history.
+ */
+function _prependLiveRow(rec) {
+  const list = _list();
+  if (!list) return;
+
+  // Replace the "no messages" placeholder, if present.
+  const empty = list.querySelector('.user-history-empty');
+  if (empty) list.innerHTML = '';
+
+  const row = _buildRow(rec);
+  row.classList.add('user-history-row--new');
+  setTimeout(() => row.classList.remove('user-history-row--new'), 1500);
+
+  const prevScroll = list.scrollTop;
+  list.insertBefore(row, list.firstChild);
+  // If the user had scrolled down into older history, keep their view anchored
+  // so the new message doesn't yank them back to the top.
+  if (prevScroll > 0) {
+    list.scrollTop = prevScroll + row.offsetHeight;
+  }
+}
+
+function _incrementStatsFor(rec) {
+  const s = _state.stats;
+  s.total += 1;
+  if (s.firstTs == null || rec.ts < s.firstTs) s.firstTs = rec.ts;
+  if (s.lastTs == null || rec.ts > s.lastTs) s.lastTs = rec.ts;
+  const m = rec.isBot ? 'bot' : (rec.mood || 'neutral');
+  s.moodCounts[m] = (s.moodCounts[m] || 0) + 1;
+  _paintStats();
+}
+
+function _onLiveMsg(rec) {
+  if (!rec || !_state.userKey || rec.userKey !== _state.userKey) return;
+  if (_state.scope === 'channel') {
+    if ((rec.channel || '') !== (_state.channel || '')) return;
+    if ((rec.platform || '') !== (_state.platform || '')) return;
+  }
+  if (rec.isBot && !_state.includeBots) return;
+
+  _prependLiveRow(rec);
+  _incrementStatsFor(rec);
+}
+
+function _applyFontSize() {
+  const list = _list();
+  if (!list) return;
+  list.style.fontSize = _state.fontSize + 'em';
+  list.style.lineHeight = Math.max(1.2, 1.4 + (_state.fontSize - 2) * 0.15).toFixed(2);
+}
+
+function _syncFontUi() {
+  const slider = _fontSlider();
+  if (slider) slider.value = String(_state.fontSize);
+  const valEl = _fontVal();
+  if (valEl) valEl.textContent = _state.fontSize.toFixed(2);
+}
+
+export function updateUserHistoryFontSize(v) {
+  _state.fontSize = _clampFont(v);
+  _persisted.fontSize = _state.fontSize;
+  saveRaw(USER_HIST_FONT_KEY, _state.fontSize);
+  _syncFontUi();
+  _applyFontSize();
+}
+
 export async function openUserHistory(userKey, displayUser, ctx = {}) {
   if (!userKey) return;
   _state.user = displayUser || userKey;
   _state.userKey = userKey;
   _state.channel = ctx.channel || _resolveCurrentChannel();
   _state.platform = ctx.platform || _resolveCurrentPlatform();
-  _state.scope = _state.channel ? 'channel' : 'all';
-  _state.includeBots = false;
+  // Respect the persisted scope preference; fall back to 'all' if no channel
+  // is currently live (the "This channel" scope would be empty).
+  _state.scope = (_persisted.scopePref === 'channel' && _state.channel) ? 'channel' : 'all';
+  _state.includeBots = _persisted.includeBots;
+  _state.fontSize = _persisted.fontSize;
   _state.oldestTs = null;
   _state.hasMore = false;
+  _state.stats = { total: 0, firstTs: null, lastTs: null, moodCounts: {} };
 
   const titleEl = _title();
   if (titleEl) titleEl.textContent = (_state.user || 'USER').toUpperCase();
   const botBox = _botCheckbox();
-  if (botBox) botBox.checked = false;
+  if (botBox) botBox.checked = _state.includeBots;
   const radios = document.querySelectorAll('input[name="userHistScope"]');
   radios.forEach(r => { r.checked = (r.value === _state.scope); });
+  _syncFontUi();
+  _applyFontSize();
 
   const ov = _overlay();
   if (ov) {
@@ -186,10 +321,17 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
     ov.classList.add('open');
   }
 
+  // Subscribe before loading so any message processed mid-load still lands
+  // (duplicates can't happen — IndexedDB hasn't flushed this record yet, so
+  // the initial page won't contain it).
+  if (_state.unsubLive) { _state.unsubLive(); _state.unsubLive = null; }
+  _state.unsubLive = onMessageProcessed(_onLiveMsg);
+
   await _loadFirstPage();
 }
 
 export function closeUserHistory() {
+  if (_state.unsubLive) { _state.unsubLive(); _state.unsubLive = null; }
   const ov = _overlay();
   if (!ov) return;
   ov.classList.remove('open');
@@ -199,11 +341,15 @@ export function closeUserHistory() {
 export async function setUserHistoryScope(scope) {
   if (scope !== 'channel' && scope !== 'all') return;
   _state.scope = scope;
+  _persisted.scopePref = scope;
+  saveRaw(USER_HIST_SCOPE_KEY, scope);
   await _loadFirstPage();
 }
 
 export async function setUserHistoryBots(include) {
   _state.includeBots = !!include;
+  _persisted.includeBots = _state.includeBots;
+  save(USER_HIST_BOTS_KEY, _state.includeBots);
   await _loadFirstPage();
 }
 
@@ -247,6 +393,7 @@ function _resolveCurrentPlatform() {
  *   is clicked.
  * - Backdrop click + close button via the overlay's onclick.
  * - Scope radio change + bot checkbox change.
+ * - Font slider input.
  */
 export function initUserHistoryModal() {
   const FEED_IDS = ['feedList', 'filteredFeedList', 'outlierFeedList'];
@@ -270,6 +417,17 @@ export function initUserHistoryModal() {
     if (t.name === 'userHistScope' && t.checked) setUserHistoryScope(t.value);
     if (t.id === 'userHistBots') setUserHistoryBots(t.checked);
   });
+
+  const slider = _fontSlider();
+  if (slider) {
+    slider.value = String(_persisted.fontSize);
+    const valEl = _fontVal();
+    if (valEl) valEl.textContent = _persisted.fontSize.toFixed(2);
+    slider.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t instanceof HTMLInputElement) updateUserHistoryFontSize(t.value);
+    });
+  }
 
   const lm = _loadMore();
   if (lm) lm.addEventListener('click', _loadOlder);

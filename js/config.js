@@ -18,6 +18,9 @@ export const OUTLIER_FONT_KEY = 'moodradar_outlierfont_v1';
 export const FILTERED_FEED_FONT_KEY = 'moodradar_filteredfeedfont_v1';
 export const RESIZE_STORAGE_KEY = 'moodradar_sizes_v2';
 export const LAYOUT_STORAGE_KEY = 'moodradar_layout_v1';
+export const USER_HIST_FONT_KEY = 'moodradar_userhistfont_v1';
+export const USER_HIST_BOTS_KEY = 'moodradar_userhistbots_v1';
+export const USER_HIST_SCOPE_KEY = 'moodradar_userhistscope_v1';
 
 // User-message history (IndexedDB)
 export const HISTORY_DB_NAME = 'moodradar_history_v1';

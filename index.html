@@ -142,6 +142,11 @@ function unlockApp() {
       <label><input type="radio" name="userHistScope" value="channel" checked> This channel</label>
       <label><input type="radio" name="userHistScope" value="all"> All channels</label>
       <label><input type="checkbox" id="userHistBots"> Show bot messages</label>
+      <label class="user-hist-font-label">
+        Font
+        <input type="range" id="userHistFontSlider" min="0.5" max="4" step="0.05" />
+        <span id="userHistFontVal"></span>
+      </label>
       <button class="user-hist-clear" onclick="clearCurrentUserHistory()">Clear this user</button>
     </div>
     <div id="userHistoryList" class="user-history-list" role="log"></div>

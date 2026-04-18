@@ -29,6 +29,18 @@ async function getFeeds() {
 // Eagerly resolve feeds on first import
 getFeeds();
 
+// Per-message subscribers — fired once per processed record (after classify +
+// history enqueue). Used by the user-history modal to append live messages
+// without re-querying IndexedDB.
+const _processedSubs = new Set();
+export function onMessageProcessed(fn) {
+  _processedSubs.add(fn);
+  return () => _processedSubs.delete(fn);
+}
+function _emitProcessed(rec) {
+  for (const fn of _processedSubs) { try { fn(rec); } catch { /* ignore */ } }
+}
+
 export function enqueue(user, msg, ts, platform, channel) {
   if (state.msgQueue.length >= QUEUE_CAP) { state.msgQueue.shift(); state.droppedMessages++; }
   state.msgQueue.push({ user, msg, ts, platform: platform || '', channel: channel || '' });
@@ -54,7 +66,9 @@ export function processingLoop() {
           _mainFeed.add(user, msg, 'bot', botScore, 0, platform);
           if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform);
         }
-        enqueueHistory({ user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true });
+        const botRec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true };
+        enqueueHistory(botRec);
+        _emitProcessed(botRec);
         continue;
       }
     }
@@ -72,7 +86,9 @@ export function processingLoop() {
       _mainFeed.add(user, msg, mood, 0, approvalVote, platform);
       if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform);
     }
-    enqueueHistory({ user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false });
+    const rec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false };
+    enqueueHistory(rec);
+    _emitProcessed(rec);
     // Outlier detection: flag messages whose mood is underrepresented
     if (mood !== 'neutral' && strength >= 1.0 && state.totalMessages > 20) {
       const pct = computeWeightedMoods(ts);

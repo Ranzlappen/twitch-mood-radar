@@ -265,6 +265,31 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   background: rgba(0,255,229,.08);
 }
 .user-hist-load-more[hidden] { display: none; }
+.user-hist-font-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 260px;
+}
+.user-hist-font-label input[type=range] {
+  flex: 1;
+  width: auto;
+}
+.user-hist-font-label #userHistFontVal {
+  min-width: 32px;
+  text-align: right;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+}
+.user-history-row--new {
+  animation: userHistRowFlash 1.4s ease-out;
+}
+@keyframes userHistRowFlash {
+  from { background: rgba(0,255,229,.18); }
+  to   { background: transparent; }
+}
 
 /* Disconnected pulsing red inlaid border — applied when logging was active but connection was lost */
 body.disconnected {
