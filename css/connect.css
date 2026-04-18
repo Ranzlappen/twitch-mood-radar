@@ -146,17 +146,47 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 .help-close:hover { color:var(--accent) }
 
 /* ============================================================
-   USER HISTORY MODAL — reuses .help-overlay backdrop pattern
+   USER HISTORY MODAL — floating, draggable, resizable panel.
+   Sits on top of the app but does NOT darken it; pointer events
+   pass through the overlay shell so underlying UI stays usable.
    ============================================================ */
-.user-history-overlay.open { display:flex }
+.user-history-overlay {
+  /* Override the inherited .help-overlay backdrop + flex centering */
+  background: transparent !important;
+  pointer-events: none;
+  padding: 0;
+  inset: 0;
+}
+.user-history-overlay.open { display: block }
 .user-history-modal {
-  max-width: 640px;
-  width: 100%;
-  max-height: 82vh;
+  pointer-events: auto;          /* the modal itself is interactive */
+  position: fixed;               /* free-floating so drag can set left/top */
+  left: 50%;
+  top: 8vh;
+  transform: translateX(-50%);   /* removed in JS once a drag/persist sets explicit left */
+  width: 640px;
+  height: 70vh;
+  min-width: 360px;
+  min-height: 240px;
+  max-width: 96vw;
+  max-height: 96vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px 20px 16px;
+  resize: both;                  /* native bottom-right resize handle */
+  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+}
+.user-history-modal.dragging {
+  user-select: none;
+  cursor: grabbing;
+}
+.user-history-modal h3 {
+  cursor: grab;
+  user-select: none;
+}
+.user-history-modal.dragging h3 {
+  cursor: grabbing;
 }
 .user-history-stats {
   font-size: .72em;
@@ -265,6 +295,31 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   background: rgba(0,255,229,.08);
 }
 .user-hist-load-more[hidden] { display: none; }
+.user-hist-font-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 260px;
+}
+.user-hist-font-label input[type=range] {
+  flex: 1;
+  width: auto;
+}
+.user-hist-font-label #userHistFontVal {
+  min-width: 32px;
+  text-align: right;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+}
+.user-history-row--new {
+  animation: userHistRowFlash 1.4s ease-out;
+}
+@keyframes userHistRowFlash {
+  from { background: rgba(0,255,229,.18); }
+  to   { background: transparent; }
+}
 
 /* Disconnected pulsing red inlaid border — applied when logging was active but connection was lost */
 body.disconnected {

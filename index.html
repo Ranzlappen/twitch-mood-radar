@@ -130,18 +130,22 @@ function unlockApp() {
   </div>
 </div>
 
-<!-- User history modal -->
+<!-- User history modal — floating, draggable, resizable; does not darken the app -->
 <div class="help-overlay user-history-overlay" id="userHistoryOverlay"
-     onclick="if(event.target===this)closeUserHistory()"
-     role="dialog" aria-modal="true" aria-labelledby="userHistoryTitle" hidden>
-  <div class="help-modal user-history-modal">
+     role="dialog" aria-modal="false" aria-labelledby="userHistoryTitle" hidden>
+  <div class="help-modal user-history-modal" id="userHistoryModal">
     <button class="help-close" onclick="closeUserHistory()" aria-label="Close user history">x</button>
-    <h3 id="userHistoryTitle">USER HISTORY</h3>
+    <h3 id="userHistoryTitle" title="Drag to move">USER HISTORY</h3>
     <div id="userHistoryStats" class="user-history-stats"></div>
     <div class="user-history-controls">
       <label><input type="radio" name="userHistScope" value="channel" checked> This channel</label>
       <label><input type="radio" name="userHistScope" value="all"> All channels</label>
       <label><input type="checkbox" id="userHistBots"> Show bot messages</label>
+      <label class="user-hist-font-label">
+        Font
+        <input type="range" id="userHistFontSlider" min="0.5" max="4" step="0.05" />
+        <span id="userHistFontVal"></span>
+      </label>
       <button class="user-hist-clear" onclick="clearCurrentUserHistory()">Clear this user</button>
     </div>
     <div id="userHistoryList" class="user-history-list" role="log"></div>

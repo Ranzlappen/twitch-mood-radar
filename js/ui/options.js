@@ -300,8 +300,12 @@ export function applyAllOptions() {
   chk('optApprovalVerdict', o.approvalVerdict);
   const verdEl = document.getElementById('approvalVerdict');
   if (verdEl) verdEl.style.display = o.approvalVerdict ? '' : 'none';
-  // Wake lock
+  // Wake lock — also re-acquire it if persisted state says it should be on,
+  // so the setting survives a page reload (checkbox state alone won't rearm it).
   chk('optWakeLock', o.wakeLockEnabled);
+  if (o.wakeLockEnabled) {
+    import('./wake-lock.js').then(m => m.requestWakeLock());
+  }
   // Card visibility
   const visMap = {
     pieCard:'optShowPie', radarCard:'optShowRadar', bubbleCard:'optShowBubble',
