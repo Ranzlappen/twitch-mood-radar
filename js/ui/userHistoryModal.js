@@ -15,13 +15,23 @@ import { queryByUser, userStats, clearUser } from '../history/historyDb.js';
 import { buildFeedItemHtml } from './feeds.js';
 import { esc } from '../utils/dom.js';
 import { load, save, loadRaw, saveRaw } from '../utils/storage.js';
-import { USER_HIST_FONT_KEY, USER_HIST_BOTS_KEY, USER_HIST_SCOPE_KEY } from '../config.js';
+import {
+  USER_HIST_FONT_KEY, USER_HIST_BOTS_KEY, USER_HIST_SCOPE_KEY,
+  USER_HIST_SIZE_KEY, USER_HIST_POS_KEY,
+} from '../config.js';
 import { onMessageProcessed } from '../processing.js';
 
 const PAGE_SIZE = 200;
 const FONT_MIN = 0.5;
 const FONT_MAX = 4;
 const FONT_DEFAULT = 1.1;
+
+// Minimum floating-modal dimensions and viewport-edge padding for clamping
+// a persisted position that would otherwise land off-screen after a window
+// resize between sessions.
+const MODAL_MIN_W = 360;
+const MODAL_MIN_H = 240;
+const VIEWPORT_EDGE_PAD = 12;
 
 const _state = {
   user: '',
@@ -49,6 +59,20 @@ const _persisted = {
     const v = loadRaw(USER_HIST_SCOPE_KEY, 'channel');
     return (v === 'all' || v === 'channel') ? v : 'channel';
   })(),
+  size: (() => {
+    const v = load(USER_HIST_SIZE_KEY, null);
+    if (!v || typeof v !== 'object') return null;
+    const w = parseInt(v.w, 10), h = parseInt(v.h, 10);
+    if (!isFinite(w) || !isFinite(h)) return null;
+    return { w, h };
+  })(),
+  pos: (() => {
+    const v = load(USER_HIST_POS_KEY, null);
+    if (!v || typeof v !== 'object') return null;
+    const x = parseInt(v.x, 10), y = parseInt(v.y, 10);
+    if (!isFinite(x) || !isFinite(y)) return null;
+    return { x, y };
+  })(),
 };
 
 function _clampFont(v) {
@@ -58,6 +82,7 @@ function _clampFont(v) {
 }
 
 function _overlay() { return document.getElementById('userHistoryOverlay'); }
+function _modal() { return document.getElementById('userHistoryModal'); }
 function _list() { return document.getElementById('userHistoryList'); }
 function _stats() { return document.getElementById('userHistoryStats'); }
 function _title() { return document.getElementById('userHistoryTitle'); }
@@ -65,6 +90,127 @@ function _loadMore() { return document.getElementById('userHistLoadMore'); }
 function _botCheckbox() { return document.getElementById('userHistBots'); }
 function _fontSlider() { return document.getElementById('userHistFontSlider'); }
 function _fontVal() { return document.getElementById('userHistFontVal'); }
+
+/**
+ * Clamp an (x, y) point so a w×h modal stays at least partially on screen
+ * after a window resize between sessions would otherwise push it off.
+ */
+function _clampPos(x, y, w, h) {
+  const vw = window.innerWidth || document.documentElement.clientWidth;
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  const maxX = Math.max(VIEWPORT_EDGE_PAD, vw - w - VIEWPORT_EDGE_PAD);
+  const maxY = Math.max(VIEWPORT_EDGE_PAD, vh - h - VIEWPORT_EDGE_PAD);
+  return {
+    x: Math.min(Math.max(VIEWPORT_EDGE_PAD, x), maxX),
+    y: Math.min(Math.max(VIEWPORT_EDGE_PAD, y), maxY),
+  };
+}
+
+/**
+ * Apply the persisted size + position to the modal element. Falls back to
+ * the CSS-default centered position (top:8vh, left:50%, transform) when no
+ * persistence is present — which is the case on first-ever open.
+ */
+function _applySizeAndPos() {
+  const m = _modal();
+  if (!m) return;
+  const size = _persisted.size;
+  const pos = _persisted.pos;
+  if (size) {
+    m.style.width = Math.max(MODAL_MIN_W, size.w) + 'px';
+    m.style.height = Math.max(MODAL_MIN_H, size.h) + 'px';
+  }
+  if (pos) {
+    const w = size ? size.w : m.offsetWidth;
+    const h = size ? size.h : m.offsetHeight;
+    const c = _clampPos(pos.x, pos.y, w || MODAL_MIN_W, h || MODAL_MIN_H);
+    m.style.left = c.x + 'px';
+    m.style.top = c.y + 'px';
+    m.style.transform = 'none';     // drop the centering translate
+  }
+}
+
+let _roObserver = null;
+function _observeSize() {
+  const m = _modal();
+  if (!m || _roObserver) return;
+  let debounce = null;
+  _roObserver = new ResizeObserver(() => {
+    // Only persist width/height once the user actually resizes via the native
+    // handle; we derive values from offsetWidth/offsetHeight rather than
+    // getBoundingClientRect to exclude any transform scaling.
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      const w = m.offsetWidth;
+      const h = m.offsetHeight;
+      if (!w || !h) return;
+      _persisted.size = { w, h };
+      save(USER_HIST_SIZE_KEY, _persisted.size);
+    }, 180);
+  });
+  _roObserver.observe(m);
+}
+
+/**
+ * Make the h3 title a drag handle that moves the whole modal. Uses pointer
+ * events so touch + mouse both work; releases capture on pointerup/cancel.
+ */
+function _initDrag() {
+  const m = _modal();
+  const handle = _title();
+  if (!m || !handle || handle._dragWired) return;
+  handle._dragWired = true;
+
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let origLeft = 0, origTop = 0;
+  let pointerId = null;
+
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    dragging = true;
+    pointerId = e.pointerId;
+    const rect = m.getBoundingClientRect();
+    // Commit the current visual position to explicit left/top so the drag
+    // math is in a consistent coordinate system (the CSS default uses
+    // transform:translateX(-50%) which would fight the delta update).
+    origLeft = rect.left;
+    origTop = rect.top;
+    m.style.left = origLeft + 'px';
+    m.style.top = origTop + 'px';
+    m.style.transform = 'none';
+    startX = e.clientX;
+    startY = e.clientY;
+    m.classList.add('dragging');
+    try { handle.setPointerCapture(pointerId); } catch { /* ignore */ }
+    e.preventDefault();
+  });
+
+  handle.addEventListener('pointermove', (e) => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const c = _clampPos(origLeft + dx, origTop + dy, m.offsetWidth, m.offsetHeight);
+    m.style.left = c.x + 'px';
+    m.style.top = c.y + 'px';
+  });
+
+  const end = (e) => {
+    if (!dragging || (pointerId != null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    m.classList.remove('dragging');
+    try { handle.releasePointerCapture(pointerId); } catch { /* ignore */ }
+    pointerId = null;
+    const x = parseInt(m.style.left, 10);
+    const y = parseInt(m.style.top, 10);
+    if (isFinite(x) && isFinite(y)) {
+      _persisted.pos = { x, y };
+      save(USER_HIST_POS_KEY, _persisted.pos);
+    }
+  };
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
+}
 
 function _fmtTs(ts) {
   const d = new Date(ts);
@@ -320,6 +466,8 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
     ov.hidden = false;
     ov.classList.add('open');
   }
+  _applySizeAndPos();
+  _observeSize();
 
   // Subscribe before loading so any message processed mid-load still lands
   // (duplicates can't happen — IndexedDB hasn't flushed this record yet, so
@@ -428,6 +576,8 @@ export function initUserHistoryModal() {
       if (t instanceof HTMLInputElement) updateUserHistoryFontSize(t.value);
     });
   }
+
+  _initDrag();
 
   const lm = _loadMore();
   if (lm) lm.addEventListener('click', _loadOlder);
