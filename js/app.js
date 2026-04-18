@@ -10,7 +10,16 @@ import * as config from './config.js';
 import { ConnectionManager } from './platform/ConnectionManager.js';
 import { enqueue, processingLoop, flushChatterData } from './processing.js';
 import { initCharts, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
-import { updateFeedFontSize, applyFeedFontSize, updateOutlierFontSize, applyOutlierFontSize, updateFilteredFeedFontSize, applyFilteredFeedFontSize, updateFilteredFeedRegex, openRegexHistory, closeRegexHistory, selectRegexHistory, deleteRegexFromHistory } from './ui/feeds.js';
+import {
+  updateFeedFontSize, applyFeedFontSize,
+  updateOutlierFontSize, applyOutlierFontSize,
+  updateFilteredFeedFontSize, applyFilteredFeedFontSize,
+  updateFilteredFeedRegex, updateFilteredFeedUserQuery,
+  openFilterModal, closeFilterModal, onFilterModalInput,
+  applyFilterModal, clearFilterModal,
+  selectFilterHistoryItem, deleteFilterHistoryItem,
+  updateFilterTriggerButton, refreshUserDatalist
+} from './ui/feeds.js';
 import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
@@ -209,10 +218,14 @@ window.updateFeedFontSize = updateFeedFontSize;
 window.updateOutlierFontSize = updateOutlierFontSize;
 window.updateFilteredFeedFontSize = updateFilteredFeedFontSize;
 window.updateFilteredFeedRegex = updateFilteredFeedRegex;
-window.openRegexHistory = openRegexHistory;
-window.closeRegexHistory = closeRegexHistory;
-window.selectRegexHistory = selectRegexHistory;
-window.deleteRegexFromHistory = deleteRegexFromHistory;
+window.updateFilteredFeedUserQuery = updateFilteredFeedUserQuery;
+window.openFilterModal = openFilterModal;
+window.closeFilterModal = closeFilterModal;
+window.onFilterModalInput = onFilterModalInput;
+window.applyFilterModal = applyFilterModal;
+window.clearFilterModal = clearFilterModal;
+window.selectFilterHistoryItem = selectFilterHistoryItem;
+window.deleteFilterHistoryItem = deleteFilterHistoryItem;
 
 // Platform adapter methods exposed to window — delegate to first Twitch adapter
 window.setOAuthToken = () => connMgr.getFirstAdapter()?.setOAuthToken?.();
@@ -265,24 +278,13 @@ window.onload = function () {
   document.getElementById('filteredFeedFontVal').textContent = state.filteredFeedFontSize.toFixed(2);
   applyFilteredFeedFontSize();
 
-  // Init regex filter from storage
+  // Init filtered-feed filter from storage (regex + username substring)
   const savedRegex = localStorage.getItem(config.REGEX_STORAGE_KEY) ?? config.REGEX_DEFAULT;
-  if (savedRegex) {
-    const regexInput = document.getElementById('filteredFeedRegex');
-    if (regexInput) {
-      regexInput.value = savedRegex;
-      updateFilteredFeedRegex(savedRegex);
-    }
-  }
-
-  // Wire regex history dropdown
-  {
-    const regexInput = document.getElementById('filteredFeedRegex');
-    if (regexInput) {
-      regexInput.addEventListener('focus', openRegexHistory);
-      regexInput.addEventListener('blur', () => setTimeout(closeRegexHistory, 150));
-    }
-  }
+  if (savedRegex) updateFilteredFeedRegex(savedRegex);
+  const savedUserQuery = localStorage.getItem(config.USER_FILTER_STORAGE_KEY) || '';
+  if (savedUserQuery) updateFilteredFeedUserQuery(savedUserQuery);
+  refreshUserDatalist();
+  updateFilterTriggerButton();
 
   // Init outlier font size slider
   const outlierSlider = document.getElementById('outlierFontSlider');

@@ -9,6 +9,7 @@ export const TL_INTERVAL_KEY = 'moodradar_tlinterval_v1';
 export const REGEX_STORAGE_KEY = 'moodradar_regex_v1';
 export const REGEX_HISTORY_KEY = 'moodradar_regexhistory_v1';
 export const REGEX_DEFAULT = '\\?';
+export const USER_FILTER_STORAGE_KEY = 'moodradar_userfilter_v1';
 export const LABEL_SCALE_KEY = 'moodradar_labelscale_v1';
 export const BUBBLE_SCALE_KEY = 'moodradar_bubblescale_v1';
 export const OAUTH_STORAGE_KEY = 'moodradar_oauth_v1';
@@ -322,16 +323,22 @@ export const HELP_CONTENT = {
   },
   filteredFeed: {
     title: 'FILTERED FEED',
-    body: `<p>A secondary live feed that shows only messages matching your regex filter in real time.</p>
+    body: `<p>A secondary live feed that shows only messages matching your filter in real time. Click the <strong>FILTER</strong> button in the feed title to edit the filter in a modal.</p>
+<p><strong>Two fields, combined with AND:</strong></p>
+<ul>
+  <li><strong>MESSAGE REGEX</strong> — case-insensitive JavaScript regular expression tested against the message text</li>
+  <li><strong>USERNAME CONTAINS</strong> — literal substring, case-insensitive, tested against the username</li>
+</ul>
 <p><strong>Regex Examples:</strong></p>
 <ul>
-  <li><code>\\\\?</code> — Messages containing a question mark (default filter)</li>
+  <li><code>\\\\?</code> — Messages containing a question mark</li>
   <li><code>^!</code> — Messages starting with !commands</li>
   <li><code>(lol|lmao|rofl)</code> — Messages containing any of these words</li>
   <li><code>\\\\bgg\\\\b</code> — Match "gg" as a whole word</li>
   <li><code>^[A-Z\\\\s]+$</code> — ALL CAPS messages only</li>
   <li><code>hype|pog</code> — Messages mentioning hype or pog</li>
-</ul>`
+</ul>
+<p>The live preview inside the modal counts matches against messages arriving while the modal is open. The active filter itself keeps running whether or not the modal is open.</p>`
   },
   outlier: {
     title: 'STANDOUT MESSAGES',

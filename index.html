@@ -153,6 +153,49 @@ function unlockApp() {
   </div>
 </div>
 
+<!-- Filtered Feed filter modal — edits the active regex + username filter -->
+<div class="help-overlay filter-overlay" id="filterOverlay"
+     onclick="if(event.target===this)closeFilterModal()"
+     role="dialog" aria-modal="true" aria-labelledby="filterModalTitle" hidden>
+  <div class="help-modal filter-modal">
+    <button class="help-close" onclick="closeFilterModal()" aria-label="Close filter">x</button>
+    <h3 id="filterModalTitle">FILTERED FEED
+      <button class="help-btn" onclick="showHelp('filteredFeed')" title="About the filtered feed">?</button>
+    </h3>
+
+    <label class="filter-field">
+      <span class="filter-field-label">MESSAGE REGEX</span>
+      <input type="text" id="filterRegexInput" spellcheck="false" autocomplete="off"
+        placeholder="e.g. \?|lol|^!"
+        oninput="onFilterModalInput()" />
+    </label>
+
+    <label class="filter-field">
+      <span class="filter-field-label">USERNAME CONTAINS</span>
+      <input type="text" id="filterUserInput" spellcheck="false" autocomplete="off"
+        placeholder="substring, case-insensitive"
+        list="filterUserDatalist"
+        oninput="onFilterModalInput()" />
+      <datalist id="filterUserDatalist"></datalist>
+    </label>
+
+    <div class="filter-feedback">
+      <span class="filter-match-count" id="filterMatchCount">0 of 0 recent</span>
+      <div class="filter-preview" id="filterPreview"></div>
+    </div>
+
+    <div class="filter-actions">
+      <button class="filter-btn filter-btn-primary" onclick="applyFilterModal()">Apply</button>
+      <button class="filter-btn" onclick="clearFilterModal()">Clear</button>
+    </div>
+
+    <div class="filter-history-section">
+      <div class="filter-history-label">SAVED</div>
+      <div class="filter-history-list" id="filterHistoryList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="app" id="main-content">
 
 <!-- ====================================================
@@ -423,10 +466,11 @@ function unlockApp() {
         <span class="feed-font-slider-val" id="filteredFeedFontVal">2.00</span>
       </div>
       <div class="filtered-feed-filter-wrap">
-        <input type="text" id="filteredFeedRegex" placeholder="regex filter" spellcheck="false" autocomplete="off"
-          oninput="updateFilteredFeedRegex(this.value)"
-          style="padding-left:12px;width:140px;font-size:.78em"/>
-        <div class="regex-history-dropdown" id="regexHistoryDropdown"></div>
+        <button type="button" class="filter-trigger-btn" id="filteredFeedFilterBtn"
+          onclick="openFilterModal()" title="Edit filter">
+          <span class="filter-trigger-label">FILTER</span>
+          <span class="filter-trigger-status" id="filterTriggerStatus">off</span>
+        </button>
       </div>
     </div>
   </div>
