@@ -74,14 +74,25 @@ export function notifyChartResize(cardId) {
   if (cardId === 'bubbleCard')                                           resizeBubbleCanvas();
 }
 
-export function addResizeHandle(el) {
+/**
+ * Low-level handle attacher — creates the diagonal-stripe corner element,
+ * binds mouse + touch drag, and invokes callbacks during/after drag.
+ *
+ * @param {Element} el
+ * @param {object} [opts]
+ * @param {number} [opts.minW=120]
+ * @param {number} [opts.minH=80]
+ * @param {(el: Element) => void} [opts.onResize]     — called on every drag frame
+ * @param {(el: Element) => void} [opts.onResizeEnd]  — called on mouseup / touchend
+ */
+export function attachResizeHandle(el, opts = {}) {
+  const { minW = 120, minH = 80, onResize, onResizeEnd } = opts;
   const handle = document.createElement('div');
   handle.className = 'resize-handle';
   handle.title = 'Drag corner to resize';
   el.appendChild(handle);
 
   let startX = 0, startY = 0, startW = 0, startH = 0;
-  let debounceTimer = null;
 
   handle.addEventListener('mousedown', e => {
     e.preventDefault();
@@ -91,21 +102,16 @@ export function addResizeHandle(el) {
     startH = el.offsetHeight;
 
     function onMove(e) {
-      const newH = Math.max(80, startH + (e.clientY - startY));
-      const newW = Math.max(120, startW + (e.clientX - startX));
+      const newH = Math.max(minH, startH + (e.clientY - startY));
+      const newW = Math.max(minW, startW + (e.clientX - startX));
       el.style.height = newH + 'px';
       el.style.width = newW + 'px';
-      el.style.flex = 'none';
-      el.style.maxWidth = '100%';
-      el.dataset.manualWidth = '1';
-      notifyChartResize(el.id);
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
+      if (onResize) onResize(el);
     }
     function onUp() {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      saveSizes();
+      if (onResizeEnd) onResizeEnd(el);
     }
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
@@ -122,25 +128,42 @@ export function addResizeHandle(el) {
 
     function onMove(e) {
       const t = e.touches[0];
-      const newH = Math.max(80, startH + (t.clientY - startY));
-      const newW = Math.max(120, startW + (t.clientX - startX));
+      const newH = Math.max(minH, startH + (t.clientY - startY));
+      const newW = Math.max(minW, startW + (t.clientX - startX));
       el.style.height = newH + 'px';
       el.style.width = newW + 'px';
-      el.style.flex = 'none';
-      el.style.maxWidth = '100%';
-      el.dataset.manualWidth = '1';
-      notifyChartResize(el.id);
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
+      if (onResize) onResize(el);
     }
     function onEnd() {
       el.removeEventListener('touchmove', onMove);
       el.removeEventListener('touchend', onEnd);
-      saveSizes();
+      if (onResizeEnd) onResizeEnd(el);
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     el.addEventListener('touchend', onEnd);
   }, { passive: false });
+}
+
+/**
+ * Main-container resize handle: persists sizes to `moodradar_sizes_v2` and
+ * drives chart reflow. Thin wrapper around attachResizeHandle.
+ */
+export function addResizeHandle(el) {
+  let debounceTimer = null;
+  attachResizeHandle(el, {
+    onResize: (target) => {
+      target.style.flex = 'none';
+      target.style.maxWidth = '100%';
+      target.dataset.manualWidth = '1';
+      notifyChartResize(target.id);
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(saveSizes, RESIZE_DEBOUNCE_MS);
+    },
+    onResizeEnd: () => {
+      clearTimeout(debounceTimer);
+      saveSizes();
+    },
+  });
 }
 
 export function setupResizeObserver() {

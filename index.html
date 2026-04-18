@@ -163,12 +163,43 @@ function unlockApp() {
       <button class="help-btn" onclick="showHelp('filteredFeed')" title="About the filtered feed">?</button>
     </h3>
 
-    <label class="filter-field">
-      <span class="filter-field-label">MESSAGE REGEX</span>
-      <input type="text" id="filterRegexInput" spellcheck="false" autocomplete="off"
-        placeholder="e.g. \?|lol|^!"
-        oninput="onFilterModalInput()" />
-    </label>
+    <div class="filter-tabs" role="tablist">
+      <button type="button" class="filter-tab" role="tab" id="filterTabSimple"
+        aria-controls="filterModeSimple" aria-selected="true"
+        onclick="setFilterTab('simple')">Simple</button>
+      <button type="button" class="filter-tab" role="tab" id="filterTabAdvanced"
+        aria-controls="filterModeAdvanced" aria-selected="false"
+        onclick="setFilterTab('advanced')">Advanced (regex)</button>
+    </div>
+
+    <div id="filterModeSimple" role="tabpanel" aria-labelledby="filterTabSimple">
+      <div class="filter-field">
+        <span class="filter-field-label">CONTAINS ANY OF</span>
+        <div id="filterIncludeChips"></div>
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label">DOESN'T CONTAIN</span>
+        <div id="filterExcludeChips"></div>
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label">QUICK PRESETS</span>
+        <div id="filterPresets" class="filter-presets"></div>
+      </div>
+      <label class="filter-inline-toggle">
+        <input type="checkbox" id="filterWholeWord" onchange="onFilterModalInput()" />
+        <span>Whole word only</span>
+      </label>
+    </div>
+
+    <div id="filterModeAdvanced" role="tabpanel" aria-labelledby="filterTabAdvanced" hidden>
+      <div class="filter-advanced-warning">Raw regex — invalid patterns are highlighted but won't throw.</div>
+      <label class="filter-field">
+        <span class="filter-field-label">MESSAGE REGEX</span>
+        <input type="text" id="filterRegexInput" spellcheck="false" autocomplete="off"
+          placeholder="e.g. \?|lol|^!"
+          oninput="onFilterModalInput()" />
+      </label>
+    </div>
 
     <label class="filter-field">
       <span class="filter-field-label">USERNAME CONTAINS</span>

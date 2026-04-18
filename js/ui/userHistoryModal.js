@@ -12,7 +12,8 @@
  *  - persisted controls (bot checkbox, scope, font size) across reloads
  */
 import { queryByUser, userStats, clearUser } from '../history/historyDb.js';
-import { buildFeedItemHtml } from './feeds.js';
+import { buildFeedItemEl } from './feeds.js';
+import { attachResizeHandle } from './layout.js';
 import { esc } from '../utils/dom.js';
 import { load, save, loadRaw, saveRaw } from '../utils/storage.js';
 import {
@@ -130,27 +131,6 @@ function _applySizeAndPos() {
   }
 }
 
-let _roObserver = null;
-function _observeSize() {
-  const m = _modal();
-  if (!m || _roObserver) return;
-  let debounce = null;
-  _roObserver = new ResizeObserver(() => {
-    // Only persist width/height once the user actually resizes via the native
-    // handle; we derive values from offsetWidth/offsetHeight rather than
-    // getBoundingClientRect to exclude any transform scaling.
-    clearTimeout(debounce);
-    debounce = setTimeout(() => {
-      const w = m.offsetWidth;
-      const h = m.offsetHeight;
-      if (!w || !h) return;
-      _persisted.size = { w, h };
-      save(USER_HIST_SIZE_KEY, _persisted.size);
-    }, 180);
-  });
-  _roObserver.observe(m);
-}
-
 /**
  * Make the h3 title a drag handle that moves the whole modal. Uses pointer
  * events so touch + mouse both work; releases capture on pointerup/cancel.
@@ -252,8 +232,7 @@ function _buildRow(r) {
   tsSpan.title = _fmtTs(r.ts);
   tsSpan.textContent = _fmtTs(r.ts);
 
-  const item = document.createElement('div');
-  const built = buildFeedItemHtml({
+  const item = buildFeedItemEl({
     user: r.user,
     msg: r.msg,
     mood: r.isBot ? 'bot' : (r.mood || 'neutral'),
@@ -261,8 +240,6 @@ function _buildRow(r) {
     approvalVote: r.approvalVote || 0,
     platform: r.platform || '',
   });
-  item.className = built.className;
-  item.innerHTML = built.innerHTML;
 
   wrap.appendChild(tsSpan);
   wrap.appendChild(item);
@@ -467,7 +444,6 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
     ov.classList.add('open');
   }
   _applySizeAndPos();
-  _observeSize();
 
   // Subscribe before loading so any message processed mid-load still lands
   // (duplicates can't happen — IndexedDB hasn't flushed this record yet, so
@@ -578,7 +554,38 @@ export function initUserHistoryModal() {
   }
 
   _initDrag();
+  _initResize();
 
   const lm = _loadMore();
   if (lm) lm.addEventListener('click', _loadOlder);
+}
+
+let _resizeHandleAttached = false;
+function _initResize() {
+  const m = _modal();
+  if (!m || _resizeHandleAttached) return;
+  _resizeHandleAttached = true;
+  let debounce = null;
+  attachResizeHandle(m, {
+    minW: MODAL_MIN_W,
+    minH: MODAL_MIN_H,
+    onResize: () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(_persistModalSize, 180);
+    },
+    onResizeEnd: () => {
+      clearTimeout(debounce);
+      _persistModalSize();
+    },
+  });
+}
+
+function _persistModalSize() {
+  const m = _modal();
+  if (!m) return;
+  const w = m.offsetWidth;
+  const h = m.offsetHeight;
+  if (!w || !h) return;
+  _persisted.size = { w, h };
+  save(USER_HIST_SIZE_KEY, _persisted.size);
 }
