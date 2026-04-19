@@ -43,6 +43,40 @@ export function toggleOptionsDrawer() {
   const open = !d.classList.contains('open');
   d.classList.toggle('open', open);
   o.classList.toggle('open', open);
+  if (open) refreshStorageUsage();
+}
+
+/* ── storage usage (IndexedDB + cache quota) ─────────── */
+
+function _fmtBytes(n) {
+  if (!isFinite(n) || n < 0) return '—';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let i = 0;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  const d = n >= 100 || i === 0 ? 0 : (n >= 10 ? 1 : 2);
+  return n.toFixed(d) + ' ' + units[i];
+}
+
+export async function refreshStorageUsage() {
+  const el = document.getElementById('optStorageUsage');
+  if (!el) return;
+  if (!navigator.storage || !navigator.storage.estimate) {
+    el.textContent = 'Storage API unavailable';
+    return;
+  }
+  try {
+    const [est, persisted] = await Promise.all([
+      navigator.storage.estimate(),
+      navigator.storage.persisted ? navigator.storage.persisted() : Promise.resolve(false),
+    ]);
+    const used = _fmtBytes(est.usage || 0);
+    const quota = _fmtBytes(est.quota || 0);
+    const pct = est.quota ? ((est.usage / est.quota) * 100).toFixed(2) : '—';
+    const mode = persisted ? 'persistent' : 'best-effort';
+    el.textContent = `${used} of ${quota} (${pct}%) · ${mode}`;
+  } catch {
+    el.textContent = 'Unable to read storage estimate';
+  }
 }
 
 /* ── individual live-preview setters ─────────────────── */

@@ -20,7 +20,7 @@ import {
   selectFilterHistoryItem, deleteFilterHistoryItem,
   updateFilterTriggerButton, refreshUserDatalist
 } from './ui/feeds.js';
-import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions } from './ui/options.js';
+import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
@@ -375,9 +375,19 @@ window.onload = function () {
   // Initialize help keyboard shortcuts
   initHelpKeys();
 
+  // Request persistent storage so the browser doesn't evict chat history
+  // under disk pressure. On Chromium this also raises the per-origin quota
+  // to ~60% of disk (typically multi-GB). Best-effort; silently falls back.
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().then((granted) => {
+      console.info('[MoodRadar] persistent storage:', granted ? 'granted' : 'best-effort');
+    }).catch(() => {});
+  }
+
   // Initialize per-user message history (IndexedDB) and modal click-to-open
   initHistoryDb();
   initUserHistoryModal();
+  refreshStorageUsage();
 
   // Sync history settings UI to stored values
   const histCb = document.getElementById('optHistoryEnabled');

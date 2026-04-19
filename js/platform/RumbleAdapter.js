@@ -175,8 +175,11 @@ export class RumbleAdapter extends PlatformAdapter {
     let proxyUrl = '';
     try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch { }
     if (!proxyUrl) {
-      setStatus('Could not reach Rumble chat (CORS). Set localStorage["' + RUMBLE_PROXY_STORAGE + '"] to a proxy URL that serves GET /rumble/messages?streamId=…', 'error');
-      console.warn('[MoodRadar][Rumble] No saved proxy. To enable the proxy fallback, run in DevTools:\n  localStorage.setItem("' + RUMBLE_PROXY_STORAGE + '", "https://your-proxy.example.com")');
+      setStatus('Rumble is blocking all public CORS proxies. Rumble support requires a tiny self-hosted proxy — see README "Rumble proxy setup" for a copy-paste Cloudflare Worker.', 'error');
+      console.warn('[MoodRadar][Rumble] All public CORS proxies were rejected by Rumble.\n' +
+        'Rumble sits behind Cloudflare and blocks known proxy IPs, so there is no public endpoint we can auto-discover.\n' +
+        'To enable Rumble: deploy the Cloudflare Worker from README "Rumble proxy setup" (free, ~2 minutes), then run in DevTools:\n' +
+        '  localStorage.setItem("' + RUMBLE_PROXY_STORAGE + '", "https://your-worker.workers.dev")');
       if (btn) btn.disabled = false;
       return;
     }

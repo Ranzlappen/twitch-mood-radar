@@ -149,6 +149,9 @@ export function appendMessageSegments(container, rawText) {
       // Strip the Referer header so CDNs like files.kick.com (which reject
       // cross-origin image loads with a third-party Referer) serve the image.
       img.referrerPolicy = 'no-referrer';
+      // If the image fails (CSP block, dead URL, CDN 404), drop it silently
+      // instead of letting the browser render its broken-image glyph + alt text.
+      img.onerror = () => { img.remove(); };
       img.src = seg.url;
       img.alt = seg.name;
       img.title = `${seg.name} (${seg.source})`;

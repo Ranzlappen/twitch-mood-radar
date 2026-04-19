@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '16' },
-    { url: '/index.html', revision: '16' },
+    { url: '/', revision: '17' },
+    { url: '/index.html', revision: '17' },
     { url: '/css/main.css', revision: '2' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -19,7 +19,7 @@ if (workbox) {
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '7' },
+    { url: '/js/app.js', revision: '8' },
     { url: '/js/config.js', revision: '6' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
@@ -27,7 +27,7 @@ if (workbox) {
     { url: '/js/utils/dom.js', revision: '1' },
     { url: '/js/utils/color.js', revision: '1' },
     { url: '/js/utils/storage.js', revision: '1' },
-    { url: '/js/utils/cors.js', revision: '1' },
+    { url: '/js/utils/cors.js', revision: '2' },
     { url: '/js/utils/CircularBuffer.js', revision: '1' },
     // Analysis
     { url: '/js/analysis/sentiment.js', revision: '2' },
@@ -39,9 +39,9 @@ if (workbox) {
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
     { url: '/js/platform/YouTubeAdapter.js', revision: '7' },
-    { url: '/js/platform/RumbleAdapter.js', revision: '6' },
+    { url: '/js/platform/RumbleAdapter.js', revision: '7' },
     { url: '/js/platform/ConnectionManager.js', revision: '2' },
-    { url: '/js/platform/emotes.js', revision: '2' },
+    { url: '/js/platform/emotes.js', revision: '3' },
     // History (IndexedDB)
     { url: '/js/history/historyDb.js', revision: '1' },
     // UI
@@ -49,7 +49,7 @@ if (workbox) {
     { url: '/js/ui/bubbles.js', revision: '1' },
     { url: '/js/ui/feeds.js', revision: '5' },
     { url: '/js/ui/approval-meter.js', revision: '1' },
-    { url: '/js/ui/options.js', revision: '1' },
+    { url: '/js/ui/options.js', revision: '2' },
     { url: '/js/ui/settings.js', revision: '1' },
     { url: '/js/ui/layout.js', revision: '2' },
     { url: '/js/ui/help.js', revision: '3' },
@@ -128,9 +128,11 @@ if (workbox) {
     })
   );
 
-  // Emote CDNs (BTTV, 7TV, FFZ) — Cache-first
+  // Emote CDNs (Twitch, Kick, BTTV, 7TV, FFZ) — Cache-first
   workbox.routing.registerRoute(
     ({ url }) =>
+      url.origin === 'https://static-cdn.jtvnw.net' ||
+      url.origin === 'https://files.kick.com' ||
       url.origin === 'https://cdn.betterttv.net' ||
       url.origin === 'https://cdn.7tv.app' ||
       url.origin === 'https://cdn.frankerfacez.com',

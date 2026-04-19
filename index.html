@@ -24,7 +24,7 @@ DATE: 2026-04-02
   script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src https://fonts.gstatic.com;
-  img-src 'self' data: https://cdn.betterttv.net https://cdn.7tv.app https://cdn.frankerfacez.com https://storage.ko-fi.com;
+  img-src 'self' data: https://cdn.betterttv.net https://cdn.7tv.app https://cdn.frankerfacez.com https://static-cdn.jtvnw.net https://files.kick.com https://storage.ko-fi.com;
   connect-src 'self'
     wss://irc-ws.chat.twitch.tv
     wss://ws-us2.pusher.com
@@ -40,8 +40,10 @@ DATE: 2026-04-02
     https://corsproxy.io
     https://api.allorigins.win
     https://api.codetabs.com
-    https://cors-anywhere.herokuapp.com
-    https://crossorigin.me;
+    https://cors.eu.org
+    https://proxy.cors.sh
+    https://cors.isomorphic-git.org
+    https://thingproxy.freeboard.io;
 "/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
@@ -751,6 +753,10 @@ function unlockApp() {
         </div>
         <div style="padding:8px 0">
           <button class="opt-reset-btn" onclick="clearAllUserHistory()" style="background:transparent;border:1px solid var(--accent2);color:var(--accent2)">CLEAR ALL HISTORY</button>
+        </div>
+        <div class="opt-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <span class="opt-label">STORAGE USAGE</span>
+          <span class="opt-val" id="optStorageUsage" style="font-size:.85em;opacity:.8">…</span>
         </div>
       </div>
     </details>
