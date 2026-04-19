@@ -10,6 +10,8 @@ const GET_PROXIES = [
   (url) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
   (url) => 'https://cors.eu.org/' + url,
   (url) => 'https://proxy.cors.sh/' + url,
+  (url) => 'https://cors.isomorphic-git.org/' + url,
+  (url) => 'https://thingproxy.freeboard.io/fetch/' + url,
 ];
 
 // POST-safe proxies (codetabs is GET-only)
@@ -19,6 +21,8 @@ const POST_PROXIES = [
   (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   (url) => 'https://cors.eu.org/' + url,
   (url) => 'https://proxy.cors.sh/' + url,
+  (url) => 'https://cors.isomorphic-git.org/' + url,
+  (url) => 'https://thingproxy.freeboard.io/fetch/' + url,
 ];
 
 /**

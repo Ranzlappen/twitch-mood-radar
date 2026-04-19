@@ -109,6 +109,58 @@ Defaults are tuned for mobile — the app is installable as a PWA and iOS Safari
 
 Everything described above stays in **your browser on your device**. The service worker caches static assets only. Chat messages never transit any server that this app runs. Clearing site data in your browser settings (or the "CLEAR ALL HISTORY" button) removes the log permanently.
 
+## Rumble proxy setup
+
+Rumble sits behind Cloudflare and blocks every public CORS proxy, so there is no way for a browser-only PWA to reach Rumble chat without a tiny proxy that *you* run. The PWA tries public proxies first and only asks for a self-hosted one when all of them are rejected.
+
+The simplest option is a free Cloudflare Worker — it takes about two minutes to set up, handles plenty of traffic on the free tier, and the PWA has known about this endpoint shape forever (`GET /rumble/messages?streamId=<id>`).
+
+1. Go to [workers.cloudflare.com](https://workers.cloudflare.com), create a free account, click **Create Worker**, and paste this:
+
+   ```js
+   export default {
+     async fetch(req) {
+       const u = new URL(req.url);
+       if (u.pathname !== '/rumble/messages') {
+         return new Response('not found', { status: 404 });
+       }
+       const streamId = u.searchParams.get('streamId');
+       if (!streamId) return new Response('missing streamId', { status: 400 });
+
+       // Scrape the page once per request to find the chat id, then hit the chat API.
+       const page = await fetch('https://rumble.com/' + encodeURIComponent(streamId), {
+         headers: { 'user-agent': 'Mozilla/5.0' },
+       });
+       const html = await page.text();
+       const m = html.match(/"chat_id"\s*:\s*(\d+)/) || html.match(/chat\/api\/chat\/(\d+)/);
+       if (!m) return new Response('chat id not found', { status: 404 });
+
+       const api = await fetch('https://rumble.com/chat/api/chat/' + m[1] + '/messages', {
+         headers: { 'user-agent': 'Mozilla/5.0' },
+       });
+       const body = await api.text();
+       return new Response(body, {
+         status: api.status,
+         headers: {
+           'content-type': 'application/json',
+           'access-control-allow-origin': '*',
+         },
+       });
+     },
+   };
+   ```
+
+2. Deploy it. Cloudflare will give you a URL like `https://rumble-proxy.yourname.workers.dev`.
+3. In Mood Radar, open DevTools (F12) → Console, and run:
+
+   ```js
+   localStorage.setItem('moodradar_rumble_proxy_v1', 'https://rumble-proxy.yourname.workers.dev');
+   ```
+
+4. Reconnect the Rumble feed. It will use the Worker and chat will flow.
+
+If the Worker ever goes stale (Rumble changes their page markup), tweak the regex. Everything else stays the same.
+
 ## Development
 
 ```bash
