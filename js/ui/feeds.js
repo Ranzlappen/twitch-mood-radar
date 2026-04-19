@@ -143,6 +143,20 @@ export class FeedRenderer {
   }
 
   /**
+   * Clear the container and re-queue a set of items through the filter.
+   * Used by the filter modal to instantly reflect filter edits.
+   */
+  replaceAll(items) {
+    const list = document.getElementById(this._containerId);
+    if (!list) return;
+    this._pending = [];
+    while (list.firstChild) list.removeChild(list.firstChild);
+    for (const it of items) {
+      this.add(it.user, it.msg, it.mood, it.botScore, it.approvalVote, it.platform);
+    }
+  }
+
+  /**
    * Flush pending items into the DOM.
    */
   flush() {
@@ -513,6 +527,8 @@ export function openFilterModal() {
   const overlay = document.getElementById('filterOverlay');
   if (!overlay) return;
 
+  _suppressLiveCommit = true;
+
   _ensureChipInputs();
 
   const rxInput = document.getElementById('filterRegexInput');
@@ -547,8 +563,19 @@ export function openFilterModal() {
     });
   }
 
+  // Seed the live-commit cache with the current persisted values so the first
+  // onFilterModalInput() call doesn't see a spurious change and wipe the feed
+  // with the freshly-emptied preview ring.
+  _lastLiveRx = (rxInput?.value || '').trim();
+  if (_activeTab === 'simple') {
+    const { source } = buildRegexFromSimple(_currentSimpleState());
+    _lastLiveRx = source;
+  }
+  _lastLiveUq = (userInput?.value || '').trim().toLowerCase();
+
   overlay.classList.add('open');
   overlay.hidden = false;
+  _suppressLiveCommit = false;
   onFilterModalInput();
 
   if (_activeTab === 'simple' && _includeChip) setTimeout(() => _includeChip.focus(), 0);
@@ -598,6 +625,10 @@ export function onFilterModalInput() {
   }
   rxInput.classList.toggle('regex-error', !rxOk);
 
+  // Live-commit: mutate feed state as the user types so the filtered feed
+  // updates instantly. The Apply button is only for saving to history.
+  _commitFilterLive(rxVal, uqVal, rxOk);
+
   if (!rxVal && !uqVal) {
     countEl.textContent = `0 of ${_previewRing.length} recent`;
     previewEl.innerHTML = '<div class="filter-preview-hint">'
@@ -638,9 +669,65 @@ export function onFilterModalInput() {
   previewEl.appendChild(frag);
 }
 
-/* ── apply / clear ───────────────────────────────────── */
+/* ── live commit / apply / clear ─────────────────────── */
+
+// Last-seen values so we skip redundant localStorage writes on every keystroke.
+let _lastLiveRx = null;
+let _lastLiveUq = null;
+// Suppress live commit while openFilterModal is still wiring up UI (setFilterTab
+// triggers onFilterModalInput internally, which would otherwise fire before
+// we've seeded _lastLiveRx/Uq from the persisted state).
+let _suppressLiveCommit = false;
+
+/**
+ * Commit the modal's current inputs into live feed state and re-render the
+ * filtered feed from the preview ring. Called on every edit in the modal so
+ * the feed updates as the user types (no Apply click needed).
+ *
+ * Invalid regex is ignored (state not clobbered) — the input's .regex-error
+ * class is toggled by the caller.
+ */
+function _commitFilterLive(rxVal, uqVal, rxOk) {
+  if (_suppressLiveCommit) return;
+  if (!rxOk) return; // leave feed state alone while user is mid-typing a bad regex
+
+  let changed = false;
+  if (rxVal !== _lastLiveRx) {
+    updateFilteredFeedRegex(rxVal);
+    _lastLiveRx = rxVal;
+    changed = true;
+  }
+  if (uqVal !== _lastLiveUq) {
+    updateFilteredFeedUserQuery(uqVal);
+    _lastLiveUq = uqVal;
+    changed = true;
+  }
+  if (!changed) return;
+
+  // Persist simple-mode state (or reverse-parsed from raw regex) so reopening
+  // the modal doesn't lose chips. Only runs when the filter actually changed.
+  if (_activeTab === 'simple') {
+    const simple = _currentSimpleState();
+    state.filteredFeedSimple = simple;
+    save(FILTER_SIMPLE_STATE_KEY, simple);
+  } else {
+    const parsed = parseSimpleFromRegex(rxVal);
+    if (parsed) {
+      state.filteredFeedSimple = parsed;
+      save(FILTER_SIMPLE_STATE_KEY, parsed);
+    }
+  }
+
+  updateFilterTriggerButton();
+
+  // Replay buffered messages through the new filter so the feed visually
+  // reflects the change, not just future messages.
+  filteredFeed.replaceAll(_previewRing);
+}
 
 export function applyFilterModal() {
+  // State was already committed live as the user typed. Apply just saves the
+  // current filter to history and closes the modal.
   const rxInput = document.getElementById('filterRegexInput');
   const userInput = document.getElementById('filterUserInput');
   if (!rxInput || !userInput) return;
@@ -648,31 +735,15 @@ export function applyFilterModal() {
 
   let rxVal = '';
   if (_activeTab === 'simple') {
-    const simple = _currentSimpleState();
-    state.filteredFeedSimple = simple;
-    save(FILTER_SIMPLE_STATE_KEY, simple);
-    const { source } = buildRegexFromSimple(simple);
+    const { source } = buildRegexFromSimple(_currentSimpleState());
     rxVal = source;
-    rxInput.value = source;
   } else {
     rxVal = rxInput.value.trim();
-    // User edited raw regex — clear any persisted simple state that no longer
-    // matches, so next open doesn't restore stale chips.
-    const parsed = parseSimpleFromRegex(rxVal);
-    if (parsed) {
-      state.filteredFeedSimple = parsed;
-      save(FILTER_SIMPLE_STATE_KEY, parsed);
-    } else {
-      save(FILTER_SIMPLE_STATE_KEY, null);
-    }
+    try { new RegExp(rxVal, 'i'); }
+    catch { rxInput.classList.add('regex-error'); return; }
   }
 
-  const { ok } = updateFilteredFeedRegex(rxVal);
-  rxInput.classList.toggle('regex-error', !ok);
-  if (!ok) return;
-  updateFilteredFeedUserQuery(uqVal);
   if (rxVal || uqVal) saveFilterToHistory(rxVal, uqVal.toLowerCase());
-  updateFilterTriggerButton();
   renderFilterHistory();
   closeFilterModal();
 }

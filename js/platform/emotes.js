@@ -146,6 +146,9 @@ export function appendMessageSegments(container, rawText) {
     } else if (seg.type === 'emote') {
       const img = document.createElement('img');
       img.className = 'chat-emote';
+      // Strip the Referer header so CDNs like files.kick.com (which reject
+      // cross-origin image loads with a third-party Referer) serve the image.
+      img.referrerPolicy = 'no-referrer';
       img.src = seg.url;
       img.alt = seg.name;
       img.title = `${seg.name} (${seg.source})`;
