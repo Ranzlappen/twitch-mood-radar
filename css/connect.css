@@ -174,7 +174,6 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   flex-direction: column;
   overflow: hidden;
   padding: 20px 20px 16px;
-  resize: both;                  /* native bottom-right resize handle */
   box-shadow: 0 8px 24px rgba(0,0,0,.55);
 }
 .user-history-modal.dragging {

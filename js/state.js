@@ -56,6 +56,7 @@ export const state = {
   filteredFeedFontSize: 2,
   filteredFeedRegex: null,
   filteredFeedUserQuery: '',
+  filteredFeedSimple: { include: [], exclude: [], wholeWord: false, presets: [] },
 
   // Emote state
   bttvEmotes: new Map(),

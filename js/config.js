@@ -10,6 +10,8 @@ export const REGEX_STORAGE_KEY = 'moodradar_regex_v1';
 export const REGEX_HISTORY_KEY = 'moodradar_regexhistory_v1';
 export const REGEX_DEFAULT = '\\?';
 export const USER_FILTER_STORAGE_KEY = 'moodradar_userfilter_v1';
+export const FILTER_SIMPLE_STATE_KEY = 'moodradar_filtersimple_v1';
+export const FILTER_TAB_KEY = 'moodradar_filtertab_v1';
 export const LABEL_SCALE_KEY = 'moodradar_labelscale_v1';
 export const BUBBLE_SCALE_KEY = 'moodradar_bubblescale_v1';
 export const OAUTH_STORAGE_KEY = 'moodradar_oauth_v1';
@@ -250,6 +252,14 @@ export const EMOTE_MAP = new Map();
 for (const [k, v] of _RAW_EMOTE_MAP) EMOTE_MAP.set(_escEmoteKey(k), v);
 export const EMOTE_REGEX = new RegExp(
   [...EMOTE_MAP.keys()].map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'),
+  'g'
+);
+
+// Unescaped variants for DOM-based rendering paths that operate on raw
+// message text rather than HTML-escaped strings.
+export const RAW_EMOTE_MAP = new Map(_RAW_EMOTE_MAP);
+export const RAW_EMOTE_REGEX = new RegExp(
+  [..._RAW_EMOTE_MAP.keys()].map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'),
   'g'
 );
 

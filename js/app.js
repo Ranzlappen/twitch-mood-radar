@@ -16,7 +16,7 @@ import {
   updateFilteredFeedFontSize, applyFilteredFeedFontSize,
   updateFilteredFeedRegex, updateFilteredFeedUserQuery,
   openFilterModal, closeFilterModal, onFilterModalInput,
-  applyFilterModal, clearFilterModal,
+  applyFilterModal, clearFilterModal, setFilterTab,
   selectFilterHistoryItem, deleteFilterHistoryItem,
   updateFilterTriggerButton, refreshUserDatalist
 } from './ui/feeds.js';
@@ -224,6 +224,7 @@ window.closeFilterModal = closeFilterModal;
 window.onFilterModalInput = onFilterModalInput;
 window.applyFilterModal = applyFilterModal;
 window.clearFilterModal = clearFilterModal;
+window.setFilterTab = setFilterTab;
 window.selectFilterHistoryItem = selectFilterHistoryItem;
 window.deleteFilterHistoryItem = deleteFilterHistoryItem;
 

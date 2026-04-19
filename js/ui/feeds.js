@@ -4,19 +4,28 @@
  */
 import { state } from '../state.js';
 import { sanitize, esc } from '../utils/dom.js';
-import { renderEmotes } from '../platform/emotes.js';
+import { appendMessageSegments } from '../platform/emotes.js';
 import {
   FEED_FONT_KEY, OUTLIER_FONT_KEY, FILTERED_FEED_FONT_KEY,
-  REGEX_STORAGE_KEY, REGEX_HISTORY_KEY, USER_FILTER_STORAGE_KEY
+  REGEX_STORAGE_KEY, REGEX_HISTORY_KEY, USER_FILTER_STORAGE_KEY,
+  FILTER_SIMPLE_STATE_KEY, FILTER_TAB_KEY,
 } from '../config.js';
 import { saveRaw, loadRaw, save, load } from '../utils/storage.js';
 import { onMessageProcessed } from '../processing.js';
+import { createChipInput } from './chipInput.js';
+import {
+  FILTER_PRESETS, buildRegexFromSimple, parseSimpleFromRegex,
+} from './filterBuilder.js';
 
 /* ── shared row HTML builder ──────────────────────────── */
 
 /**
- * Build the inner HTML for a single feed item. Shared by FeedRenderer.flush
+ * Build a single feed item as a real DOM node. Shared by FeedRenderer.flush
  * and the per-user history modal so both render rows identically.
+ *
+ * Message bodies use DOM-node construction (text nodes + <img>) rather than
+ * innerHTML string assembly so emote tags cannot be partially consumed by
+ * later string replacement passes.
  *
  * @param {object} item
  * @param {string} item.user
@@ -25,32 +34,81 @@ import { onMessageProcessed } from '../processing.js';
  * @param {number} [item.botScore]
  * @param {number} [item.approvalVote]
  * @param {string} [item.platform]
- * @returns {{ className: string, innerHTML: string }}
+ * @returns {HTMLElement}
  */
-export function buildFeedItemHtml({ user, msg, mood, botScore = 0, approvalVote = 0, platform = '' }) {
+export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 0, platform = '' }) {
   const isBot = mood === 'bot';
-  const className = 'feed-item' + (isBot ? ' feed-bot' : '');
+  const el = document.createElement('div');
+  el.className = 'feed-item' + (isBot ? ' feed-bot' : '');
   const safeUser = sanitize(user);
   const safeMsg = sanitize(msg);
   const userKey = safeUser.toLowerCase();
-  const platDot = `<span class="feed-plat${platform ? ' feed-plat-' + platform : ''}" title="${platform || ''}"></span>`;
-  const moodTag = isBot
-    ? `<span class="feed-mood mood-bot">BOT ${botScore}</span>`
-    : `<span class="feed-mood mood-${mood}">${mood}</span>`;
-  const apvTag = isBot ? '' : buildApprovalHtml(approvalVote);
-  const innerHTML = `${platDot}<span class="feed-user" data-user="${esc(safeUser)}" data-user-key="${esc(userKey)}" role="button" tabindex="0">${esc(safeUser)}</span><span class="feed-msg">${renderEmotes(esc(safeMsg))}</span>${moodTag}${apvTag}`;
-  return { className, innerHTML };
+
+  const platDot = document.createElement('span');
+  platDot.className = 'feed-plat' + (platform ? ' feed-plat-' + platform : '');
+  platDot.title = platform || '';
+  el.appendChild(platDot);
+
+  const userSpan = document.createElement('span');
+  userSpan.className = 'feed-user';
+  userSpan.dataset.user = safeUser;
+  userSpan.dataset.userKey = userKey;
+  userSpan.setAttribute('role', 'button');
+  userSpan.tabIndex = 0;
+  userSpan.textContent = safeUser;
+  el.appendChild(userSpan);
+
+  const msgSpan = document.createElement('span');
+  msgSpan.className = 'feed-msg';
+  appendMessageSegments(msgSpan, safeMsg);
+  el.appendChild(msgSpan);
+
+  const moodSpan = document.createElement('span');
+  if (isBot) {
+    moodSpan.className = 'feed-mood mood-bot';
+    moodSpan.textContent = `BOT ${botScore}`;
+  } else {
+    moodSpan.className = 'feed-mood mood-' + mood;
+    moodSpan.textContent = mood;
+  }
+  el.appendChild(moodSpan);
+
+  if (!isBot) el.appendChild(buildApprovalEl(approvalVote));
+
+  return el;
 }
 
-export function buildApprovalHtml(vote) {
-  const apvPct = Math.round(Math.min(100, Math.max(0, (vote + 8) / 16 * 100)));
-  let apvColor;
-  if (vote > 1) apvColor = '#00ffe5';
-  else if (vote < -1) apvColor = '#ff4800';
-  else apvColor = '#4a4a7a';
-  const apvNum = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
-  return `<span class="feed-apv"><span class="feed-apv-bar"><span class="feed-apv-fill" style="width:${apvPct}%;background:${apvColor}"></span></span><span class="feed-apv-num" style="color:${apvColor}">${apvNum}</span></span>`;
+
+function _approvalParts(vote) {
+  const pct = Math.round(Math.min(100, Math.max(0, (vote + 8) / 16 * 100)));
+  let color;
+  if (vote > 1) color = '#00ffe5';
+  else if (vote < -1) color = '#ff4800';
+  else color = '#4a4a7a';
+  const num = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
+  return { pct, color, num };
 }
+
+export function buildApprovalEl(vote) {
+  const { pct, color, num } = _approvalParts(vote);
+  const wrap = document.createElement('span');
+  wrap.className = 'feed-apv';
+  const bar = document.createElement('span');
+  bar.className = 'feed-apv-bar';
+  const fill = document.createElement('span');
+  fill.className = 'feed-apv-fill';
+  fill.style.width = pct + '%';
+  fill.style.background = color;
+  bar.appendChild(fill);
+  wrap.appendChild(bar);
+  const numEl = document.createElement('span');
+  numEl.className = 'feed-apv-num';
+  numEl.style.color = color;
+  numEl.textContent = num;
+  wrap.appendChild(numEl);
+  return wrap;
+}
+
 
 /* ── FeedRenderer class ──────────────────────────────── */
 
@@ -97,11 +155,7 @@ export class FeedRenderer {
     const frag = document.createDocumentFragment();
     let appended = 0;
     for (const item of this._pending.splice(0, 25)) {
-      const el = document.createElement('div');
-      const { className, innerHTML } = buildFeedItemHtml(item);
-      el.className = className;
-      el.innerHTML = innerHTML;
-      frag.appendChild(el);
+      frag.appendChild(buildFeedItemEl(item));
       appended++;
     }
     list.appendChild(frag);
@@ -328,7 +382,121 @@ export function selectFilterHistoryItem(index) {
   const userInput = document.getElementById('filterUserInput');
   if (rxInput) rxInput.value = rx || '';
   if (userInput) userInput.value = user || '';
+
+  const parsed = parseSimpleFromRegex(rx || '');
+  if (parsed) {
+    _applySimpleStateToUI(parsed);
+    setFilterTab('simple');
+  } else {
+    setFilterTab('advanced');
+  }
   onFilterModalInput();
+}
+
+/* ── simple-mode chip inputs + presets ──────────────────── */
+
+let _includeChip = null;
+let _excludeChip = null;
+let _presetsBuilt = false;
+let _activeTab = 'simple';
+
+function _ensureChipInputs() {
+  if (!_includeChip) {
+    const inc = document.getElementById('filterIncludeChips');
+    if (inc) _includeChip = createChipInput(inc, {
+      placeholder: 'type a word, press Enter',
+      onChange: () => onFilterModalInput(),
+    });
+  }
+  if (!_excludeChip) {
+    const exc = document.getElementById('filterExcludeChips');
+    if (exc) _excludeChip = createChipInput(exc, {
+      placeholder: 'type a word to exclude',
+      onChange: () => onFilterModalInput(),
+    });
+  }
+  if (!_presetsBuilt) {
+    const host = document.getElementById('filterPresets');
+    if (host) {
+      host.innerHTML = '';
+      for (const p of FILTER_PRESETS) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'filter-preset';
+        btn.dataset.presetId = p.id;
+        btn.textContent = p.label;
+        btn.setAttribute('aria-pressed', 'false');
+        btn.addEventListener('click', () => {
+          const on = btn.getAttribute('aria-pressed') !== 'true';
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          btn.classList.toggle('active', on);
+          onFilterModalInput();
+        });
+        host.appendChild(btn);
+      }
+      _presetsBuilt = true;
+    }
+  }
+}
+
+function _currentSimpleState() {
+  const wholeWord = !!document.getElementById('filterWholeWord')?.checked;
+  const presets = Array.from(document.querySelectorAll('#filterPresets .filter-preset[aria-pressed="true"]'))
+    .map(b => b.dataset.presetId);
+  return {
+    include: _includeChip ? _includeChip.getChips() : [],
+    exclude: _excludeChip ? _excludeChip.getChips() : [],
+    wholeWord,
+    presets,
+  };
+}
+
+function _applySimpleStateToUI(simple) {
+  _ensureChipInputs();
+  if (_includeChip) _includeChip.setChips(simple.include || []);
+  if (_excludeChip) _excludeChip.setChips(simple.exclude || []);
+  const ww = document.getElementById('filterWholeWord');
+  if (ww) ww.checked = !!simple.wholeWord;
+  const ids = new Set(simple.presets || []);
+  for (const btn of document.querySelectorAll('#filterPresets .filter-preset')) {
+    const on = ids.has(btn.dataset.presetId);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('active', on);
+  }
+}
+
+export function setFilterTab(which) {
+  _activeTab = which === 'advanced' ? 'advanced' : 'simple';
+  saveRaw(FILTER_TAB_KEY, _activeTab);
+  const simplePanel = document.getElementById('filterModeSimple');
+  const advPanel = document.getElementById('filterModeAdvanced');
+  const simpleTab = document.getElementById('filterTabSimple');
+  const advTab = document.getElementById('filterTabAdvanced');
+  if (simplePanel) simplePanel.hidden = _activeTab !== 'simple';
+  if (advPanel) advPanel.hidden = _activeTab !== 'advanced';
+  if (simpleTab) {
+    simpleTab.classList.toggle('active', _activeTab === 'simple');
+    simpleTab.setAttribute('aria-selected', String(_activeTab === 'simple'));
+  }
+  if (advTab) {
+    advTab.classList.toggle('active', _activeTab === 'advanced');
+    advTab.setAttribute('aria-selected', String(_activeTab === 'advanced'));
+  }
+  onFilterModalInput();
+}
+
+/** Active source regex string based on the current tab + inputs. */
+function _currentRegexSource() {
+  if (_activeTab === 'simple') {
+    const simple = _currentSimpleState();
+    const { source } = buildRegexFromSimple(simple);
+    return { source, ok: true };
+  }
+  const rxInput = document.getElementById('filterRegexInput');
+  const source = (rxInput?.value || '').trim();
+  if (!source) return { source: '', ok: true };
+  try { new RegExp(source, 'i'); return { source, ok: true }; }
+  catch { return { source, ok: false }; }
 }
 
 /* ── live preview ring buffer (modal-scoped) ─────────── */
@@ -345,10 +513,27 @@ export function openFilterModal() {
   const overlay = document.getElementById('filterOverlay');
   if (!overlay) return;
 
+  _ensureChipInputs();
+
   const rxInput = document.getElementById('filterRegexInput');
   const userInput = document.getElementById('filterUserInput');
-  if (rxInput) rxInput.value = loadRaw(REGEX_STORAGE_KEY, '') || '';
+  const savedRegex = loadRaw(REGEX_STORAGE_KEY, '') || '';
+  if (rxInput) rxInput.value = savedRegex;
   if (userInput) userInput.value = loadRaw(USER_FILTER_STORAGE_KEY, '') || '';
+
+  // Prefer a saved simple state; fall back to reverse-parsing the saved regex.
+  let simple = load(FILTER_SIMPLE_STATE_KEY, null);
+  if (!simple || typeof simple !== 'object') {
+    simple = parseSimpleFromRegex(savedRegex) || { include: [], exclude: [], wholeWord: false, presets: [] };
+  }
+  _applySimpleStateToUI(simple);
+  state.filteredFeedSimple = simple;
+
+  // Decide active tab: persisted choice wins, but switch to Advanced if the
+  // saved regex couldn't be round-tripped into a simple state.
+  const saved = loadRaw(FILTER_TAB_KEY, 'simple');
+  const canSimple = !!parseSimpleFromRegex(savedRegex);
+  setFilterTab((saved === 'advanced' || !canSimple) ? (canSimple ? saved : 'advanced') : 'simple');
 
   refreshUserDatalist();
   renderFilterHistory();
@@ -366,7 +551,8 @@ export function openFilterModal() {
   overlay.hidden = false;
   onFilterModalInput();
 
-  if (rxInput) setTimeout(() => rxInput.focus(), 0);
+  if (_activeTab === 'simple' && _includeChip) setTimeout(() => _includeChip.focus(), 0);
+  else if (rxInput) setTimeout(() => rxInput.focus(), 0);
 }
 
 export function closeFilterModal() {
@@ -403,20 +589,22 @@ export function onFilterModalInput() {
   const previewEl = document.getElementById('filterPreview');
   if (!rxInput || !userInput || !countEl || !previewEl) return;
 
-  const rxVal = rxInput.value.trim();
+  const { source: rxVal, ok: rxOk } = _currentRegexSource();
   const uqVal = userInput.value.trim().toLowerCase();
 
   let rx = null;
-  let rxOk = true;
-  if (rxVal) {
-    try { rx = new RegExp(rxVal, 'i'); }
-    catch { rxOk = false; }
+  if (rxVal && rxOk) {
+    try { rx = new RegExp(rxVal, 'i'); } catch { /* already flagged */ }
   }
   rxInput.classList.toggle('regex-error', !rxOk);
 
   if (!rxVal && !uqVal) {
     countEl.textContent = `0 of ${_previewRing.length} recent`;
-    previewEl.innerHTML = '<div class="filter-preview-hint">Type a regex or username to preview matches.</div>';
+    previewEl.innerHTML = '<div class="filter-preview-hint">'
+      + (_activeTab === 'simple'
+        ? 'Add a word or preset to preview matches.'
+        : 'Type a regex or username to preview matches.')
+      + '</div>';
     return;
   }
 
@@ -441,14 +629,10 @@ export function onFilterModalInput() {
 
   const frag = document.createDocumentFragment();
   for (const rec of matches.slice().reverse()) {
-    const el = document.createElement('div');
-    const { className, innerHTML } = buildFeedItemHtml({
+    frag.appendChild(buildFeedItemEl({
       user: rec.user, msg: rec.msg, mood: rec.mood,
       botScore: rec.botScore, approvalVote: rec.approvalVote, platform: rec.platform
-    });
-    el.className = className;
-    el.innerHTML = innerHTML;
-    frag.appendChild(el);
+    }));
   }
   previewEl.innerHTML = '';
   previewEl.appendChild(frag);
@@ -460,8 +644,29 @@ export function applyFilterModal() {
   const rxInput = document.getElementById('filterRegexInput');
   const userInput = document.getElementById('filterUserInput');
   if (!rxInput || !userInput) return;
-  const rxVal = rxInput.value.trim();
   const uqVal = userInput.value.trim();
+
+  let rxVal = '';
+  if (_activeTab === 'simple') {
+    const simple = _currentSimpleState();
+    state.filteredFeedSimple = simple;
+    save(FILTER_SIMPLE_STATE_KEY, simple);
+    const { source } = buildRegexFromSimple(simple);
+    rxVal = source;
+    rxInput.value = source;
+  } else {
+    rxVal = rxInput.value.trim();
+    // User edited raw regex — clear any persisted simple state that no longer
+    // matches, so next open doesn't restore stale chips.
+    const parsed = parseSimpleFromRegex(rxVal);
+    if (parsed) {
+      state.filteredFeedSimple = parsed;
+      save(FILTER_SIMPLE_STATE_KEY, parsed);
+    } else {
+      save(FILTER_SIMPLE_STATE_KEY, null);
+    }
+  }
+
   const { ok } = updateFilteredFeedRegex(rxVal);
   rxInput.classList.toggle('regex-error', !ok);
   if (!ok) return;
@@ -477,6 +682,10 @@ export function clearFilterModal() {
   const userInput = document.getElementById('filterUserInput');
   if (rxInput) { rxInput.value = ''; rxInput.classList.remove('regex-error'); }
   if (userInput) userInput.value = '';
+  const empty = { include: [], exclude: [], wholeWord: false, presets: [] };
+  _applySimpleStateToUI(empty);
+  state.filteredFeedSimple = empty;
+  save(FILTER_SIMPLE_STATE_KEY, null);
   updateFilteredFeedRegex('');
   updateFilteredFeedUserQuery('');
   updateFilterTriggerButton();
