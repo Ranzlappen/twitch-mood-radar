@@ -171,22 +171,14 @@ export class RumbleAdapter extends PlatformAdapter {
       return;
     }
 
-    // --- Approach 2: Fall back to custom proxy URL ---
+    // --- Approach 2: Fall back to custom proxy URL (only if pre-saved) ---
     let proxyUrl = '';
     try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch { }
     if (!proxyUrl) {
-      proxyUrl = (prompt(
-        'Could not resolve Rumble chat directly (CORS).\n\n' +
-        'Enter your proxy URL (e.g., https://your-proxy.web.app):\n' +
-        'The proxy must implement: GET /rumble/messages?streamId=...\n' +
-        'Your URL will be saved for future use.'
-      ) || '').trim();
-      if (!proxyUrl) {
-        setStatus('No proxy URL configured.', 'error');
-        if (btn) btn.disabled = false;
-        return;
-      }
-      try { localStorage.setItem(RUMBLE_PROXY_STORAGE, proxyUrl); } catch { }
+      setStatus('Could not reach Rumble chat (CORS). Set localStorage["' + RUMBLE_PROXY_STORAGE + '"] to a proxy URL that serves GET /rumble/messages?streamId=…', 'error');
+      console.warn('[MoodRadar][Rumble] No saved proxy. To enable the proxy fallback, run in DevTools:\n  localStorage.setItem("' + RUMBLE_PROXY_STORAGE + '", "https://your-proxy.example.com")');
+      if (btn) btn.disabled = false;
+      return;
     }
 
     this._proxyUrl = proxyUrl;

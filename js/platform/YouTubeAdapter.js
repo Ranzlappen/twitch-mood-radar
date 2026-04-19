@@ -222,22 +222,14 @@ export class YouTubeAdapter extends PlatformAdapter {
       return;
     }
 
-    // Approach 3: API key fallback
+    // Approach 3: API key fallback (only if pre-saved)
     let apiKey = '';
     try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch { }
     if (!apiKey) {
-      apiKey = (prompt(
-        'Could not connect via innertube (CORS).\n\n' +
-        'Fallback: Enter a YouTube Data API v3 key.\n' +
-        'Get one free at console.cloud.google.com\n' +
-        '(enable "YouTube Data API v3").'
-      ) || '').trim();
-      if (!apiKey) {
-        setStatus('No API key provided.', 'error');
-        if (btn) btn.disabled = false;
-        return;
-      }
-      try { localStorage.setItem(YT_API_KEY_STORAGE, apiKey); } catch { }
+      setStatus('Could not reach YouTube chat (CORS). Set localStorage["' + YT_API_KEY_STORAGE + '"] to a YouTube Data API v3 key to enable the fallback.', 'error');
+      console.warn('[MoodRadar][YouTube] No saved API key. To enable the Data API fallback, run in DevTools:\n  localStorage.setItem("' + YT_API_KEY_STORAGE + '", "<your-api-key>")\nGet a key at console.cloud.google.com (enable "YouTube Data API v3").');
+      if (btn) btn.disabled = false;
+      return;
     }
 
     setStatus('Resolving via API key...', '');

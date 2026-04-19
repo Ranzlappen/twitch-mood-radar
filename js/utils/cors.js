@@ -5,20 +5,20 @@
 
 const GET_PROXIES = [
   (url) => url,
-  (url) => 'https://corsproxy.io/?' + encodeURIComponent(url),
+  (url) => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
   (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   (url) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
-  (url) => 'https://cors-anywhere.herokuapp.com/' + url,
-  (url) => 'https://crossorigin.me/' + url,
+  (url) => 'https://cors.eu.org/' + url,
+  (url) => 'https://proxy.cors.sh/' + url,
 ];
 
-// POST-safe proxies (codetabs doesn't support POST)
+// POST-safe proxies (codetabs is GET-only)
 const POST_PROXIES = [
   (url) => url,
-  (url) => 'https://corsproxy.io/?' + encodeURIComponent(url),
+  (url) => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
   (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  (url) => 'https://cors-anywhere.herokuapp.com/' + url,
-  (url) => 'https://crossorigin.me/' + url,
+  (url) => 'https://cors.eu.org/' + url,
+  (url) => 'https://proxy.cors.sh/' + url,
 ];
 
 /**
