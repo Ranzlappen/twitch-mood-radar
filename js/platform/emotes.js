@@ -23,6 +23,13 @@ const CDN = {
 // Trailing punctuation stripped when resolving third-party emote words.
 const TRAILING_PUNCT_RE = /[.,!?:;]+$/;
 
+// URL detection — http(s) only, captures most links chatters post. Trailing
+// punctuation is stripped so "visit https://example.com/foo." keeps the period
+// outside the link. Intentionally narrow to avoid matching IRC-style text.
+const URL_RE = /\bhttps?:\/\/[^\s<>"'`]+/gi;
+// Trailing characters that should not be part of the clickable URL.
+const URL_TAIL_STRIP_RE = /[.,!?:;)\]}'"]+$/;
+
 /**
  * Walk raw message text and emit an ordered array of segments. Each segment
  * is either { type: 'text', text } or
@@ -35,37 +42,71 @@ const TRAILING_PUNCT_RE = /[.,!?:;]+$/;
 export function segmentMessage(rawText) {
   if (typeof rawText !== 'string' || !rawText) return [];
 
-  // Pass 0: split on [emote:...] placeholders.
-  let segments = [];
-  let lastIdx = 0;
-  PLACEHOLDER_RE.lastIndex = 0;
-  let m;
-  while ((m = PLACEHOLDER_RE.exec(rawText)) !== null) {
-    if (m.index > lastIdx) {
-      segments.push({ type: 'text', text: rawText.slice(lastIdx, m.index) });
-    }
-    const [, source, id, name] = m;
-    const urlFn = CDN[source];
-    if (urlFn) {
-      segments.push({ type: 'emote', url: urlFn(id), name, source });
-    } else {
-      segments.push({ type: 'text', text: m[0] });
-    }
-    lastIdx = m.index + m[0].length;
-  }
-  if (lastIdx < rawText.length) {
-    segments.push({ type: 'text', text: rawText.slice(lastIdx) });
+  // Pass -1: carve out URLs first so no downstream pass munges link contents.
+  // URL segments are opaque to all subsequent passes (text-emoji, provider
+  // emotes, third-party emotes).
+  let segments = _splitByUrl(rawText);
+
+  // Pass 0: split on [emote:...] placeholders inside remaining text segments.
+  segments = _flatMapText(segments, (text) => _splitByPlaceholder(text));
+
+  // Pass 1: replace hardcoded text emotes with Unicode emoji (e.g. :) -> 🙂).
+  // Gated on a persistent user preference — when disabled, text shortcuts stay
+  // as plain text. Provider emote rendering is NOT affected.
+  const emojiOn = state.drawerOptions
+    ? state.drawerOptions.renderTextEmoji !== false
+    : true;
+  if (emojiOn) {
+    segments = _flatMapText(segments, (text) => _splitByEmoji(text));
   }
 
-  // Pass 1: replace hardcoded text emotes with Unicode emoji inside text segments.
-  segments = _flatMapText(segments, (text) => _splitByEmoji(text));
-
-  // Pass 2: replace third-party emote codes with emote images inside text segments.
+  // Pass 2: replace third-party emote codes (BTTV/7TV/FFZ) with emote images.
   if (state.thirdPartyEmotes && state.thirdPartyEmotes.size > 0) {
     segments = _flatMapText(segments, (text) => _splitByThirdParty(text));
   }
 
   return segments;
+}
+
+function _splitByPlaceholder(text) {
+  if (!text) return [];
+  const out = [];
+  let lastIdx = 0;
+  PLACEHOLDER_RE.lastIndex = 0;
+  let m;
+  while ((m = PLACEHOLDER_RE.exec(text)) !== null) {
+    if (m.index > lastIdx) out.push({ type: 'text', text: text.slice(lastIdx, m.index) });
+    const [, source, id, name] = m;
+    const urlFn = CDN[source];
+    if (urlFn) out.push({ type: 'emote', url: urlFn(id), name, source });
+    else       out.push({ type: 'text', text: m[0] });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < text.length) out.push({ type: 'text', text: text.slice(lastIdx) });
+  return out;
+}
+
+function _splitByUrl(text) {
+  if (!text) return [];
+  const out = [];
+  let lastIdx = 0;
+  URL_RE.lastIndex = 0;
+  let m;
+  while ((m = URL_RE.exec(text)) !== null) {
+    let raw = m[0];
+    let tail = '';
+    const tailMatch = raw.match(URL_TAIL_STRIP_RE);
+    if (tailMatch) {
+      tail = tailMatch[0];
+      raw = raw.slice(0, -tail.length);
+    }
+    if (m.index > lastIdx) out.push({ type: 'text', text: text.slice(lastIdx, m.index) });
+    if (raw) out.push({ type: 'url', text: raw, href: raw });
+    if (tail) out.push({ type: 'text', text: tail });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < text.length) out.push({ type: 'text', text: text.slice(lastIdx) });
+  return out;
 }
 
 function _flatMapText(segments, splitFn) {
@@ -156,7 +197,24 @@ export function appendMessageSegments(container, rawText) {
       img.alt = seg.name;
       img.title = `${seg.name} (${seg.source})`;
       img.loading = 'lazy';
+      img.dataset.emoteName = seg.name;
+      img.dataset.emoteSrc = seg.url;
+      img.dataset.emoteSource = seg.source;
+      img.setAttribute('role', 'button');
+      img.tabIndex = 0;
       container.appendChild(img);
+    } else if (seg.type === 'url') {
+      // Render as an anchor, but suppress the native navigation — a
+      // document-level delegated handler in linkModal.js intercepts the
+      // click to run the safety check before allowing the tab to open.
+      const a = document.createElement('a');
+      a.className = 'chat-link';
+      a.href = seg.href;
+      a.textContent = seg.text;
+      a.rel = 'noopener noreferrer';
+      a.target = '_blank';
+      a.dataset.chatLink = '1';
+      container.appendChild(a);
     }
   }
 }

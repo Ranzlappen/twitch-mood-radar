@@ -152,6 +152,11 @@ export function setOptCompactStats(c) {
   saveOptions();
 }
 
+export function setOptRenderTextEmoji(c) {
+  state.drawerOptions.renderTextEmoji = !!c;
+  saveOptions();
+}
+
 export function setOptBubbleCount(v) {
   state.drawerOptions.bubbleCount = parseInt(v);
   document.getElementById('optBubbleCountVal').textContent = v;
@@ -313,6 +318,7 @@ export function applyAllOptions() {
   chk('optCompactStats', o.compactStats);
   const statsEl = document.querySelector('.stats-row');
   if (statsEl) statsEl.classList.toggle('compact', o.compactStats);
+  chk('optRenderTextEmoji', o.renderTextEmoji !== false);
   // Bubbles
   sync('optBubbleCount', o.bubbleCount); text('optBubbleCountVal', o.bubbleCount);
   sync('optBubbleSpeed', o.bubbleSpeed); text('optBubbleSpeedVal', o.bubbleSpeed.toFixed(1) + 'x');

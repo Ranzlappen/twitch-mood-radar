@@ -4,13 +4,13 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '17' },
-    { url: '/index.html', revision: '17' },
-    { url: '/css/main.css', revision: '2' },
+    { url: '/', revision: '18' },
+    { url: '/index.html', revision: '18' },
+    { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
     { url: '/css/header.css', revision: '1' },
-    { url: '/css/connect.css', revision: '5' },
+    { url: '/css/connect.css', revision: '6' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '4' },
     { url: '/css/filter-modal.css', revision: '2' },
@@ -18,9 +18,11 @@ if (workbox) {
     { url: '/css/presets.css', revision: '1' },
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
+    { url: '/css/emote-modal.css', revision: '1' },
+    { url: '/css/link-modal.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '8' },
-    { url: '/js/config.js', revision: '6' },
+    { url: '/js/app.js', revision: '9' },
+    { url: '/js/config.js', revision: '7' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
@@ -29,6 +31,7 @@ if (workbox) {
     { url: '/js/utils/storage.js', revision: '1' },
     { url: '/js/utils/cors.js', revision: '2' },
     { url: '/js/utils/CircularBuffer.js', revision: '1' },
+    { url: '/js/utils/urlSafety.js', revision: '1' },
     // Analysis
     { url: '/js/analysis/sentiment.js', revision: '2' },
     { url: '/js/analysis/approval.js', revision: '1' },
@@ -41,7 +44,7 @@ if (workbox) {
     { url: '/js/platform/YouTubeAdapter.js', revision: '7' },
     { url: '/js/platform/RumbleAdapter.js', revision: '7' },
     { url: '/js/platform/ConnectionManager.js', revision: '2' },
-    { url: '/js/platform/emotes.js', revision: '3' },
+    { url: '/js/platform/emotes.js', revision: '4' },
     // History (IndexedDB)
     { url: '/js/history/historyDb.js', revision: '1' },
     // UI
@@ -54,9 +57,11 @@ if (workbox) {
     { url: '/js/ui/layout.js', revision: '2' },
     { url: '/js/ui/help.js', revision: '3' },
     { url: '/js/ui/wake-lock.js', revision: '1' },
-    { url: '/js/ui/userHistoryModal.js', revision: '2' },
+    { url: '/js/ui/userHistoryModal.js', revision: '3' },
     { url: '/js/ui/filterBuilder.js', revision: '1' },
     { url: '/js/ui/chipInput.js', revision: '1' },
+    { url: '/js/ui/emoteModal.js', revision: '1' },
+    { url: '/js/ui/linkModal.js', revision: '1' },
     // Assets
     { url: '/manifest.json', revision: '2' },
     { url: '/icons/icon-192x192.png', revision: '1' },

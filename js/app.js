@@ -28,11 +28,14 @@ import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
 import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
 import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
+import { initEmoteModal } from './ui/emoteModal.js';
+import { initLinkModal } from './ui/linkModal.js';
 
 // --- Import all setOpt* functions from options ---
 import {
   setOptDensity, setOptGap, setOptCardPad, setOptFontScale, setOptCrt, setOptGridBg,
   setOptShowSubtitle, setOptShowLegend, setOptShowDividers, setOptCompactStats,
+  setOptRenderTextEmoji,
   setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity, setOptBubbleHeight,
   setOptPieLabels, setOptPieAnimation, setOptRadarAnimation, setOptRadarGrid,
   setOptTimelineHeight, setOptTlGrid, setOptTlSmooth,
@@ -138,6 +141,7 @@ window.setOptShowSubtitle = setOptShowSubtitle;
 window.setOptShowLegend = setOptShowLegend;
 window.setOptShowDividers = setOptShowDividers;
 window.setOptCompactStats = setOptCompactStats;
+window.setOptRenderTextEmoji = setOptRenderTextEmoji;
 window.setOptBubbleCount = setOptBubbleCount;
 window.setOptBubbleSpeed = setOptBubbleSpeed;
 window.setOptBubbleOpacity = setOptBubbleOpacity;
@@ -387,6 +391,8 @@ window.onload = function () {
   // Initialize per-user message history (IndexedDB) and modal click-to-open
   initHistoryDb();
   initUserHistoryModal();
+  initEmoteModal();
+  initLinkModal();
   refreshStorageUsage();
 
   // Sync history settings UI to stored values

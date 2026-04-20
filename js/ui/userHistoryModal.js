@@ -12,9 +12,9 @@
  *  - persisted controls (bot checkbox, scope, font size) across reloads
  */
 import { queryByUser, userStats, clearUser } from '../history/historyDb.js';
-import { buildFeedItemEl } from './feeds.js';
 import { attachResizeHandle } from './layout.js';
-import { esc } from '../utils/dom.js';
+import { esc, sanitize } from '../utils/dom.js';
+import { appendMessageSegments } from '../platform/emotes.js';
 import { load, save, loadRaw, saveRaw } from '../utils/storage.js';
 import {
   USER_HIST_FONT_KEY, USER_HIST_BOTS_KEY, USER_HIST_SCOPE_KEY,
@@ -225,25 +225,103 @@ function _topMood(moodCounts) {
  * sync.
  */
 function _buildRow(r) {
+  const isBot = !!r.isBot;
+  const safeUser = sanitize(r.user || '');
+  const userKey  = safeUser.toLowerCase();
+  const safeMsg  = sanitize(r.msg || '');
+  const platform = r.platform || '';
+  const channel  = r.channel  || '';
+
   const wrap = document.createElement('div');
   wrap.className = 'user-history-row';
-  const tsSpan = document.createElement('span');
-  tsSpan.className = 'user-history-ts';
-  tsSpan.title = _fmtTs(r.ts);
-  tsSpan.textContent = _fmtTs(r.ts);
 
-  const item = buildFeedItemEl({
-    user: r.user,
-    msg: r.msg,
-    mood: r.isBot ? 'bot' : (r.mood || 'neutral'),
-    botScore: r.botScore || 0,
-    approvalVote: r.approvalVote || 0,
-    platform: r.platform || '',
-  });
+  const meta = document.createElement('div');
+  meta.className = 'user-history-meta';
 
-  wrap.appendChild(tsSpan);
-  wrap.appendChild(item);
+  const ts = document.createElement('span');
+  ts.className = 'user-history-ts';
+  ts.title = _fmtTs(r.ts);
+  ts.textContent = _fmtTs(r.ts);
+  meta.appendChild(ts);
+
+  const mid = document.createElement('span');
+  mid.className = 'user-history-meta-mid';
+
+  const userSpan = document.createElement('span');
+  userSpan.className = 'feed-user';
+  userSpan.dataset.user = safeUser;
+  userSpan.dataset.userKey = userKey;
+  userSpan.setAttribute('role', 'button');
+  userSpan.tabIndex = 0;
+  userSpan.textContent = safeUser;
+  mid.appendChild(userSpan);
+
+  mid.appendChild(_connWord(' to '));
+
+  const chan = document.createElement('span');
+  chan.className = 'user-history-channel';
+  chan.textContent = channel ? '#' + channel : '?';
+  mid.appendChild(chan);
+
+  mid.appendChild(_connWord(' on '));
+
+  if (platform) {
+    const dot = document.createElement('span');
+    dot.className = 'feed-plat feed-plat-' + platform;
+    dot.title = platform;
+    mid.appendChild(dot);
+  }
+  const platText = document.createElement('span');
+  platText.className = 'user-history-platform';
+  platText.textContent = (platform || '?').toLowerCase();
+  mid.appendChild(platText);
+
+  meta.appendChild(mid);
+
+  const right = document.createElement('span');
+  right.className = 'user-history-meta-right';
+  if (isBot) {
+    const b = document.createElement('span');
+    b.className = 'feed-mood mood-bot';
+    b.textContent = `BOT ${r.botScore || 0}`;
+    right.appendChild(b);
+  } else {
+    const mood = r.mood || 'neutral';
+    const mEl = document.createElement('span');
+    mEl.className = 'feed-mood mood-' + mood;
+    mEl.textContent = mood;
+    right.appendChild(mEl);
+    const { color, num } = _scoreColorNum(+(r.approvalVote || 0));
+    const sEl = document.createElement('span');
+    sEl.className = 'user-history-score';
+    sEl.style.color = color;
+    sEl.textContent = num;
+    right.appendChild(sEl);
+  }
+  meta.appendChild(right);
+  wrap.appendChild(meta);
+
+  const body = document.createElement('div');
+  body.className = 'user-history-body feed-msg';
+  appendMessageSegments(body, safeMsg);
+  wrap.appendChild(body);
+
   return wrap;
+}
+
+function _connWord(text) {
+  const s = document.createElement('span');
+  s.className = 'uh-conn';
+  s.textContent = text;
+  return s;
+}
+
+function _scoreColorNum(vote) {
+  let color = '#9898c8';
+  if (vote >  1) color = '#00ffe5';
+  else if (vote < -1) color = '#ff4800';
+  const num = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
+  return { color, num };
 }
 
 function _renderRows(rows, append) {

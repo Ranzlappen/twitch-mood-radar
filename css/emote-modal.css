@@ -1,0 +1,70 @@
+.emote-modal-overlay[hidden] { display: none; }
+.emote-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(6, 6, 15, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.emote-modal-overlay.open { opacity: 1; }
+
+.emote-modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 240px;
+  max-width: min(420px, 90vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 40px rgba(0,255,229,.06);
+  position: relative;
+}
+.emote-modal-close {
+  position: absolute; top: 6px; right: 8px;
+  background: transparent; border: none;
+  color: var(--muted); cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1em; line-height: 1;
+}
+.emote-modal-close:hover { color: var(--accent); }
+.emote-modal-img {
+  max-width: 100%;
+  max-height: 160px;
+  height: auto;
+}
+.emote-modal-code {
+  font-family: 'Orbitron', monospace;
+  font-size: 1em;
+  letter-spacing: .08em;
+  color: var(--accent);
+  word-break: break-all;
+  text-align: center;
+}
+.emote-modal-source {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .72em;
+  color: var(--muted);
+  letter-spacing: .1em;
+}
+.emote-modal-url {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6em;
+  color: #6a6a8e;
+  word-break: break-all;
+  text-align: center;
+  user-select: text;
+  max-width: 100%;
+}
+
+.chat-emote { cursor: pointer; }
+.chat-emote:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
