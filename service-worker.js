@@ -10,7 +10,7 @@ if (workbox) {
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
     { url: '/css/header.css', revision: '1' },
-    { url: '/css/connect.css', revision: '6' },
+    { url: '/css/connect.css', revision: '7' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '4' },
     { url: '/css/filter-modal.css', revision: '2' },
@@ -18,7 +18,7 @@ if (workbox) {
     { url: '/css/presets.css', revision: '1' },
     { url: '/css/options-drawer.css', revision: '1' },
     { url: '/css/chat-input.css', revision: '1' },
-    { url: '/css/emote-modal.css', revision: '1' },
+    { url: '/css/emote-modal.css', revision: '2' },
     { url: '/css/link-modal.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '9' },

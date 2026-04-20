@@ -164,9 +164,9 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   left: 50%;
   top: 8vh;
   transform: translateX(-50%);   /* removed in JS once a drag/persist sets explicit left */
-  width: 640px;
+  width: min(640px, 96vw);
   height: 70vh;
-  min-width: 360px;
+  min-width: min(360px, 96vw);
   min-height: 240px;
   max-width: 96vw;
   max-height: 96vh;
