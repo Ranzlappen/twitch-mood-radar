@@ -101,6 +101,11 @@
   gap: 10px;
 }
 
+#filterModeSimple[hidden],
+#filterModeAdvanced[hidden] {
+  display: none;
+}
+
 .filter-advanced-warning {
   font-family: 'Share Tech Mono', monospace;
   font-size: .7em;

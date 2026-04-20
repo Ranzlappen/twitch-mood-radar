@@ -13,7 +13,7 @@ if (workbox) {
     { url: '/css/connect.css', revision: '7' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '4' },
-    { url: '/css/filter-modal.css', revision: '2' },
+    { url: '/css/filter-modal.css', revision: '3' },
     { url: '/css/layout-mgr.css', revision: '1' },
     { url: '/css/presets.css', revision: '1' },
     { url: '/css/options-drawer.css', revision: '1' },
