@@ -64,6 +64,7 @@ export const DEFAULT_OPTIONS = {
   timelineHeight:320, tlGrid:true, tlSmooth:true,
   approvalMini:true, approvalVerdict:true,
   wakeLockEnabled:false,
+  renderTextEmoji:true,
   cardVisibility:{}
 };
 
