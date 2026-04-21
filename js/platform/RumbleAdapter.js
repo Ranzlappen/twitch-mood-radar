@@ -175,8 +175,8 @@ export class RumbleAdapter extends PlatformAdapter {
     let proxyUrl = '';
     try { proxyUrl = localStorage.getItem(RUMBLE_PROXY_STORAGE) || ''; } catch { }
     if (!proxyUrl) {
-      setStatus('Rumble needs a self-hosted Cloudflare Worker. Open the options drawer → "Rumble Chat Proxy" and click the "i" icon for setup instructions.', 'error');
-      console.warn('[MoodRadar][Rumble] No proxy configured. Open the options drawer → "Rumble Chat Proxy" and follow the Cloudflare Worker setup.');
+      setStatus('Rumble needs a self-hosted proxy on a residential IP (serverless hosts are blocked). Open the options drawer → "Rumble Chat Proxy" and click the "i" icon for setup instructions.', 'error');
+      console.warn('[MoodRadar][Rumble] No proxy configured. Open the options drawer → "Rumble Chat Proxy" and follow the setup instructions (residential-IP host + tunnel).');
       if (btn) btn.disabled = false;
       return;
     }
