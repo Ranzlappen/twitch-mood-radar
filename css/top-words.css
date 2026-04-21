@@ -24,7 +24,7 @@
    both very small and very large cards. Everything inside a row scales
    against this unit so 10 rows always fit end-to-end. */
 .top-words-list {
-  --tw-base: clamp(7px, calc(3.6cqh * var(--tw-font-scale)), 22px);
+  --tw-base: clamp(8px, calc(3.6cqh * var(--tw-font-scale)), 26px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -32,7 +32,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--tw-base) * 0.1);
+  gap: 1px;
   font-family: 'Share Tech Mono', monospace;
 }
 
@@ -41,14 +41,16 @@
   min-height: 0;
   position: relative;
   display: grid;
+  /* rank column is sized for "10"; count column is sized for 3-digit counts.
+     Both are kept tight so the word column claims the most horizontal room. */
   grid-template-columns:
-    calc(var(--tw-base) * 1.8)
-    min(var(--tw-emote-size), calc(var(--tw-base) * 2.4))
+    calc(var(--tw-base) * 1.4)
+    min(var(--tw-emote-size), calc(var(--tw-base) * 2.2))
     minmax(0, 1fr)
-    calc(var(--tw-base) * 3.2);
+    calc(var(--tw-base) * 2.4);
   align-items: center;
-  column-gap: calc(var(--tw-base) * 0.55);
-  padding: 0 2px;
+  column-gap: calc(var(--tw-base) * 0.35);
+  padding: 0;
   border-bottom: 1px solid rgba(255,255,255,.03);
   overflow: hidden;
 }
@@ -58,7 +60,7 @@
   font-family: 'Orbitron', sans-serif;
   font-size: calc(var(--tw-base) * 0.8);
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   color: var(--muted);
   text-align: right;
   line-height: 1;
@@ -68,9 +70,9 @@
 
 .top-words-row .tw-emote {
   /* Slider value is a px ceiling; the cqh-based min() keeps the emote
-     from ever exceeding ~2.4x the text base so it never crowds the row. */
-  width:  min(var(--tw-emote-size), calc(var(--tw-base) * 2.4));
-  height: min(var(--tw-emote-size), calc(var(--tw-base) * 2.4));
+     from ever exceeding ~2.2x the text base so it never crowds the row. */
+  width:  min(var(--tw-emote-size), calc(var(--tw-base) * 2.2));
+  height: min(var(--tw-emote-size), calc(var(--tw-base) * 2.2));
   object-fit: contain;
   image-rendering: pixelated;
   align-self: center;
@@ -81,11 +83,12 @@
 .top-words-row .tw-emote[hidden] { display: none; }
 
 .top-words-row .tw-word {
-  font-size: calc(var(--tw-base) * 1);
+  font-size: calc(var(--tw-base) * 1.15);
   color: var(--text);
   white-space: nowrap;
+  /* Allow long tokens to flow through the row without ellipsis. The row's
+     own overflow:hidden still prevents spill past the card edge. */
   overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1.1;
   min-width: 0;
   position: relative;
@@ -93,12 +96,13 @@
 }
 
 .top-words-row .tw-count {
-  font-size: calc(var(--tw-base) * 0.82);
+  font-size: calc(var(--tw-base) * 0.95);
   color: var(--accent);
   text-align: right;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  padding-left: calc(var(--tw-base) * 0.2);
   position: relative;
   z-index: 1;
 }
