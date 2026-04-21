@@ -32,7 +32,7 @@ import {
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
-import { openStopwordsModal, loadStopwordOverrides } from './ui/stopwordsModal.js';
+import { loadStopwordOverrides, registerTopWordsInfoDrawer, attachTopWordsInfoButton } from './ui/stopwordsModal.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
 import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
@@ -395,10 +395,10 @@ window.onload = function () {
   // Initialize help keyboard shortcuts
   initHelpKeys();
 
-  // Load persisted stopword overrides and wire the settings-cog button.
+  // Load persisted stopword overrides and register the topWords info drawer.
   loadStopwordOverrides();
-  const swBtn = document.getElementById('topWordsEditStopwords');
-  if (swBtn) swBtn.addEventListener('click', openStopwordsModal);
+  registerTopWordsInfoDrawer();
+  attachTopWordsInfoButton();
 
   // Request persistent storage so the browser doesn't evict chat history
   // under disk pressure. On Chromium this also raises the per-origin quota
