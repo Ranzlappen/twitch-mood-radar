@@ -114,14 +114,14 @@ window.handleChannelKey = (slotId, e) => connMgr.handleChannelKey(slotId, e);
 window.toggleSettings = toggleSettings;
 window.applyPreset = (preset) => {
   if (preset === 'custom') {
-    document.getElementById('layoutManagerSection').style.display = 'block';
+    document.getElementById('optCustomLayoutSection').style.display = 'block';
     renderLayoutManager();
     applyCustomLayout();
     savePreset('custom');
     return;
   }
   state.isRestoringLayout = true;
-  document.getElementById('layoutManagerSection').style.display = 'none';
+  document.getElementById('optCustomLayoutSection').style.display = 'none';
   document.body.classList.remove('preset-custom');
   restoreDefaultDOM();
   applyPreset(preset);
@@ -277,15 +277,14 @@ window.onload = function () {
   // Render initial slot UI
   connMgr.renderAllSlots();
 
-  // Init label scale slider
+  // Init label scale slider (lives in the Options Drawer — DOM exists)
   const slider = document.getElementById('labelScaleSlider');
   if (slider) slider.value = state.labelScale;
-  document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
+  const labelScaleValEl = document.getElementById('labelScaleVal');
+  if (labelScaleValEl) labelScaleValEl.textContent = state.labelScale.toFixed(1) + 'x';
 
-  // Init bubble scale slider
-  const bsSlider = document.getElementById('bubbleScaleSlider');
-  if (bsSlider) bsSlider.value = state.bubbleScale;
-  document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
+  // Bubble scale lives inside bubbleCard info drawer now; display sync
+  // happens when the drawer is opened.
 
   // Per-module info drawers: register settings builders + attach the "ⓘ"
   // button on each card title row.
@@ -346,16 +345,23 @@ window.onload = function () {
     state.drawerOptions.density = 'dense';
     state.drawerOptions.timelineHeight = 220;
 
-    // Update sliders to reflect new values
-    const lsSlider = document.getElementById('labelScaleSlider');
-    if (lsSlider) lsSlider.value = state.labelScale;
-    document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
-    if (bsSlider) bsSlider.value = state.bubbleScale;
-    document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
-    if (tlPtsSlider) tlPtsSlider.value = state.TIMELINE_POINTS;
-    document.getElementById('tlPointsVal').textContent = state.TIMELINE_POINTS;
-    if (tlIntSlider) tlIntSlider.value = state.TIMELINE_INTERVAL;
-    document.getElementById('tlIntervalVal').textContent = state.TIMELINE_INTERVAL + 'ms';
+    // Update sliders to reflect new values. Some of these elements live
+    // inside module info drawers that aren't in the DOM until opened, so
+    // every lookup is null-safe.
+    const syncSlider = (id, val) => {
+      const el = document.getElementById(id); if (el) el.value = val;
+    };
+    const syncText = (id, val) => {
+      const el = document.getElementById(id); if (el) el.textContent = val;
+    };
+    syncSlider('labelScaleSlider', state.labelScale);
+    syncText('labelScaleVal', state.labelScale.toFixed(1) + 'x');
+    syncSlider('bubbleScaleSlider', state.bubbleScale);
+    syncText('bubbleScaleVal', state.bubbleScale.toFixed(2) + 'x');
+    syncSlider('tlPointsSlider', state.TIMELINE_POINTS);
+    syncText('tlPointsVal', String(state.TIMELINE_POINTS));
+    syncSlider('tlIntervalSlider', state.TIMELINE_INTERVAL);
+    syncText('tlIntervalVal', state.TIMELINE_INTERVAL + 'ms');
 
     // Seed localStorage so loadLayout() and restoreSizes() pick up the defaults
     const tabletLayout = {

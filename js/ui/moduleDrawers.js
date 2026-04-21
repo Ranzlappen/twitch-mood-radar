@@ -12,6 +12,7 @@ import {
   setOptPieLabels, setOptPieAnimation,
   setOptApprovalMini, setOptApprovalVerdict,
 } from './options.js';
+import { updateBubbleScale } from './layout.js';
 
 /* ── small DOM builders ───────────────────────────── */
 
@@ -72,6 +73,12 @@ export function registerModuleInfoDrawers() {
       value: o.bubbleHeight ?? 260, min: 80, max: 500, step: 10,
       format: v => v + 'px',
       onInput: setOptBubbleHeight,
+    }));
+    body.appendChild(sliderRow({
+      label: 'BUBBLE SCALE', id: 'bubbleScaleSlider', valId: 'bubbleScaleVal',
+      value: state.bubbleScale ?? 1, min: 0.3, max: 1.5, step: 0.05,
+      format: v => (+v).toFixed(2) + 'x',
+      onInput: updateBubbleScale,
     }));
   }, { title: 'CONSENSUS BUBBLES' });
 
