@@ -443,7 +443,19 @@ export const HELP_CONTENT = {
   <li>The key is stored <strong>locally in your browser</strong> only (localStorage). Never uploaded.</li>
   <li>The local usage counter resets at your <strong>local midnight</strong>. Google's real counter resets at <strong>midnight Pacific Time</strong>. If you burn near the cap right at local midnight, the daily budget protects you from drift.</li>
   <li>If Google ever returns 403 <code>quotaExceeded</code>, the app marks the day as exhausted until local midnight — reconnect attempts won't burn through.</li>
-</ul>`
+</ul>
+<h4 style="margin:12px 0 6px;color:var(--accent)">IF 10,000 UNITS ISN'T ENOUGH</h4>
+<p>Be warned: Google's quota-increase process for YouTube Data API v3 is <strong>not a simple click-to-raise</strong>. It routes to a dedicated application form (<code>support.google.com/youtube/contact/yt_api_form</code>) that asks for business details, expected traffic, and the justification for why your use case needs more. Approval for personal/hobby projects is <strong>unreliable</strong> and can take weeks. For most users: don't bother.</p>
+<p><strong>Realistic lever — raise the MIN POLL slider first.</strong> That single slider in this drawer multiplies your daily yield for free:</p>
+<ul>
+  <li><strong>5s</strong> (default) → ≈ 2.5 h/day</li>
+  <li><strong>10s</strong> → ≈ 5 h/day</li>
+  <li><strong>15s</strong> → ≈ 7.5 h/day</li>
+  <li><strong>30s</strong> (max) → ≈ 15 h/day</li>
+</ul>
+<p>10s is barely noticeable latency for mood analysis and gives you double the chat time. 30s covers a full workday of continuous chat on the free tier.</p>
+<p><strong>Theoretical workaround — second project, second 10k quota.</strong> Each Google Cloud project gets an independent 10k/day quota. You could create a second project, enable the API on it, and make a second key. But <em>this app only holds one key at a time</em>, so you'd be manually swapping keys when one hits its cap — awkward UX. Not recommended.</p>
+<p>If you genuinely do need more than ~15 hours/day of low-latency YouTube chat analysis, the quota-increase form is still the only official path. Otherwise, the MIN POLL slider is almost always the right answer.</p>`
   },
   rumbleWorker: {
     title: 'RUMBLE CHAT PROXY — SETUP',
