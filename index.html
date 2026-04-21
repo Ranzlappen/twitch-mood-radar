@@ -794,6 +794,27 @@ function unlockApp() {
     </details>
 
     <details class="opt-section">
+      <summary>Rumble Chat Proxy</summary>
+      <div class="opt-content">
+        <div class="opt-hint">
+          Rumble requires a self-hosted Cloudflare Worker to fetch chat.
+          <button type="button" class="help-btn opt-info-btn" onclick="showHelp('rumbleWorker')" title="How to set up a Cloudflare Worker" aria-label="How to set up a Cloudflare Worker">i</button>
+        </div>
+        <div class="opt-row opt-row-stack">
+          <span class="opt-label">WORKER URL</span>
+          <input type="url" id="optRumbleProxyUrl" class="opt-text-input"
+            placeholder="https://your-worker.workers.dev"
+            spellcheck="false" autocomplete="off"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();saveRumbleProxyUrl();}">
+        </div>
+        <div class="opt-row opt-row-actions">
+          <button type="button" class="opt-save-btn" onclick="saveRumbleProxyUrl()">SAVE</button>
+          <span class="opt-save-feedback" id="optRumbleProxySaved" aria-live="polite"></span>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section">
       <summary>Card Visibility</summary>
       <div class="opt-content">
         <label class="opt-toggle"><input type="checkbox" id="optShowPie" checked onchange="setOptCardVisibility('pieCard',this.checked)"><span class="opt-label">Mood Distribution</span></label>

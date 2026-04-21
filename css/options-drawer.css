@@ -122,6 +122,51 @@
 .opt-reset-btn:hover { background:rgba(255,45,120,.15) }
 
 /* ============================================================
+   Rumble proxy section — URL input + save button + info icon
+   ============================================================ */
+.opt-hint {
+  display:flex; align-items:center; gap:6px;
+  font-size:.72em; color:var(--muted); line-height:1.5;
+  margin-bottom:8px;
+}
+.opt-info-btn {
+  width:16px; height:16px; font-size:.62em;
+  font-style:italic; font-weight:700;
+  font-family:'Share Tech Mono',monospace;
+}
+.opt-row-stack {
+  flex-direction:column; align-items:stretch; gap:4px;
+}
+.opt-row-stack .opt-label { min-width:0 }
+.opt-text-input {
+  width:100%; box-sizing:border-box;
+  background:#080814; border:1px solid var(--border); border-radius:6px;
+  color:var(--text); font-family:'Share Tech Mono',monospace;
+  font-size:.78em; padding:6px 8px; outline:none;
+  transition:border-color .2s;
+}
+.opt-text-input:focus { border-color:var(--accent) }
+.opt-text-input::placeholder { color:var(--muted); opacity:.6 }
+.opt-row-actions {
+  display:flex; align-items:center; gap:10px; margin-bottom:4px;
+}
+.opt-save-btn {
+  padding:6px 14px;
+  font-family:'Orbitron',sans-serif; font-size:.58em; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+  background:rgba(0,255,229,.06); border:1px solid var(--accent);
+  border-radius:5px; color:var(--accent); cursor:pointer;
+  transition:background .15s;
+}
+.opt-save-btn:hover { background:rgba(0,255,229,.16) }
+.opt-save-feedback {
+  font-size:.7em; color:var(--accent); opacity:0;
+  transition:opacity .2s;
+}
+.opt-save-feedback.show { opacity:1 }
+.opt-save-feedback.err { color:var(--accent2) }
+
+/* ============================================================
    MOBILE: Drawer slides from bottom
    ============================================================ */
 @media (max-width:600px) {

@@ -20,7 +20,7 @@ import {
   selectFilterHistoryItem, deleteFilterHistoryItem,
   updateFilterTriggerButton, refreshUserDatalist
 } from './ui/feeds.js';
-import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage } from './ui/options.js';
+import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage, loadRumbleProxyUrl, saveRumbleProxyUrl } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
@@ -158,6 +158,7 @@ window.setOptApprovalVerdict = setOptApprovalVerdict;
 window.setOptCardVisibility = setOptCardVisibility;
 window.setOptWakeLock = setOptWakeLock;
 window.resetAllOptions = resetAllOptions;
+window.saveRumbleProxyUrl = saveRumbleProxyUrl;
 
 // Help
 window.showHelp = showHelp;
@@ -425,6 +426,7 @@ window.onload = function () {
   // Load and apply Options Drawer settings
   loadOptions();
   applyAllOptions();
+  loadRumbleProxyUrl();
 
   // Re-acquire wake lock when tab becomes visible again
   document.addEventListener('visibilitychange', () => {
