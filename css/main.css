@@ -1,5 +1,6 @@
 /* Main CSS entry point — imports all modular stylesheets */
 @import 'tokens.css';
+@import 'modal.css';
 @import 'layout.css';
 @import 'header.css';
 @import 'connect.css';

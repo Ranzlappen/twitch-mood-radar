@@ -23,7 +23,6 @@ export function initHelpKeys() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeHelp();
-      document.getElementById('settingsDropdown').classList.remove('open');
       document.getElementById('optionsDrawer').classList.remove('open');
       document.getElementById('optionsOverlay').classList.remove('open');
       const userHist = document.getElementById('userHistoryOverlay');

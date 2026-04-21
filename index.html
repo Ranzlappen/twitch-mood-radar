@@ -190,9 +190,7 @@ function unlockApp() {
      role="dialog" aria-modal="true" aria-labelledby="filterModalTitle" hidden>
   <div class="help-modal filter-modal">
     <button class="help-close" onclick="closeFilterModal()" aria-label="Close filter">x</button>
-    <h3 id="filterModalTitle">FILTERED FEED
-      <button class="help-btn" onclick="showHelp('filteredFeed')" title="About the filtered feed">?</button>
-    </h3>
+    <h3 id="filterModalTitle">FILTERED FEED — FILTER EDITOR</h3>
 
     <div class="filter-tabs" role="tablist">
       <button type="button" class="filter-tab" role="tab" id="filterTabSimple"
@@ -270,78 +268,7 @@ function unlockApp() {
   </div>
 
   <div class="header-actions">
-    <!-- Settings toggle — quick presets -->
-    <div class="settings-wrap">
-      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" aria-label="Appearance settings" aria-expanded="false" title="Layout presets">
-        <svg viewBox="0 0 16 16"><path d="M8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm5.85-1.85-.01-.07a5.6 5.6 0 0 0 0-1.16l.01-.07 1.1-.95a.4.4 0 0 0 .08-.5l-1.05-1.82a.4.4 0 0 0-.49-.17l-1.29.52-.1-.06a5.7 5.7 0 0 0-1-.58l-.08-.03-.2-1.37A.4.4 0 0 0 10.4 2H8.6a.4.4 0 0 0-.4.33l-.2 1.37-.08.03a5.7 5.7 0 0 0-1 .58l-.1.06-1.29-.52a.4.4 0 0 0-.49.17L4 5.84a.4.4 0 0 0 .08.5l1.1.95-.01.07a5.6 5.6 0 0 0 0 1.16l.01.07-1.1.95a.4.4 0 0 0-.08.5L5.05 11.9a.4.4 0 0 0 .49.17l1.29-.52.1.06c.31.22.64.41 1 .58l.08.03.2 1.37c.05.19.22.33.4.33h1.8c.18 0 .35-.14.4-.33l.2-1.37.08-.03c.36-.17.69-.36 1-.58l.1-.06 1.29.52a.4.4 0 0 0 .49-.17l1.05-1.82a.4.4 0 0 0-.08-.5l-1.1-.95z"/></svg>
-      </button>
-      <div class="settings-dropdown" id="settingsDropdown">
-        <div class="settings-section-label">QUICK PRESETS</div>
-        <button class="preset-btn active" data-preset="dashboard" onclick="applyPreset('dashboard')">
-          <span class="preset-icon"></span>Dashboard
-        </button>
-        <button class="preset-btn" data-preset="list" onclick="applyPreset('list')">
-          <span class="preset-icon"></span>List
-        </button>
-        <button class="preset-btn" data-preset="dense" onclick="applyPreset('dense')">
-          <span class="preset-icon" style="position:relative"><span style="position:absolute;inset:2px;border:1px solid currentColor;border-radius:1px;opacity:.6"></span></span>One-Screen
-        </button>
-        <button class="preset-btn" data-preset="custom" onclick="applyPreset('custom')">
-          <span class="preset-icon" style="position:relative"><span style="position:absolute;left:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;right:3px;top:3px;width:5px;height:4px;background:currentColor;border-radius:1px;opacity:.5"></span><span style="position:absolute;left:3px;bottom:3px;right:3px;height:3px;background:currentColor;border-radius:1px;opacity:.5"></span></span>Custom
-        </button>
-        <div class="settings-section-label" style="margin-top:6px">LABEL SIZE</div>
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
-          <input type="range" id="labelScaleSlider" min="0.4" max="2.5" step="0.1"
-            style="flex:1;width:auto"
-            oninput="updateLabelScale(this.value)"/>
-          <span id="labelScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
-        </div>
-        <div class="settings-section-label" style="margin-top:6px">BUBBLE SCALE</div>
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px">
-          <input type="range" id="bubbleScaleSlider" min="0.3" max="1.5" step="0.05"
-            style="flex:1;width:auto"
-            oninput="updateBubbleScale(this.value)"/>
-          <span id="bubbleScaleVal" style="font-size:.72em;color:var(--accent);min-width:28px;text-align:right"></span>
-        </div>
-        <div class="settings-section-label" style="margin-top:6px">DECAY</div>
-        <div style="padding:4px 10px 8px">
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">HALF-LIFE</span>
-            <input type="range" id="hlSlider" min="1" max="60" value="10" step="1" style="flex:1;width:auto" oninput="updateHalfLife(this.value)"/>
-            <span id="hlVal" style="font-size:.72em;color:var(--accent);min-width:26px;text-align:right">10s</span>
-            <button class="help-btn" id="decayInfoBtn" onclick="showDecayRecommendation()" title="Decay recommendations based on throughput">i</button>
-          </div>
-        </div>
-        <div class="settings-section-label" style="margin-top:6px">TIMELINE SETTINGS</div>
-        <div style="padding:4px 10px 2px">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">MAX POINTS</span>
-            <input type="range" id="tlPointsSlider" min="50" max="1000" step="10"
-              style="flex:1;width:auto"
-              oninput="updateTimelinePoints(this.value)"/>
-            <span id="tlPointsVal" style="font-size:.72em;color:var(--accent);min-width:32px;text-align:right"></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.66em;color:var(--muted);letter-spacing:.06em;white-space:nowrap">INTERVAL</span>
-            <input type="range" id="tlIntervalSlider" min="200" max="5000" step="100"
-              style="flex:1;width:auto"
-              oninput="updateTimelineInterval(this.value)"/>
-            <span id="tlIntervalVal" style="font-size:.72em;color:var(--accent);min-width:40px;text-align:right"></span>
-          </div>
-        </div>
-        <div id="layoutManagerSection" style="display:none">
-          <div class="settings-section-label" style="margin-top:4px">ARRANGE SECTIONS</div>
-          <div style="padding:2px 10px 6px;font-size:.58em;color:var(--muted);line-height:1.5;letter-spacing:.03em">
-            Drag to reorder. <strong style="color:var(--text)">⬌ SIDE</strong> = side-by-side on same row. <strong style="color:var(--text)">⬍ STACK</strong> = on its own row.
-          </div>
-          <div class="layout-section" id="layoutItemList"></div>
-          <div style="padding:0 10px 6px">
-            <button class="layout-apply-btn" onclick="applyCustomLayout()">APPLY LAYOUT</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Options Drawer toggle -->
+    <!-- Options Drawer toggle (absorbs the former Settings Dropdown) -->
     <button class="options-btn" id="optionsBtn" onclick="toggleOptionsDrawer()" aria-label="Options drawer" aria-expanded="false" title="Customization options">
       <svg viewBox="0 0 16 16"><rect x="1" y="2.5" width="14" height="1" rx=".5"/><rect x="1" y="7.5" width="14" height="1" rx=".5"/><rect x="1" y="12.5" width="14" height="1" rx=".5"/><circle cx="4.5" cy="3" r="1.8"/><circle cx="11.5" cy="8" r="1.8"/><circle cx="7" cy="13" r="1.8"/></svg>
     </button>
@@ -409,8 +336,6 @@ function unlockApp() {
   <div class="chart-card resizable" id="topWordsCard">
     <div class="chart-title card-title">
       TOP 10 SUBSTRINGS
-      <button class="help-btn" onclick="showHelp('topWords')" title="How substring frequency works">?</button>
-      <button class="help-btn" id="topWordsEditStopwords" title="Edit stopword list" aria-label="Edit stopword list">&#9881;</button>
     </div>
     <div class="collapsible-body" id="topWordsCard-body">
       <div class="chart-wrap"><ol id="topWordsList" class="top-words-list"></ol></div>
@@ -501,13 +426,6 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       LIVE FEED
-      <button class="help-btn" onclick="showHelp('feed')" title="About the live feed">?</button>
-    </div>
-    <div class="feed-font-slider-wrap" title="Adjust live feed font size">
-      <span class="feed-font-slider-label">SIZE</span>
-      <input type="range" id="feedFontSlider" min="0.1" max="20" step="0.05" value="2"
-        oninput="updateFeedFontSize(this.value)"/>
-      <span class="feed-font-slider-val" id="feedFontVal">2.00</span>
     </div>
   </div>
   <div class="collapsible-body" id="feedCard-body">
@@ -519,15 +437,8 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       FILTERED FEED
-      <button class="help-btn" onclick="showHelp('filteredFeed')" title="About the filtered feed">?</button>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap">
-      <div class="feed-font-slider-wrap" title="Adjust filtered feed font size">
-        <span class="feed-font-slider-label">SIZE</span>
-        <input type="range" id="filteredFeedFontSlider" min="0.1" max="20" step="0.05" value="2"
-          oninput="updateFilteredFeedFontSize(this.value)"/>
-        <span class="feed-font-slider-val" id="filteredFeedFontVal">2.00</span>
-      </div>
+    <div style="margin-left:auto">
       <div class="filtered-feed-filter-wrap">
         <button type="button" class="filter-trigger-btn" id="filteredFeedFilterBtn"
           onclick="openFilterModal()" title="Edit filter">
@@ -546,13 +457,6 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       STANDOUT MESSAGES
-      <button class="help-btn" onclick="showHelp('outlier')" title="About standout messages">?</button>
-    </div>
-    <div class="feed-font-slider-wrap" title="Adjust standout feed font size">
-      <span class="feed-font-slider-label">SIZE</span>
-      <input type="range" id="outlierFontSlider" min="0.1" max="20" step="0.05" value="2"
-        oninput="updateOutlierFontSize(this.value)"/>
-      <span class="feed-font-slider-val" id="outlierFontVal">2.00</span>
     </div>
   </div>
   <div class="collapsible-body" id="outlierCard-body">
@@ -615,6 +519,29 @@ function unlockApp() {
     <button class="options-drawer-close" onclick="toggleOptionsDrawer()">&#x2715;</button>
   </div>
   <div class="options-drawer-body">
+
+    <details class="opt-section" open>
+      <summary>Presets &amp; Scale</summary>
+      <div class="opt-content">
+        <div class="opt-preset-row" id="optPresetRow">
+          <button class="preset-btn active" data-preset="dashboard" onclick="applyPreset('dashboard')">Dashboard</button>
+          <button class="preset-btn" data-preset="list" onclick="applyPreset('list')">List</button>
+          <button class="preset-btn" data-preset="dense" onclick="applyPreset('dense')">One-Screen</button>
+          <button class="preset-btn" data-preset="custom" onclick="applyPreset('custom')">Custom</button>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">LABEL SIZE</span>
+          <input type="range" id="labelScaleSlider" min="0.4" max="2.5" step="0.1" oninput="updateLabelScale(this.value)">
+          <span class="opt-val" id="labelScaleVal"></span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">HALF-LIFE</span>
+          <input type="range" id="hlSlider" min="1" max="60" step="1" value="10" oninput="updateHalfLife(this.value)">
+          <span class="opt-val" id="hlVal">10s</span>
+          <button class="help-btn" id="decayInfoBtn" onclick="showDecayRecommendation()" title="Decay recommendations based on throughput" style="margin-left:4px">i</button>
+        </div>
+      </div>
+    </details>
 
     <details class="opt-section" open>
       <summary>Layout &amp; Density</summary>
@@ -688,52 +615,22 @@ function unlockApp() {
     </details>
 
     <details class="opt-section">
-      <summary>Consensus Bubbles</summary>
-      <div class="opt-content">
-        <div class="opt-row">
-          <span class="opt-label">MAX COUNT</span>
-          <input type="range" id="optBubbleCount" min="5" max="40" step="1" value="22" oninput="setOptBubbleCount(this.value)">
-          <span class="opt-val" id="optBubbleCountVal">22</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">SPEED</span>
-          <input type="range" id="optBubbleSpeed" min="0.1" max="3" step="0.1" value="1" oninput="setOptBubbleSpeed(this.value)">
-          <span class="opt-val" id="optBubbleSpeedVal">1.0x</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">OPACITY</span>
-          <input type="range" id="optBubbleOpacity" min="0.1" max="1" step="0.05" value="0.28" oninput="setOptBubbleOpacity(this.value)">
-          <span class="opt-val" id="optBubbleOpacityVal">28%</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">HEIGHT</span>
-          <input type="range" id="optBubbleHeight" min="80" max="500" step="10" value="260" oninput="setOptBubbleHeight(this.value)">
-          <span class="opt-val" id="optBubbleHeightVal">260px</span>
-        </div>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Charts</summary>
-      <div class="opt-content">
-        <label class="opt-toggle">
-          <input type="checkbox" id="optPieLabels" checked onchange="setOptPieLabels(this.checked)">
-          <span class="opt-label">Pie chart labels</span>
-        </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optPieAnimation" checked onchange="setOptPieAnimation(this.checked)">
-          <span class="opt-label">Pie animation</span>
-        </label>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Timelines</summary>
+      <summary>Timelines (all)</summary>
       <div class="opt-content">
         <div class="opt-row">
           <span class="opt-label">HEIGHT</span>
           <input type="range" id="optTimelineHeight" min="80" max="500" step="10" value="320" oninput="setOptTimelineHeight(this.value)">
           <span class="opt-val" id="optTimelineHeightVal">320px</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">MAX POINTS</span>
+          <input type="range" id="tlPointsSlider" min="50" max="1000" step="10" oninput="updateTimelinePoints(this.value)">
+          <span class="opt-val" id="tlPointsVal"></span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">INTERVAL</span>
+          <input type="range" id="tlIntervalSlider" min="200" max="5000" step="100" oninput="updateTimelineInterval(this.value)">
+          <span class="opt-val" id="tlIntervalVal"></span>
         </div>
         <label class="opt-toggle">
           <input type="checkbox" id="optTlGrid" checked onchange="setOptTlGrid(this.checked)">
@@ -742,20 +639,6 @@ function unlockApp() {
         <label class="opt-toggle">
           <input type="checkbox" id="optTlSmooth" checked onchange="setOptTlSmooth(this.checked)">
           <span class="opt-label">Smooth lines (tension)</span>
-        </label>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Approval Meter</summary>
-      <div class="opt-content">
-        <label class="opt-toggle">
-          <input type="checkbox" id="optApprovalMini" checked onchange="setOptApprovalMini(this.checked)">
-          <span class="opt-label">Show mini bar chart</span>
-        </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optApprovalVerdict" checked onchange="setOptApprovalVerdict(this.checked)">
-          <span class="opt-label">Show verdict text</span>
         </label>
       </div>
     </details>
@@ -862,6 +745,19 @@ function unlockApp() {
         <label class="opt-toggle"><input type="checkbox" id="optShowFeed" checked onchange="setOptCardVisibility('feedCard',this.checked)"><span class="opt-label">Live Feed</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowFilteredFeed" checked onchange="setOptCardVisibility('filteredFeedCard',this.checked)"><span class="opt-label">Filtered Feed</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowOutlier" checked onchange="setOptCardVisibility('outlierCard',this.checked)"><span class="opt-label">Standout Messages</span></label>
+      </div>
+    </details>
+
+    <details class="opt-section" id="optCustomLayoutSection" style="display:none">
+      <summary>Custom Layout</summary>
+      <div class="opt-content">
+        <div style="padding:2px 4px 6px;font-size:.7em;color:var(--muted);line-height:1.5">
+          Drag to reorder. <strong style="color:var(--text)">⬌ SIDE</strong> = side-by-side on same row. <strong style="color:var(--text)">⬍ STACK</strong> = on its own row.
+        </div>
+        <div class="layout-section" id="layoutItemList"></div>
+        <div style="padding:4px 0">
+          <button class="layout-apply-btn" onclick="applyCustomLayout()">APPLY LAYOUT</button>
+        </div>
       </div>
     </details>
 

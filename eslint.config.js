@@ -37,6 +37,8 @@ export default [
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        Node: 'readonly',
+        CustomEvent: 'readonly',
       },
     },
     rules: {

@@ -339,8 +339,6 @@ export function applyCustomLayout() {
 
   // Re-apply saved sizes after DOM rebuild so heights/widths persist
   restoreSizes();
-
-  document.getElementById('settingsDropdown').classList.remove('open');
   setTimeout(() => {
     resizeBubbleCanvas();
     resizeTopWordsPanel();
@@ -439,13 +437,15 @@ export function setLayoutJustify(val) {
 
 export function updateHalfLife(v) {
   state.HALF_LIFE_MS = parseInt(v) * 1000;
-  document.getElementById('hlVal').textContent = v + 's';
+  const el = document.getElementById('hlVal');
+  if (el) el.textContent = v + 's';
   try { localStorage.setItem(HALFLIFE_KEY, v); } catch { }
 }
 
 export function updateLabelScale(v) {
   state.labelScale = Math.min(2.5, Math.max(0.4, parseFloat(v)));
-  document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
+  const el = document.getElementById('labelScaleVal');
+  if (el) el.textContent = state.labelScale.toFixed(1) + 'x';
   try { localStorage.setItem(LABEL_SCALE_KEY, state.labelScale); } catch { }
   // Pie redraws on next update cycle; bubble redraws on next animation frame
   if (state.pieChart) state.pieChart.update('none');
@@ -453,6 +453,7 @@ export function updateLabelScale(v) {
 
 export function updateBubbleScale(v) {
   state.bubbleScale = Math.min(1.5, Math.max(0.3, parseFloat(v)));
-  document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
+  const el = document.getElementById('bubbleScaleVal');
+  if (el) el.textContent = state.bubbleScale.toFixed(2) + 'x';
   try { localStorage.setItem(BUBBLE_SCALE_KEY, state.bubbleScale); } catch { }
 }

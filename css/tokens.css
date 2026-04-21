@@ -28,6 +28,32 @@
 
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
 
+/* ============================================================
+   INPUT / SLIDER INTERACTION
+   Prevents text-selection on labels when dragging range sliders
+   (especially on touchscreens). Uses touch-action:manipulation
+   on the thumb so pinch-zoom still works elsewhere.
+   ============================================================ */
+input[type=range],
+.opt-row, .opt-toggle, .opt-row-stack,
+.sw-slider-row, .feed-font-slider-wrap,
+.filter-field, .filter-inline-toggle,
+.user-history-controls,
+#settingsDropdown {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input[type=range] { touch-action: manipulation; }
+input[type=range]::-webkit-slider-thumb { touch-action: manipulation; }
+input[type=range]::-moz-range-thumb     { touch-action: manipulation; }
+.opt-label, .opt-val,
+.sw-slider-label, .sw-slider-val,
+.feed-font-slider-label, .feed-font-slider-val {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Screen reader only — visually hidden but accessible */
 .sr-only {
   position:absolute; width:1px; height:1px; padding:0; margin:-1px;
