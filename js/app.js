@@ -29,6 +29,7 @@ import {
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
+import { openStopwordsModal, loadStopwordOverrides } from './ui/stopwordsModal.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
 import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
@@ -42,7 +43,7 @@ import {
   setOptShowSubtitle, setOptShowLegend, setOptShowDividers, setOptCompactStats,
   setOptRenderTextEmoji,
   setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity, setOptBubbleHeight,
-  setOptPieLabels, setOptPieAnimation, setOptRadarAnimation, setOptRadarGrid,
+  setOptPieLabels, setOptPieAnimation,
   setOptTimelineHeight, setOptTlGrid, setOptTlSmooth,
   setOptApprovalMini, setOptApprovalVerdict, setOptCardVisibility,
   setOptWakeLock
@@ -153,8 +154,6 @@ window.setOptBubbleOpacity = setOptBubbleOpacity;
 window.setOptBubbleHeight = setOptBubbleHeight;
 window.setOptPieLabels = setOptPieLabels;
 window.setOptPieAnimation = setOptPieAnimation;
-window.setOptRadarAnimation = setOptRadarAnimation;
-window.setOptRadarGrid = setOptRadarGrid;
 window.setOptTimelineHeight = setOptTimelineHeight;
 window.setOptTlGrid = setOptTlGrid;
 window.setOptTlSmooth = setOptTlSmooth;
@@ -355,7 +354,7 @@ window.onload = function () {
     const tabletLayout = {
       order: config.LAYOUT_SECTIONS.map(s => s.id),
       inline: {
-        pieCard: true, radarCard: true, bubbleCard: true,
+        pieCard: true, topWordsCard: true, bubbleCard: true,
         approvalTimelineCard: true, throughputTimelineCard: true, timelineLinearCard: true,
       },
       alignItems: 'start',
@@ -364,7 +363,7 @@ window.onload = function () {
     try {
       localStorage.setItem(config.LAYOUT_STORAGE_KEY, JSON.stringify(tabletLayout));
       localStorage.setItem(config.RESIZE_STORAGE_KEY, JSON.stringify({
-        pieCard: { h: 200 }, radarCard: { h: 200 },
+        pieCard: { h: 200 }, topWordsCard: { h: 200 },
         bubbleCard: { h: 200 }, approvalCard: { h: 200 },
         approvalTimelineCard: { h: 220 }, throughputTimelineCard: { h: 220 },
         timelineLinearCard: { h: 220 }, timelineLogCard: { h: 220 },
@@ -388,6 +387,11 @@ window.onload = function () {
 
   // Initialize help keyboard shortcuts
   initHelpKeys();
+
+  // Load persisted stopword overrides and wire the settings-cog button.
+  loadStopwordOverrides();
+  const swBtn = document.getElementById('topWordsEditStopwords');
+  if (swBtn) swBtn.addEventListener('click', openStopwordsModal);
 
   // Request persistent storage so the browser doesn't evict chat history
   // under disk pressure. On Chromium this also raises the per-origin quota
