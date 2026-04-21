@@ -54,6 +54,15 @@ input[type=range]::-moz-range-thumb     { touch-action: manipulation; }
   user-select: none;
 }
 
+/* Mask text-input characters without using type="password" so browsers
+   don't treat the field as a credential and pop up their native password-
+   manager / saved-password UI. Used for the access gate, OAuth token
+   paste, and YouTube API key fields. */
+.mr-masked-input {
+  -webkit-text-security: disc;
+  text-security: disc;
+}
+
 /* Screen reader only — visually hidden but accessible */
 .sr-only {
   position:absolute; width:1px; height:1px; padding:0; margin:-1px;

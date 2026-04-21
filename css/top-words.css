@@ -39,20 +39,15 @@
 .top-words-row {
   flex: 1 1 0;
   min-height: 0;
+  position: relative;
   display: grid;
-  /* rank | emote | word/bar | count */
   grid-template-columns:
     calc(var(--tw-base) * 1.8)
     min(var(--tw-emote-size), calc(var(--tw-base) * 2.4))
     minmax(0, 1fr)
     calc(var(--tw-base) * 3.2);
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "rank emote word count"
-    "rank emote bar  bar";
   align-items: center;
   column-gap: calc(var(--tw-base) * 0.55);
-  row-gap: calc(var(--tw-base) * 0.08);
   padding: 0 2px;
   border-bottom: 1px solid rgba(255,255,255,.03);
   overflow: hidden;
@@ -60,7 +55,6 @@
 .top-words-row:last-child { border-bottom: none; }
 
 .top-words-row .tw-rank {
-  grid-area: rank;
   font-family: 'Orbitron', sans-serif;
   font-size: calc(var(--tw-base) * 0.8);
   font-weight: 700;
@@ -68,10 +62,11 @@
   color: var(--muted);
   text-align: right;
   line-height: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .top-words-row .tw-emote {
-  grid-area: emote;
   /* Slider value is a px ceiling; the cqh-based min() keeps the emote
      from ever exceeding ~2.4x the text base so it never crowds the row. */
   width:  min(var(--tw-emote-size), calc(var(--tw-base) * 2.4));
@@ -80,11 +75,12 @@
   image-rendering: pixelated;
   align-self: center;
   justify-self: center;
+  position: relative;
+  z-index: 1;
 }
 .top-words-row .tw-emote[hidden] { display: none; }
 
 .top-words-row .tw-word {
-  grid-area: word;
   font-size: calc(var(--tw-base) * 1);
   color: var(--text);
   white-space: nowrap;
@@ -92,30 +88,38 @@
   text-overflow: ellipsis;
   line-height: 1.1;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .top-words-row .tw-count {
-  grid-area: count;
   font-size: calc(var(--tw-base) * 0.82);
   color: var(--accent);
   text-align: right;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  position: relative;
+  z-index: 1;
 }
 
+/* Bar now fills the row behind the text content so row height is driven by
+   the substring line-height, not the bar height. The gradient is softened
+   with opacity so the text stays readable. */
 .top-words-row .tw-bar-wrap {
-  grid-area: bar;
-  height: calc(var(--tw-base) * 0.28);
-  min-height: 2px;
-  background: rgba(255,255,255,.04);
-  border-radius: 2px;
+  position: absolute;
+  inset: 0;
+  background: transparent;
   overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
 }
 .top-words-row .tw-bar {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent2, #9b6ef3));
+  background: linear-gradient(90deg,
+    rgba(0,255,229,.18),
+    rgba(155,110,243,.18));
   transition: width .4s ease;
 }
 

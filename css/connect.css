@@ -180,12 +180,54 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   user-select: none;
   cursor: grabbing;
 }
-.user-history-modal h3 {
+.user-history-modal h3,
+.user-history-modal .user-history-header {
   cursor: grab;
   user-select: none;
 }
-.user-history-modal.dragging h3 {
+.user-history-modal.dragging h3,
+.user-history-modal.dragging .user-history-header {
   cursor: grabbing;
+}
+.user-history-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-right: 28px; /* leave room for the × close button */
+}
+.user-history-header #userHistSearchInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .9em;
+  padding: 6px 10px;
+  outline: none;
+  cursor: text;
+}
+.user-history-header #userHistSearchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0,255,229,.15);
+}
+.user-history-header #userHistSearchBtn {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7em;
+  letter-spacing: .12em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.user-history-header #userHistSearchBtn:hover {
+  border-color: var(--accent);
 }
 .user-history-stats {
   font-size: .72em;

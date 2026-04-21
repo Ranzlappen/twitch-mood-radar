@@ -17,8 +17,11 @@ export function createChipInput(container, { placeholder = '', onChange = null }
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'chip-input-field';
+  input.name = 'mr-chip';
   input.spellcheck = false;
   input.autocomplete = 'off';
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('autocapitalize', 'off');
   input.placeholder = placeholder;
   container.appendChild(input);
 

@@ -104,27 +104,18 @@ export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 
 
 
 function _approvalParts(vote) {
-  const pct = Math.round(Math.min(100, Math.max(0, (vote + 8) / 16 * 100)));
   let color;
   if (vote > 1) color = '#00ffe5';
   else if (vote < -1) color = '#ff4800';
   else color = '#4a4a7a';
   const num = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
-  return { pct, color, num };
+  return { color, num };
 }
 
 export function buildApprovalEl(vote) {
-  const { pct, color, num } = _approvalParts(vote);
+  const { color, num } = _approvalParts(vote);
   const wrap = document.createElement('span');
   wrap.className = 'feed-apv';
-  const bar = document.createElement('span');
-  bar.className = 'feed-apv-bar';
-  const fill = document.createElement('span');
-  fill.className = 'feed-apv-fill';
-  fill.style.width = pct + '%';
-  fill.style.background = color;
-  bar.appendChild(fill);
-  wrap.appendChild(bar);
   const numEl = document.createElement('span');
   numEl.className = 'feed-apv-num';
   numEl.style.color = color;

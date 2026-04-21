@@ -68,8 +68,12 @@ DATE: 2026-04-02
   <div class="auth-gate-box">
     <div class="auth-gate-title">MOOD RADAR</div>
     <div class="auth-gate-sub">ACCESS RESTRICTED</div>
-    <form id="authForm" onsubmit="return attemptAuth(event)">
-      <input type="password" id="authPassword" placeholder="enter password" autocomplete="off" autofocus/>
+    <form id="authForm" autocomplete="off" onsubmit="return attemptAuth(event)">
+      <input type="text" id="authPassword" class="mr-masked-input"
+        name="mr-gate"
+        placeholder="enter password"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        autofocus/>
       <button type="submit">AUTHENTICATE</button>
     </form>
     <div class="auth-gate-error" id="authError"></div>
@@ -138,7 +142,13 @@ function unlockApp() {
      role="dialog" aria-modal="false" aria-labelledby="userHistoryTitle" hidden>
   <div class="help-modal user-history-modal" id="userHistoryModal">
     <button class="help-close" onclick="closeUserHistory()" aria-label="Close user history">x</button>
-    <h3 id="userHistoryTitle" title="Drag to move">USER HISTORY</h3>
+    <div id="userHistoryTitle" class="user-history-header" title="Drag to move" role="heading" aria-level="3">
+      <input type="text" id="userHistSearchInput"
+        name="mr-histq"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="username…" />
+      <button id="userHistSearchBtn" type="button">Search</button>
+    </div>
     <div id="userHistoryStats" class="user-history-stats"></div>
     <div class="user-history-controls">
       <label><input type="radio" name="userHistScope" value="channel" checked> This channel</label>
@@ -232,7 +242,9 @@ function unlockApp() {
 
     <label class="filter-field">
       <span class="filter-field-label">USERNAME CONTAINS</span>
-      <input type="text" id="filterUserInput" spellcheck="false" autocomplete="off"
+      <input type="text" id="filterUserInput"
+        name="mr-userq"
+        spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
         placeholder="substring, case-insensitive"
         list="filterUserDatalist"
         oninput="onFilterModalInput()" />
@@ -471,7 +483,10 @@ function unlockApp() {
       <button class="help-btn" onclick="showHelp('chatAuth')" title="How to get your OAuth token">?</button>
     </div>
     <div class="chat-auth-wrap">
-      <input type="password" id="oauthTokenInput" placeholder="OAuth token" spellcheck="false" autocomplete="off" />
+      <input type="text" id="oauthTokenInput" class="mr-masked-input"
+        name="mr-token"
+        placeholder="OAuth token"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <button class="btn btn-sm" onclick="setOAuthToken()">Set</button>
       <div class="chat-auth-status-wrap">
         <span id="chatAuthStatus" class="chat-auth-status"></span>
@@ -700,9 +715,10 @@ function unlockApp() {
         </div>
         <div class="opt-row opt-row-stack">
           <span class="opt-label">API KEY</span>
-          <input type="password" id="optYtApiKey" class="opt-text-input"
+          <input type="text" id="optYtApiKey" class="opt-text-input mr-masked-input"
+            name="mr-apikey"
             placeholder="AIza..."
-            spellcheck="false" autocomplete="off"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             onkeydown="if(event.key==='Enter'){event.preventDefault();saveYouTubeApiKey();}">
         </div>
         <div class="opt-row opt-row-actions">
