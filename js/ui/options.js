@@ -22,7 +22,7 @@ export const YT_MIN_POLL_CEIL_MS = 30000;
 
 function allCharts() {
   return [
-    state.pieChart, state.radarChart,
+    state.pieChart,
     state.approvalTimelineChart, state.throughputTimelineChart,
     state.timelineLinearChart, state.timelineLogChart
   ].filter(Boolean);
@@ -203,22 +203,6 @@ export function setOptPieLabels(c) {
 export function setOptPieAnimation(c) {
   state.drawerOptions.pieAnimation = c;
   if (state.pieChart) state.pieChart.options.animation.duration = c ? 350 : 0;
-  saveOptions();
-}
-
-export function setOptRadarAnimation(c) {
-  state.drawerOptions.radarAnimation = c;
-  if (state.radarChart) state.radarChart.options.animation.duration = c ? 400 : 0;
-  saveOptions();
-}
-
-export function setOptRadarGrid(c) {
-  state.drawerOptions.radarGrid = c;
-  if (state.radarChart) {
-    state.radarChart.options.scales.r.grid.display = c;
-    state.radarChart.options.scales.r.angleLines.display = c;
-    state.radarChart.update('none');
-  }
   saveOptions();
 }
 
@@ -539,8 +523,6 @@ export function applyAllOptions() {
   // Charts
   chk('optPieLabels', o.pieLabels);
   chk('optPieAnimation', o.pieAnimation);
-  chk('optRadarAnimation', o.radarAnimation);
-  chk('optRadarGrid', o.radarGrid);
   // Timelines
   sync('optTimelineHeight', o.timelineHeight); text('optTimelineHeightVal', o.timelineHeight + 'px');
   chk('optTlGrid', o.tlGrid);
@@ -560,7 +542,7 @@ export function applyAllOptions() {
   }
   // Card visibility
   const visMap = {
-    pieCard:'optShowPie', radarCard:'optShowRadar', bubbleCard:'optShowBubble',
+    pieCard:'optShowPie', topWordsCard:'optShowTopWords', bubbleCard:'optShowBubble',
     approvalCard:'optShowApproval', approvalTimelineCard:'optShowApprovalTL',
     throughputTimelineCard:'optShowThroughputTL', timelineLinearCard:'optShowLinearTL',
     timelineLogCard:'optShowLogTL', feedCard:'optShowFeed',
@@ -575,12 +557,6 @@ export function applyAllOptions() {
   // Apply to charts if ready
   if (state.chartsReady) {
     if (state.pieChart) state.pieChart.options.animation.duration = o.pieAnimation ? 350 : 0;
-    if (state.radarChart) {
-      state.radarChart.options.animation.duration = o.radarAnimation ? 400 : 0;
-      state.radarChart.options.scales.r.grid.display = o.radarGrid;
-      state.radarChart.options.scales.r.angleLines.display = o.radarGrid;
-      state.radarChart.update('none');
-    }
     allTimelineCharts().forEach(ch => {
       ch.options.scales.x.grid.display = o.tlGrid;
       ch.options.scales.y.grid.display = o.tlGrid;

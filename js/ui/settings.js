@@ -11,7 +11,7 @@ import { saveOptions } from './options.js';
 
 function allCharts() {
   return [
-    state.pieChart, state.radarChart,
+    state.pieChart,
     state.approvalTimelineChart, state.throughputTimelineChart,
     state.timelineLinearChart, state.timelineLogChart
   ].filter(Boolean);
@@ -56,7 +56,6 @@ export function applyPreset(preset) {
   // Resize charts
   for (const c of allCharts()) {
     c.resize();
-    if (c === state.radarChart) c.update('none');
   }
 }
 

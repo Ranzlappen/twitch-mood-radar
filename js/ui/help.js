@@ -36,6 +36,11 @@ export function initHelpKeys() {
         if (typeof window.closeFilterModal === 'function') window.closeFilterModal();
         else { filterOv.classList.remove('open'); filterOv.hidden = true; }
       }
+      const swOv = document.getElementById('stopwordsOverlay');
+      if (swOv && swOv.classList.contains('open')) {
+        swOv.classList.remove('open');
+        swOv.hidden = true;
+      }
     }
   });
 }
