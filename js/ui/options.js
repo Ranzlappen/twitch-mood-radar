@@ -7,6 +7,8 @@ import { DEFAULT_OPTIONS, OPTIONS_STORAGE_KEY } from '../config.js';
 import { save, load } from '../utils/storage.js';
 import { resizeBubbleCanvas } from './bubbles.js';
 
+export const RUMBLE_PROXY_STORAGE_KEY = 'moodradar_rumble_proxy_v1';
+
 /* ── helpers ─────────────────────────────────────────── */
 
 function allCharts() {
@@ -272,6 +274,52 @@ export function setOptCardVisibility(id, vis) {
     import('./layout.js').then(m => {
       setTimeout(() => m.notifyChartResize(id), 50);
     });
+  }
+}
+
+/* ── Rumble proxy URL (Cloudflare Worker) ────────────── */
+
+export function loadRumbleProxyUrl() {
+  const input = document.getElementById('optRumbleProxyUrl');
+  if (!input) return;
+  try {
+    input.value = localStorage.getItem(RUMBLE_PROXY_STORAGE_KEY) || '';
+  } catch { /* private browsing */ }
+}
+
+export function saveRumbleProxyUrl() {
+  const input = document.getElementById('optRumbleProxyUrl');
+  const fb = document.getElementById('optRumbleProxySaved');
+  if (!input) return;
+  const raw = input.value.trim().replace(/\/+$/, '');
+
+  const showFeedback = (msg, isErr) => {
+    if (!fb) return;
+    fb.textContent = msg;
+    fb.classList.toggle('err', !!isErr);
+    fb.classList.add('show');
+    clearTimeout(saveRumbleProxyUrl._t);
+    saveRumbleProxyUrl._t = setTimeout(() => fb.classList.remove('show'), 2500);
+  };
+
+  try {
+    if (raw === '') {
+      localStorage.removeItem(RUMBLE_PROXY_STORAGE_KEY);
+      input.value = '';
+      showFeedback('Cleared', false);
+      return;
+    }
+    let u;
+    try { u = new URL(raw); } catch { showFeedback('Invalid URL', true); return; }
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') {
+      showFeedback('Must be http(s)://', true);
+      return;
+    }
+    localStorage.setItem(RUMBLE_PROXY_STORAGE_KEY, raw);
+    input.value = raw;
+    showFeedback('Saved', false);
+  } catch {
+    showFeedback('Storage blocked', true);
   }
 }
 

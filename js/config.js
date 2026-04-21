@@ -382,5 +382,69 @@ export const HELP_CONTENT = {
   <li>Treat your token like a password. Never share it publicly.</li>
   <li>Tokens expire — if sending fails, generate a new one.</li>
 </ul>`
+  },
+  rumbleWorker: {
+    title: 'RUMBLE CHAT PROXY — CLOUDFLARE WORKER SETUP',
+    body: `<p>Rumble sits behind Cloudflare and blocks every public CORS proxy, so a browser-only PWA can't reach Rumble chat without a tiny proxy that <strong>you</strong> run. A free Cloudflare Worker takes about two minutes to set up and handles plenty of traffic on the free tier.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 1 — CREATE THE WORKER</h4>
+<ol>
+  <li>Go to <strong>workers.cloudflare.com</strong> and create a free account (if you don't have one).</li>
+  <li>Click <strong>"Create application" → "Create Worker"</strong>.</li>
+  <li>Give it a name (e.g. <code>rumble-proxy</code>) and click <strong>Deploy</strong>.</li>
+  <li>After deploy, click <strong>"Edit code"</strong>.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 2 — PASTE THIS CODE</h4>
+<p>Replace the default <code>worker.js</code> content with:</p>
+<pre style="background:#06060f;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.7em;line-height:1.45;color:var(--text);overflow:auto;max-height:260px;white-space:pre;font-family:'Share Tech Mono',monospace;margin:0 0 8px"><code>export default {
+  async fetch(req) {
+    const u = new URL(req.url);
+    if (u.pathname !== '/rumble/messages') {
+      return new Response('not found', { status: 404 });
+    }
+    const streamId = u.searchParams.get('streamId');
+    if (!streamId) return new Response('missing streamId', { status: 400 });
+
+    const page = await fetch(
+      'https://rumble.com/' + encodeURIComponent(streamId),
+      { headers: { 'user-agent': 'Mozilla/5.0' } }
+    );
+    const html = await page.text();
+    const m = html.match(/"chat_id"\\s*:\\s*(\\d+)/)
+           || html.match(/chat\\/api\\/chat\\/(\\d+)/);
+    if (!m) return new Response('chat id not found', { status: 404 });
+
+    const api = await fetch(
+      'https://rumble.com/chat/api/chat/' + m[1] + '/messages',
+      { headers: { 'user-agent': 'Mozilla/5.0' } }
+    );
+    const body = await api.text();
+    return new Response(body, {
+      status: api.status,
+      headers: {
+        'content-type': 'application/json',
+        'access-control-allow-origin': '*',
+      },
+    });
+  },
+};</code></pre>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 3 — DEPLOY & COPY THE URL</h4>
+<ol>
+  <li>Click <strong>"Save and Deploy"</strong>.</li>
+  <li>Cloudflare will give you a URL like <code>https://rumble-proxy.yourname.workers.dev</code>.</li>
+  <li>Copy that URL.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 4 — PASTE IT HERE</h4>
+<ol>
+  <li>Close this help modal.</li>
+  <li>Paste the Worker URL into the <strong>Worker URL</strong> input in this drawer.</li>
+  <li>Click <strong>Save</strong>.</li>
+  <li>Reconnect the Rumble feed — chat will start flowing.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:#ff4800">NOTES</h4>
+<ul>
+  <li>The URL is stored <strong>locally in your browser</strong> only.</li>
+  <li>No trailing slash needed — paste the bare <code>https://...workers.dev</code> URL.</li>
+  <li>If Rumble changes their page markup and the Worker stops finding chat IDs, tweak the regex in step 2 and redeploy.</li>
+</ul>`
   }
 };
