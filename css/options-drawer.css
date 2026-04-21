@@ -166,6 +166,14 @@
 .opt-save-feedback.show { opacity:1 }
 .opt-save-feedback.err { color:var(--accent2) }
 
+.opt-quota-used {
+  font-variant-numeric: tabular-nums;
+  min-width:auto;
+  transition:color .2s;
+}
+.opt-quota-used.warn { color:#ffcc00 }
+.opt-quota-used.err  { color:var(--accent2) }
+
 /* ============================================================
    MOBILE: Drawer slides from bottom
    ============================================================ */

@@ -13,8 +13,13 @@
 import { PlatformAdapter } from './PlatformAdapter.js';
 import { sanitize, setStatus } from '../utils/dom.js';
 import { fetchViaCorsProxy } from '../utils/cors.js';
-
-const YT_API_KEY_STORAGE = 'moodradar_yt_apikey_v1';
+import {
+  getYoutubeApiKey,
+  addYoutubeQuotaUsage,
+  markYoutubeQuotaExhausted,
+  isYoutubeBudgetExceeded,
+  getYoutubeMinPollMs,
+} from '../ui/options.js';
 const YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
 const YT_CLIENT_VERSION = '2.20260414.01.00';
 
@@ -241,11 +246,17 @@ export class YouTubeAdapter extends PlatformAdapter {
     }
 
     // Approach 3: API key fallback (only if pre-saved)
-    let apiKey = '';
-    try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch { }
+    const apiKey = getYoutubeApiKey();
     if (!apiKey) {
-      reportError('Could not reach YouTube chat — all CORS proxies failed. A YouTube Data API v3 key is the only fallback.');
-      console.warn('[MoodRadar][YouTube] No saved API key. To enable the Data API fallback, run in DevTools:\n  localStorage.setItem("' + YT_API_KEY_STORAGE + '", "<your-api-key>")\nGet a key at console.cloud.google.com (enable "YouTube Data API v3").');
+      reportError('Could not reach YouTube chat. Set a free YouTube Data API key in the options drawer.');
+      console.warn('[MoodRadar][YouTube] No saved API key. Open the options drawer → "YouTube API Key" and click the "i" icon for setup instructions.');
+      return;
+    }
+
+    // Pre-flight: budget must cover at least the 1-unit videos.list call
+    // plus one 5-unit poll, or don't even attempt the connect.
+    if (isYoutubeBudgetExceeded(6)) {
+      reportError('Daily YouTube API budget reached. Resets at local midnight (Google resets at midnight PT).');
       return;
     }
 
@@ -254,6 +265,19 @@ export class YouTubeAdapter extends PlatformAdapter {
       const res = await fetch(
         'https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey
       );
+      addYoutubeQuotaUsage(1);
+      if (res.status === 403) {
+        // Could be quotaExceeded or key misconfigured — parse to differentiate
+        let reason = '';
+        try { const j = await res.json(); reason = j.error?.errors?.[0]?.reason || ''; } catch { /* non-JSON */ }
+        if (reason === 'quotaExceeded' || reason === 'dailyLimitExceeded') {
+          markYoutubeQuotaExhausted();
+          reportError('YouTube quota exceeded for today. Resets at midnight PT.');
+        } else {
+          reportError('YouTube API rejected the key (' + (reason || 'forbidden') + '). Check key restrictions in Google Cloud.');
+        }
+        return;
+      }
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const liveChatId = data.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
@@ -271,14 +295,38 @@ export class YouTubeAdapter extends PlatformAdapter {
       const self = this;
       async function pollApiKey() {
         if (!self._polling) return;
+
+        // Enforce the local budget BEFORE spending the 5 units on this poll.
+        if (isYoutubeBudgetExceeded(5)) {
+          self._polling = false;
+          setStatus('Daily YouTube API budget reached (pausing). Resets at midnight.', 'error');
+          if (self._onStatusCallback) {
+            self._onStatusCallback({ type: 'error', text: 'Daily budget reached' });
+          }
+          return;
+        }
+
         const params = 'liveChatId=' + liveChatId + '&part=snippet,authorDetails&maxResults=200&key=' + apiKey +
           (nextPageToken ? '&pageToken=' + nextPageToken : '');
         try {
           const r = await fetch('https://www.googleapis.com/youtube/v3/liveChat/messages?' + params);
+          // Spend the 5 units whether the call succeeds or fails — Google bills on attempt.
+          addYoutubeQuotaUsage(5);
+
           if (r.status === 403) {
-            setStatus('Quota exceeded', 'error');
+            // Distinguish quota-exceeded from other 403s
+            let reason = '';
+            try { const j = await r.json(); reason = j.error?.errors?.[0]?.reason || ''; } catch { /* non-JSON */ }
+            if (reason === 'quotaExceeded' || reason === 'dailyLimitExceeded' || reason === 'rateLimitExceeded') {
+              markYoutubeQuotaExhausted();
+              setStatus('YouTube quota exceeded. Resets at midnight PT.', 'error');
+              self._polling = false;
+              if (self._onStatusCallback) self._onStatusCallback({ type: 'error', text: 'Quota exceeded' });
+              return;
+            }
+            setStatus('YouTube API rejected the request (' + (reason || 'forbidden') + ').', 'error');
             self._polling = false;
-            if (self._onStatusCallback) self._onStatusCallback({ type: 'error', text: 'Quota exceeded' });
+            if (self._onStatusCallback) self._onStatusCallback({ type: 'error', text: 'API forbidden' });
             return;
           }
           if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -291,17 +339,22 @@ export class YouTubeAdapter extends PlatformAdapter {
             const msg = item.snippet?.displayMessage || '';
             if (self._onMessageCallback && msg) self._onMessageCallback({ user, msg, ts, platform: 'youtube' });
           }
-          if (self._polling) self._pollTimer = setTimeout(pollApiKey, Math.max(interval, 2000));
+          if (self._polling) {
+            const floor = getYoutubeMinPollMs();
+            self._pollTimer = setTimeout(pollApiKey, Math.max(interval, floor));
+          }
         } catch (e) {
           console.warn('[MoodRadar] YouTube Data API poll failed, will retry:', e.message);
-          if (self._polling) self._pollTimer = setTimeout(pollApiKey, 5000);
+          if (self._polling) {
+            // On transient errors, back off to at least the configured floor.
+            self._pollTimer = setTimeout(pollApiKey, Math.max(getYoutubeMinPollMs(), 5000));
+          }
         }
       }
       pollApiKey();
     } catch (e) {
       console.warn('[MoodRadar] YouTube live chat resolution via API key failed:', e.message);
       reportError('Failed to resolve live chat via API key.');
-      try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch { }
     }
   }
 

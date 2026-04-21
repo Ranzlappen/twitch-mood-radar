@@ -20,7 +20,12 @@ import {
   selectFilterHistoryItem, deleteFilterHistoryItem,
   updateFilterTriggerButton, refreshUserDatalist
 } from './ui/feeds.js';
-import { loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage, loadRumbleProxyUrl, saveRumbleProxyUrl } from './ui/options.js';
+import {
+  loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
+  loadRumbleProxyUrl, saveRumbleProxyUrl,
+  loadYouTubeApiKey, saveYouTubeApiKey, setYouTubeDailyBudget, setYoutubeMinPollMs,
+  resetYoutubeQuotaCounter, refreshYoutubeQuotaDisplay,
+} from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
@@ -159,6 +164,10 @@ window.setOptCardVisibility = setOptCardVisibility;
 window.setOptWakeLock = setOptWakeLock;
 window.resetAllOptions = resetAllOptions;
 window.saveRumbleProxyUrl = saveRumbleProxyUrl;
+window.saveYouTubeApiKey = saveYouTubeApiKey;
+window.setYouTubeDailyBudget = setYouTubeDailyBudget;
+window.setYoutubeMinPollMs = setYoutubeMinPollMs;
+window.resetYoutubeQuotaCounter = resetYoutubeQuotaCounter;
 
 // Help
 window.showHelp = showHelp;
@@ -427,6 +436,8 @@ window.onload = function () {
   loadOptions();
   applyAllOptions();
   loadRumbleProxyUrl();
+  loadYouTubeApiKey();
+  refreshYoutubeQuotaDisplay();
 
   // Re-acquire wake lock when tab becomes visible again
   document.addEventListener('visibilitychange', () => {

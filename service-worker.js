@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '20' },
-    { url: '/index.html', revision: '20' },
+    { url: '/', revision: '22' },
+    { url: '/index.html', revision: '22' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -16,13 +16,13 @@ if (workbox) {
     { url: '/css/filter-modal.css', revision: '3' },
     { url: '/css/layout-mgr.css', revision: '1' },
     { url: '/css/presets.css', revision: '1' },
-    { url: '/css/options-drawer.css', revision: '2' },
+    { url: '/css/options-drawer.css', revision: '3' },
     { url: '/css/chat-input.css', revision: '1' },
     { url: '/css/emote-modal.css', revision: '2' },
     { url: '/css/link-modal.css', revision: '1' },
     // JS modules
-    { url: '/js/app.js', revision: '10' },
-    { url: '/js/config.js', revision: '9' },
+    { url: '/js/app.js', revision: '12' },
+    { url: '/js/config.js', revision: '11' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
@@ -41,7 +41,7 @@ if (workbox) {
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '8' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '10' },
     { url: '/js/platform/RumbleAdapter.js', revision: '9' },
     { url: '/js/platform/ConnectionManager.js', revision: '3' },
     { url: '/js/platform/emotes.js', revision: '4' },
@@ -52,7 +52,7 @@ if (workbox) {
     { url: '/js/ui/bubbles.js', revision: '1' },
     { url: '/js/ui/feeds.js', revision: '5' },
     { url: '/js/ui/approval-meter.js', revision: '1' },
-    { url: '/js/ui/options.js', revision: '3' },
+    { url: '/js/ui/options.js', revision: '5' },
     { url: '/js/ui/settings.js', revision: '1' },
     { url: '/js/ui/layout.js', revision: '2' },
     { url: '/js/ui/help.js', revision: '3' },

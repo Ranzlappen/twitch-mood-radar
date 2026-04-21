@@ -815,6 +815,46 @@ function unlockApp() {
     </details>
 
     <details class="opt-section">
+      <summary>YouTube API Key</summary>
+      <div class="opt-content">
+        <div class="opt-hint">
+          Free YouTube Data API v3 key — no billing required. A client-side budget prevents ever exceeding the 10,000-unit/day free cap.
+          <button type="button" class="help-btn opt-info-btn" onclick="showHelp('youtubeApiKey')" title="How to get a free YouTube API key" aria-label="How to get a free YouTube API key">i</button>
+        </div>
+        <div class="opt-row opt-row-stack">
+          <span class="opt-label">API KEY</span>
+          <input type="password" id="optYtApiKey" class="opt-text-input"
+            placeholder="AIza..."
+            spellcheck="false" autocomplete="off"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();saveYouTubeApiKey();}">
+        </div>
+        <div class="opt-row opt-row-actions">
+          <button type="button" class="opt-save-btn" onclick="saveYouTubeApiKey()">SAVE</button>
+          <span class="opt-save-feedback" id="optYtApiKeySaved" aria-live="polite"></span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">DAILY BUDGET</span>
+          <input type="range" id="optYtBudget" min="1000" max="10000" step="500" value="9000"
+            oninput="setYouTubeDailyBudget(this.value)">
+          <span class="opt-val" id="optYtBudgetVal">9,000</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">MIN POLL</span>
+          <input type="range" id="optYtMinPoll" min="2000" max="30000" step="1000" value="5000"
+            oninput="setYoutubeMinPollMs(this.value)">
+          <span class="opt-val" id="optYtMinPollVal">5s · ≈ 2.5h</span>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">USED TODAY</span>
+          <span class="opt-val opt-quota-used" id="optYtQuotaUsed">0 / 9,000</span>
+        </div>
+        <div style="padding:4px 0 2px">
+          <button class="opt-reset-btn" onclick="resetYoutubeQuotaCounter()" style="background:transparent;border:1px solid var(--border);color:var(--muted)">RESET LOCAL COUNTER</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section">
       <summary>Card Visibility</summary>
       <div class="opt-content">
         <label class="opt-toggle"><input type="checkbox" id="optShowPie" checked onchange="setOptCardVisibility('pieCard',this.checked)"><span class="opt-label">Mood Distribution</span></label>
