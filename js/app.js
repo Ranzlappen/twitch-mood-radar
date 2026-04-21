@@ -57,8 +57,8 @@ const connMgr = new ConnectionManager();
 window.__connMgr = connMgr;
 
 // Wire incoming messages to the processing pipeline
-connMgr.onMessage(({ user, msg, ts, platform, channel }) => {
-  enqueue(user, msg, ts, platform, channel);
+connMgr.onMessage(({ user, msg, ts, platform, channel, badges }) => {
+  enqueue(user, msg, ts, platform, channel, badges);
 });
 
 // Start the processing loop when first slot connects
