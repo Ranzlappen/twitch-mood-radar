@@ -7,6 +7,7 @@ import { state } from '../state.js';
 
 const ROWS = 10;
 const FETCH_POOL = 30; // pull a few extras to give the phrase-dedupe room to work
+const MIN_DISPLAY_COUNT = 3; // strings below this threshold are hidden
 
 let listEl = null;
 let rows = [];
@@ -112,7 +113,8 @@ function dedupePhrases(list) {
 export function updateTopWords(rawList) {
   if (!listEl || !rows.length) return;
   const deduped = dedupePhrases(rawList || []);
-  const display = deduped.slice(0, ROWS);
+  const filtered = deduped.filter(e => e.count >= MIN_DISPLAY_COUNT);
+  const display = filtered.slice(0, ROWS);
   const maxCount = display[0]?.count || 1;
 
   for (let i = 0; i < ROWS; i++) {
