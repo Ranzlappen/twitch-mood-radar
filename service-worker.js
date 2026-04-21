@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '25' },
-    { url: '/index.html', revision: '25' },
+    { url: '/', revision: '26' },
+    { url: '/index.html', revision: '26' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -25,7 +25,7 @@ if (workbox) {
     { url: '/js/app.js', revision: '14' },
     { url: '/js/config.js', revision: '12' },
     { url: '/js/state.js', revision: '6' },
-    { url: '/js/processing.js', revision: '7' },
+    { url: '/js/processing.js', revision: '8' },
     // Utils
     { url: '/js/utils/dom.js', revision: '1' },
     { url: '/js/utils/color.js', revision: '1' },
@@ -39,7 +39,7 @@ if (workbox) {
     { url: '/js/analysis/botDetector.js', revision: '1' },
     { url: '/js/analysis/ewma.js', revision: '1' },
     { url: '/js/analysis/stopwords.js', revision: '1' },
-    { url: '/js/analysis/topWords.js', revision: '2' },
+    { url: '/js/analysis/topWords.js', revision: '3' },
     // Platform
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '3' },
@@ -65,7 +65,7 @@ if (workbox) {
     { url: '/js/ui/chipInput.js', revision: '1' },
     { url: '/js/ui/emoteModal.js', revision: '1' },
     { url: '/js/ui/linkModal.js', revision: '1' },
-    { url: '/js/ui/topWords.js', revision: '2' },
+    { url: '/js/ui/topWords.js', revision: '3' },
     { url: '/js/ui/stopwordsModal.js', revision: '2' },
     // Assets
     { url: '/manifest.json', revision: '2' },

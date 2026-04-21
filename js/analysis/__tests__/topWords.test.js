@@ -116,11 +116,11 @@ describe('setStopwordOverrides', () => {
 });
 
 describe('recordMessage and getTop', () => {
-  it('counts each standalone occurrence across messages', () => {
+  it('counts each standalone occurrence across distinct users or distinct messages', () => {
     const t0 = 1_000_000;
-    recordMessage('gg wp', t0);
-    recordMessage('gg', t0 + 100);
-    recordMessage('toggle the switch', t0 + 200);
+    recordMessage('u1', 'gg wp', t0);
+    recordMessage('u2', 'gg', t0 + 100);
+    recordMessage('u3', 'toggle the switch', t0 + 200);
     const top = getTop(10, t0 + 300);
     const gg = top.find(e => e.word === 'gg');
     expect(gg?.count).toBe(2);
@@ -129,7 +129,7 @@ describe('recordMessage and getTop', () => {
 
   it('surfaces recurring phrases as bigrams', () => {
     const t0 = 5_000_000;
-    for (let i = 0; i < 4; i++) recordMessage('lets go', t0 + i);
+    for (let i = 0; i < 4; i++) recordMessage('user' + i, 'lets go', t0 + i);
     const top = getTop(10, t0 + 100);
     const bg = top.find(e => e.word === 'lets go');
     expect(bg?.count).toBe(4);
@@ -137,9 +137,9 @@ describe('recordMessage and getTop', () => {
 
   it('returns results sorted by count descending', () => {
     const t0 = 2_000_000;
-    for (let i = 0; i < 5; i++) recordMessage('banger', t0 + i);
-    for (let i = 0; i < 3; i++) recordMessage('pog', t0 + 100 + i);
-    recordMessage('fire', t0 + 200);
+    for (let i = 0; i < 5; i++) recordMessage('user' + i, 'banger', t0 + i);
+    for (let i = 0; i < 3; i++) recordMessage('user' + (i + 10), 'pog', t0 + 100 + i);
+    recordMessage('u_solo', 'fire', t0 + 200);
     const top = getTop(10, t0 + 300);
     expect(top[0].word).toBe('banger');
     expect(top[0].count).toBe(5);
@@ -151,7 +151,7 @@ describe('recordMessage and getTop', () => {
 
   it('a word decays out of the window after the full window of silence', () => {
     const t0 = 3_000_000;
-    recordMessage('banger', t0);
+    recordMessage('u1', 'banger', t0);
     expect(getTop(5, t0).find(e => e.word === 'banger')?.count).toBe(1);
     const future = t0 + getWindowMs() + getBucketMs();
     const top = getTop(5, future);
@@ -159,10 +159,59 @@ describe('recordMessage and getTop', () => {
   });
 
   it('clear() resets all counts', () => {
-    recordMessage('banger pog fire', Date.now());
+    recordMessage('u1', 'banger pog fire', Date.now());
     expect(getTop(5, Date.now()).length).toBeGreaterThan(0);
     clear();
     expect(getTop(5, Date.now()).length).toBe(0);
+  });
+});
+
+describe('spam dedupe (same user, same message)', () => {
+  it('counts a repeat message from the same user only once within the window', () => {
+    const t0 = 7_000_000;
+    recordMessage('spammer', 'gg', t0);
+    recordMessage('spammer', 'gg', t0 + 100);
+    recordMessage('spammer', 'gg', t0 + 200);
+    const top = getTop(5, t0 + 300);
+    expect(top.find(e => e.word === 'gg')?.count).toBe(1);
+  });
+
+  it('different users saying the same message each count once', () => {
+    const t0 = 7_100_000;
+    recordMessage('alice', 'gg', t0);
+    recordMessage('bob',   'gg', t0 + 50);
+    recordMessage('carol', 'gg', t0 + 100);
+    expect(getTop(5, t0 + 200).find(e => e.word === 'gg')?.count).toBe(3);
+  });
+
+  it('is case-insensitive on both user and message', () => {
+    const t0 = 7_200_000;
+    recordMessage('Alice', 'GG',   t0);
+    recordMessage('alice', 'gg',   t0 + 50);
+    recordMessage('ALICE', '  gg ', t0 + 100);
+    expect(getTop(5, t0 + 200).find(e => e.word === 'gg')?.count).toBe(1);
+  });
+
+  it('same user counts the same message again once the window has elapsed', () => {
+    const t0 = 7_300_000;
+    recordMessage('spammer', 'gg', t0);
+    const future = t0 + getWindowMs() + getBucketMs();
+    recordMessage('spammer', 'gg', future);
+    // Earlier "gg" has decayed out; new one is +1.
+    expect(getTop(5, future).find(e => e.word === 'gg')?.count).toBe(1);
+  });
+
+  it('same user can still post a different message and have it counted', () => {
+    const t0 = 7_400_000;
+    recordMessage('user', 'gg',    t0);
+    recordMessage('user', 'gg',    t0 + 50); // dedupe
+    recordMessage('user', 'pog',   t0 + 100);
+    recordMessage('user', 'pog',   t0 + 150); // dedupe
+    recordMessage('user', 'banger', t0 + 200);
+    const top = getTop(10, t0 + 300);
+    expect(top.find(e => e.word === 'gg')?.count).toBe(1);
+    expect(top.find(e => e.word === 'pog')?.count).toBe(1);
+    expect(top.find(e => e.word === 'banger')?.count).toBe(1);
   });
 });
 
@@ -181,7 +230,7 @@ describe('setWindowMs', () => {
   });
 
   it('clears counts when the window changes', () => {
-    recordMessage('banger', Date.now());
+    recordMessage('u1', 'banger', Date.now());
     expect(getTop(5, Date.now()).length).toBeGreaterThan(0);
     setWindowMs(30_000);
     expect(getTop(5, Date.now()).length).toBe(0);
@@ -190,7 +239,7 @@ describe('setWindowMs', () => {
   it('a short window decays faster', () => {
     const t0 = 6_000_000;
     setWindowMs(12_000); // 12 buckets * 1000ms
-    recordMessage('banger', t0);
+    recordMessage('u1', 'banger', t0);
     expect(getTop(5, t0).find(e => e.word === 'banger')?.count).toBe(1);
     const top = getTop(5, t0 + 15_000);
     expect(top.find(e => e.word === 'banger')).toBeUndefined();

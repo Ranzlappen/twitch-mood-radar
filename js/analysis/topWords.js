@@ -26,6 +26,13 @@ let totals = new Map();
 let bucketIdx = 0;
 let bucketStart = 0;
 
+// Spam dedupe: "user\x00lowercase-trimmed-msg" -> lastSeenTs. Lets the same
+// user say the same thing once per window; re-seeing the same message bumps
+// the timestamp without counting again. Swept during bucket rotations so it
+// stays bounded.
+const recentByUserMsg = new Map();
+let lastSweepTs = 0;
+
 // Effective stopword set = DEFAULT_STOPWORDS ∪ added − removed.
 let added = new Set();
 let removed = new Set();
@@ -53,7 +60,8 @@ export function getBucketMs() { return BUCKET_MS; }
 export function getWindowMs() { return BUCKET_MS * BUCKET_COUNT; }
 
 // Change the decay window. Clears current counts — the bucket grid is
-// reshaping so stale numbers would be meaningless.
+// reshaping so stale numbers would be meaningless. Dedupe memory is also
+// cleared since its horizon is tied to this same window.
 export function setWindowMs(ms) {
   const clamped = Math.max(5_000, Math.min(600_000, Math.floor(Number(ms) || DEFAULT_WINDOW_MS)));
   BUCKET_MS = Math.max(500, Math.floor(clamped / BUCKET_COUNT));
@@ -61,6 +69,8 @@ export function setWindowMs(ms) {
   totals.clear();
   bucketIdx = 0;
   bucketStart = 0;
+  recentByUserMsg.clear();
+  lastSweepTs = 0;
   return BUCKET_MS * BUCKET_COUNT;
 }
 
@@ -122,10 +132,40 @@ function rotateIfNeeded(now) {
     }
   }
   bucketStart = now;
+  sweepRecent(now);
 }
 
-export function recordMessage(msg, now) {
+// Drop dedupe entries older than the current window. Called during bucket
+// rotation so it runs at most once per BUCKET_MS.
+function sweepRecent(now) {
+  const windowMs = BUCKET_MS * BUCKET_COUNT;
+  const cutoff = now - windowMs;
+  for (const [k, ts] of recentByUserMsg) {
+    if (ts < cutoff) recentByUserMsg.delete(k);
+  }
+  lastSweepTs = now;
+}
+
+// True → caller should skip recording this (user, msg) pair. Also refreshes
+// the timestamp so sustained spam keeps being blocked.
+function shouldDedupe(user, msg, now) {
+  if (!user) return false;                    // anonymous can't be deduped
+  const norm = String(msg || '').trim().toLowerCase();
+  if (!norm) return true;                     // blank message: skip entirely
+  const key = String(user).toLowerCase() + '\x00' + norm;
+  const last = recentByUserMsg.get(key);
+  const windowMs = BUCKET_MS * BUCKET_COUNT;
+  if (last !== undefined && now - last < windowMs) {
+    recentByUserMsg.set(key, now);
+    return true;
+  }
+  recentByUserMsg.set(key, now);
+  return false;
+}
+
+export function recordMessage(user, msg, now) {
   rotateIfNeeded(now);
+  if (shouldDedupe(user, msg, now)) return;
   const { unigrams, bigrams } = tokenize(msg);
   if (!unigrams.length && !bigrams.length) return;
   const cur = buckets[bucketIdx];
@@ -166,6 +206,8 @@ export function clear() {
   totals.clear();
   bucketIdx = 0;
   bucketStart = 0;
+  recentByUserMsg.clear();
+  lastSweepTs = 0;
 }
 
 // Test-only: deterministic reset including stopword overrides and window size.
@@ -177,4 +219,6 @@ export function _resetForTests() {
   added = new Set();
   removed = new Set();
   BUCKET_MS = Math.floor(DEFAULT_WINDOW_MS / BUCKET_COUNT);
+  recentByUserMsg.clear();
+  lastSweepTs = 0;
 }

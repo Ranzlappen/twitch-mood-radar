@@ -76,7 +76,7 @@ export function processingLoop() {
     }
     const { mood, strength, hits, approvalVote } = classifyMessage(msg);
     captureEmotesFromMessage(msg);
-    recordTopWord(msg, ts);
+    recordTopWord(user, msg, ts);
     state.scoredMessages.push({ ts, mood, strength });
     state.uniqueUsers.add(user);
     state.totalMessages++;
