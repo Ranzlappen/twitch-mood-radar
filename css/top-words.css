@@ -3,6 +3,11 @@
    The parent .chart-wrap enforces aspect-ratio:1; the list
    flex-grows to fill it.
    ============================================================ */
+#topWordsCard {
+  --tw-font-scale: 1;
+  --tw-emote-size: 22px;
+}
+
 .top-words-list {
   list-style: none;
   margin: 0;
@@ -19,11 +24,11 @@
   flex: 1 1 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 42px;
+  grid-template-columns: 22px var(--tw-emote-size) minmax(0, 1fr) 42px;
   grid-template-rows: auto auto;
   grid-template-areas:
-    "rank word count"
-    "rank bar  bar";
+    "rank emote word count"
+    "rank emote bar  bar";
   align-items: center;
   column-gap: 8px;
   row-gap: 2px;
@@ -35,16 +40,28 @@
 .top-words-row .tw-rank {
   grid-area: rank;
   font-family: 'Orbitron', sans-serif;
-  font-size: .7em;
+  font-size: calc(.7em * var(--tw-font-scale));
   font-weight: 700;
   letter-spacing: .08em;
   color: var(--muted);
   text-align: right;
 }
 
+.top-words-row .tw-emote {
+  grid-area: emote;
+  grid-row: span 2;
+  width: var(--tw-emote-size);
+  height: var(--tw-emote-size);
+  object-fit: contain;
+  image-rendering: pixelated;
+  align-self: center;
+  justify-self: center;
+}
+.top-words-row .tw-emote[hidden] { display: none; }
+
 .top-words-row .tw-word {
   grid-area: word;
-  font-size: .88em;
+  font-size: calc(.88em * var(--tw-font-scale));
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -53,7 +70,7 @@
 
 .top-words-row .tw-count {
   grid-area: count;
-  font-size: .72em;
+  font-size: calc(.72em * var(--tw-font-scale));
   color: var(--accent);
   text-align: right;
   font-weight: 700;
@@ -76,20 +93,50 @@
 .top-words-row.tw-empty .tw-word { color: rgba(255,255,255,.15); }
 .top-words-row.tw-empty .tw-count { color: transparent; }
 
-/* Ensure the list wrapper doesn't clip rows when the card is short */
 #topWordsCard .chart-wrap { overflow: hidden; }
 
 /* ============================================================
-   STOPWORDS MODAL — reuses .help-overlay + .help-modal
+   TOP-WORDS SETTINGS MODAL
    ============================================================ */
 .stopwords-overlay[hidden] { display: none; }
-.stopwords-modal { max-width: 520px; }
+.stopwords-modal { max-width: 560px; }
 .stopwords-hint {
   font-size: .75em;
   color: var(--muted);
   line-height: 1.6;
   margin-bottom: 14px;
 }
+
+.sw-slider-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: rgba(0,0,0,.18);
+}
+.sw-slider-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 58px;
+  align-items: center;
+  gap: 10px;
+}
+.sw-slider-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6em;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+.sw-slider-row input[type=range] { width: 100%; }
+.sw-slider-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .75em;
+  color: var(--accent);
+  text-align: right;
+}
+
 .stopwords-field { margin-bottom: 14px; }
 .stopwords-field-label {
   display: block;
@@ -99,6 +146,46 @@
   color: var(--accent);
   margin-bottom: 6px;
 }
+
+.sw-defaults-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(0,0,0,.18);
+}
+.sw-default-chip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7em;
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s, opacity .15s;
+}
+.sw-default-chip:hover {
+  border-color: var(--accent2, #9b6ef3);
+  color: var(--accent2, #9b6ef3);
+}
+.sw-default-chip-unblocked {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(0,255,229,.08);
+  text-decoration: line-through;
+  opacity: .8;
+}
+.sw-default-chip-unblocked:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  opacity: 1;
+}
+
 .stopwords-actions {
   display: flex;
   justify-content: flex-end;
@@ -118,6 +205,6 @@
 .stopwords-reset:hover { color: var(--accent2); border-color: var(--accent2); }
 
 /* ============================================================
-   Title-bar icon button (⚙) sits next to the help (?) button
+   Title-bar icon button (settings cog)
    ============================================================ */
 #topWordsEditStopwords { margin-left: 2px; }

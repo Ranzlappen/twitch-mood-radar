@@ -8,7 +8,7 @@ import { recordMessage as recordTopWord, getTop as getTopWords, clear as clearTo
 import { hexAlpha } from './utils/color.js';
 import { fmtNum, setStatus, sanitize } from './utils/dom.js';
 import { updateBubbles } from './ui/bubbles.js';
-import { updateTopWords, clearTopWordsUI } from './ui/topWords.js';
+import { updateTopWords, clearTopWordsUI, captureEmotesFromMessage, fetchPoolSize } from './ui/topWords.js';
 import { updateApprovalMeter } from './ui/approval-meter.js';
 import { pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot } from './ui/charts.js';
 import { enqueueHistory } from './history/historyDb.js';
@@ -75,6 +75,7 @@ export function processingLoop() {
       }
     }
     const { mood, strength, hits, approvalVote } = classifyMessage(msg);
+    captureEmotesFromMessage(msg);
     recordTopWord(msg, ts);
     state.scoredMessages.push({ ts, mood, strength });
     state.uniqueUsers.add(user);
@@ -124,8 +125,8 @@ export function updateVisuals() {
 
   const kwList = computeKeywordWeights(now);
 
-  // Update top-10 substrings
-  updateTopWords(getTopWords(10, now));
+  // Update top-10 substrings (fetch pool gives phrase-dedupe room to work)
+  updateTopWords(getTopWords(fetchPoolSize(), now));
 
   updateBubbles(kwList.slice(0, (state.drawerOptions.bubbleCount || 22) + 6).map((k, i) => ({ ...k, count: i + 1 })));
 

@@ -2,11 +2,16 @@
 // Time-bucketed histogram with a running total Map. Handles high-volume chat
 // cheaply: per-message cost is O(tokens); pruning is amortized over bucket
 // rotations instead of scanned on every query.
+//
+// Counts both unigrams and bigrams so common phrases ("lets go", "gg wp")
+// surface as their own entries. Bigram tokens are stored as "word1 word2".
 
 import { DEFAULT_STOPWORDS } from './stopwords.js';
 
-export const BUCKET_MS = 10_000;
-export const BUCKET_COUNT = 12; // BUCKET_MS * BUCKET_COUNT = 120_000 = WINDOW_MS
+export const BUCKET_COUNT = 12;
+export const DEFAULT_WINDOW_MS = 120_000;
+// Mutable so the decay slider can retune without reshuffling the ring.
+let BUCKET_MS = Math.floor(DEFAULT_WINDOW_MS / BUCKET_COUNT);
 
 const TOKEN_SPLIT_RE = /[^\p{L}\p{N}]+/u;
 const APOSTROPHE_RE = /['’]/g;
@@ -16,7 +21,6 @@ const DIGITS_ONLY_RE = /^\d+$/;
 const MIN_LEN = 2;
 const MAX_LEN = 20;
 
-// Module-level state.
 let buckets = Array.from({ length: BUCKET_COUNT }, () => new Map());
 let totals = new Map();
 let bucketIdx = 0;
@@ -31,43 +35,73 @@ function isStopword(tok) {
   return DEFAULT_STOPWORDS.has(tok) || added.has(tok);
 }
 
+function isValidUnigram(tok) {
+  if (!tok) return false;
+  const len = tok.length;
+  if (len < MIN_LEN || len > MAX_LEN) return false;
+  if (DIGITS_ONLY_RE.test(tok)) return false;
+  if (isStopword(tok)) return false;
+  return true;
+}
+
 export function setStopwordOverrides({ add = [], remove = [] } = {}) {
   added = new Set(add.map(s => String(s).toLowerCase()));
   removed = new Set(remove.map(s => String(s).toLowerCase()));
 }
 
+export function getBucketMs() { return BUCKET_MS; }
+export function getWindowMs() { return BUCKET_MS * BUCKET_COUNT; }
+
+// Change the decay window. Clears current counts — the bucket grid is
+// reshaping so stale numbers would be meaningless.
+export function setWindowMs(ms) {
+  const clamped = Math.max(5_000, Math.min(600_000, Math.floor(Number(ms) || DEFAULT_WINDOW_MS)));
+  BUCKET_MS = Math.max(500, Math.floor(clamped / BUCKET_COUNT));
+  for (const b of buckets) b.clear();
+  totals.clear();
+  bucketIdx = 0;
+  bucketStart = 0;
+  return BUCKET_MS * BUCKET_COUNT;
+}
+
+// Returns { unigrams, bigrams }, each a Set<string>. Bigrams are only emitted
+// when BOTH adjacent raw tokens would survive the unigram filter — preserving
+// the idea that a phrase is a chain of meaningful words.
 export function tokenize(msg) {
-  if (!msg) return [];
-  const out = new Set();
+  if (!msg) return { unigrams: [], bigrams: [] };
   let rest = String(msg);
 
-  // 1. Extract emote names first, strip their placeholders.
+  const emoteUnigrams = [];
   rest = rest.replace(EMOTE_RE, (_m, name) => {
     const tok = String(name || '').trim().toLowerCase();
-    if (tok && tok.length >= MIN_LEN && tok.length <= MAX_LEN && !DIGITS_ONLY_RE.test(tok) && !isStopword(tok)) {
-      out.add(tok);
-    }
+    if (isValidUnigram(tok)) emoteUnigrams.push(tok);
     return ' ';
   });
 
-  // 2. Strip bare URLs.
   rest = rest.replace(URL_RE, ' ');
-
-  // 3. Collapse apostrophes so "don't" matches "dont" in the stopword list.
   rest = rest.replace(APOSTROPHE_RE, '');
 
-  // 4. Split on any non-letter/number.
-  const parts = rest.toLowerCase().split(TOKEN_SPLIT_RE);
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-    if (!p) continue;
-    const len = p.length;
-    if (len < MIN_LEN || len > MAX_LEN) continue;
-    if (DIGITS_ONLY_RE.test(p)) continue;
-    if (isStopword(p)) continue;
-    out.add(p);
+  const raw = rest.toLowerCase().split(TOKEN_SPLIT_RE);
+
+  const uniSet = new Set(emoteUnigrams);
+  const biSet = new Set();
+
+  for (let i = 0; i < raw.length; i++) {
+    const a = raw[i];
+    if (!a) continue;
+    const aOk = isValidUnigram(a);
+    if (aOk) uniSet.add(a);
+
+    // Bigrams: skip if either side fails the unigram filter. Phrase length
+    // capped to keep the histogram bounded.
+    if (!aOk) continue;
+    const b = raw[i + 1];
+    if (!b || !isValidUnigram(b)) continue;
+    const phrase = a + ' ' + b;
+    if (phrase.length <= MAX_LEN * 2 + 1) biSet.add(phrase);
   }
-  return Array.from(out);
+
+  return { unigrams: Array.from(uniSet), bigrams: Array.from(biSet) };
 }
 
 function rotateIfNeeded(now) {
@@ -76,8 +110,6 @@ function rotateIfNeeded(now) {
   if (elapsed < BUCKET_MS) return;
   const steps = Math.min(BUCKET_COUNT, Math.floor(elapsed / BUCKET_MS));
   for (let s = 0; s < steps; s++) {
-    // Advance to the next bucket; the one we land on becomes the new "current",
-    // so its prior contents (now the oldest) get subtracted out first.
     bucketIdx = (bucketIdx + 1) % BUCKET_COUNT;
     const victim = buckets[bucketIdx];
     if (victim.size) {
@@ -94,24 +126,28 @@ function rotateIfNeeded(now) {
 
 export function recordMessage(msg, now) {
   rotateIfNeeded(now);
-  const toks = tokenize(msg);
-  if (!toks.length) return;
+  const { unigrams, bigrams } = tokenize(msg);
+  if (!unigrams.length && !bigrams.length) return;
   const cur = buckets[bucketIdx];
-  for (let i = 0; i < toks.length; i++) {
-    const w = toks[i];
+  for (let i = 0; i < unigrams.length; i++) {
+    const w = unigrams[i];
+    cur.set(w, (cur.get(w) || 0) + 1);
+    totals.set(w, (totals.get(w) || 0) + 1);
+  }
+  for (let i = 0; i < bigrams.length; i++) {
+    const w = bigrams[i];
     cur.set(w, (cur.get(w) || 0) + 1);
     totals.set(w, (totals.get(w) || 0) + 1);
   }
 }
 
-// Heap-free top-N: maintain a small sorted array by insertion.
+// Top-N via insertion into a small sorted array. Small n so O(n) insert wins.
 export function getTop(n, now) {
   if (now !== undefined) rotateIfNeeded(now);
   const top = [];
   for (const [word, count] of totals) {
     if (top.length < n) {
       top.push({ word, count });
-      // Keep sorted descending; small n so O(n) insert is fine.
       for (let i = top.length - 1; i > 0 && top[i].count > top[i - 1].count; i--) {
         const t = top[i]; top[i] = top[i - 1]; top[i - 1] = t;
       }
@@ -132,7 +168,7 @@ export function clear() {
   bucketStart = 0;
 }
 
-// Test-only: deterministic reset including stopword overrides.
+// Test-only: deterministic reset including stopword overrides and window size.
 export function _resetForTests() {
   buckets = Array.from({ length: BUCKET_COUNT }, () => new Map());
   totals = new Map();
@@ -140,4 +176,5 @@ export function _resetForTests() {
   bucketStart = 0;
   added = new Set();
   removed = new Set();
+  BUCKET_MS = Math.floor(DEFAULT_WINDOW_MS / BUCKET_COUNT);
 }
