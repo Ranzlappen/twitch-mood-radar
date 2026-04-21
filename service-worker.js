@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '19' },
-    { url: '/index.html', revision: '19' },
+    { url: '/', revision: '20' },
+    { url: '/index.html', revision: '20' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -22,7 +22,7 @@ if (workbox) {
     { url: '/css/link-modal.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '10' },
-    { url: '/js/config.js', revision: '8' },
+    { url: '/js/config.js', revision: '9' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
@@ -42,7 +42,7 @@ if (workbox) {
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
     { url: '/js/platform/YouTubeAdapter.js', revision: '7' },
-    { url: '/js/platform/RumbleAdapter.js', revision: '8' },
+    { url: '/js/platform/RumbleAdapter.js', revision: '9' },
     { url: '/js/platform/ConnectionManager.js', revision: '2' },
     { url: '/js/platform/emotes.js', revision: '4' },
     // History (IndexedDB)

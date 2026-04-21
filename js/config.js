@@ -384,67 +384,72 @@ export const HELP_CONTENT = {
 </ul>`
   },
   rumbleWorker: {
-    title: 'RUMBLE CHAT PROXY — CLOUDFLARE WORKER SETUP',
-    body: `<p>Rumble sits behind Cloudflare and blocks every public CORS proxy, so a browser-only PWA can't reach Rumble chat without a tiny proxy that <strong>you</strong> run. A free Cloudflare Worker takes about two minutes to set up and handles plenty of traffic on the free tier.</p>
-<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 1 — CREATE THE WORKER</h4>
+    title: 'RUMBLE CHAT PROXY — SETUP',
+    body: `<p><strong>Rumble sits behind Cloudflare's bot protection</strong>, which now rejects fetches from every major free serverless provider — Cloudflare Workers, Deno Deploy, Vercel, Netlify. Any proxy running on a known datacenter IP receives a "Just a moment..." challenge page instead of chat HTML.</p>
+<p>The only reliable free path is running the proxy on a <strong>residential IP</strong> — your home PC, an old laptop, a Raspberry Pi, a NAS — and exposing it via a tunnel.</p>
+<h4 style="margin:12px 0 6px;color:#ff4800">WHAT DOES NOT WORK</h4>
+<ul>
+  <li>Cloudflare Workers (blocked — CF challenges its own Worker egress into CF-protected sites)</li>
+  <li>Deno Deploy (blocked — shared datacenter IP pool)</li>
+  <li>Vercel, Netlify, Render, Railway serverless functions (blocked — same reason)</li>
+  <li>Public CORS proxies (all blocked)</li>
+</ul>
+<h4 style="margin:12px 0 6px;color:var(--accent)">RECOMMENDED SETUP</h4>
 <ol>
-  <li>Go to <strong>workers.cloudflare.com</strong> and create a free account (if you don't have one).</li>
-  <li>Click <strong>"Create application" → "Create Worker"</strong>.</li>
-  <li>Give it a name (e.g. <code>rumble-proxy</code>) and click <strong>Deploy</strong>.</li>
-  <li>After deploy, click <strong>"Edit code"</strong>.</li>
-</ol>
-<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 2 — PASTE THIS CODE</h4>
-<p>Replace the default <code>worker.js</code> content with:</p>
-<pre style="background:#06060f;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.7em;line-height:1.45;color:var(--text);overflow:auto;max-height:260px;white-space:pre;font-family:'Share Tech Mono',monospace;margin:0 0 8px"><code>export default {
-  async fetch(req) {
-    const u = new URL(req.url);
-    if (u.pathname !== '/rumble/messages') {
-      return new Response('not found', { status: 404 });
-    }
-    const streamId = u.searchParams.get('streamId');
-    if (!streamId) return new Response('missing streamId', { status: 400 });
-
-    const page = await fetch(
-      'https://rumble.com/' + encodeURIComponent(streamId),
-      { headers: { 'user-agent': 'Mozilla/5.0' } }
-    );
-    const html = await page.text();
-    const m = html.match(/"chat_id"\\s*:\\s*(\\d+)/)
-           || html.match(/chat\\/api\\/chat\\/(\\d+)/);
-    if (!m) return new Response('chat id not found', { status: 404 });
-
-    const api = await fetch(
-      'https://rumble.com/chat/api/chat/' + m[1] + '/messages',
-      { headers: { 'user-agent': 'Mozilla/5.0' } }
-    );
-    const body = await api.text();
-    return new Response(body, {
-      status: api.status,
-      headers: {
-        'content-type': 'application/json',
-        'access-control-allow-origin': '*',
-      },
-    });
-  },
-};</code></pre>
-<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 3 — DEPLOY & COPY THE URL</h4>
-<ol>
-  <li>Click <strong>"Save and Deploy"</strong>.</li>
-  <li>Cloudflare will give you a URL like <code>https://rumble-proxy.yourname.workers.dev</code>.</li>
-  <li>Copy that URL.</li>
-</ol>
-<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 4 — PASTE IT HERE</h4>
-<ol>
-  <li>Close this help modal.</li>
-  <li>Paste the Worker URL into the <strong>Worker URL</strong> input in this drawer.</li>
-  <li>Click <strong>Save</strong>.</li>
+  <li>Install <strong>Node.js</strong> or <strong>Deno</strong> on any always-on machine at home.</li>
+  <li>Save the code below as <code>rumble-proxy.js</code> and run it:
+    <br><code>deno run --allow-net rumble-proxy.js</code>
+    <br>or port to Node with <code>http.createServer</code>.</li>
+  <li>Expose it publicly with one of:
+    <ul>
+      <li><strong>Cloudflare Tunnel</strong> (free) — egresses from your home IP, so CF's bot check doesn't fire</li>
+      <li><strong>Tailscale Funnel</strong> (free)</li>
+      <li>Port-forward + a dynamic-DNS service</li>
+    </ul>
+  </li>
+  <li>Paste the public URL (e.g. <code>https://rumble-proxy.yourdomain.com</code>) into the <strong>Proxy URL</strong> input in this drawer and click <strong>Save</strong>.</li>
   <li>Reconnect the Rumble feed — chat will start flowing.</li>
 </ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">PROXY CODE (Deno)</h4>
+<pre style="background:#06060f;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.7em;line-height:1.45;color:var(--text);overflow:auto;max-height:260px;white-space:pre;font-family:'Share Tech Mono',monospace;margin:0 0 8px"><code>Deno.serve({ port: 8787 }, async (req) =&gt; {
+  const u = new URL(req.url);
+  if (u.pathname !== '/rumble/messages') {
+    return new Response('not found', { status: 404 });
+  }
+  const streamId = u.searchParams.get('streamId');
+  if (!streamId) return new Response('missing streamId', { status: 400 });
+
+  const page = await fetch(
+    'https://rumble.com/' + encodeURIComponent(streamId),
+    { headers: { 'user-agent': 'Mozilla/5.0' } }
+  );
+  const html = await page.text();
+  const m = html.match(/"chat_id"\\s*:\\s*(\\d+)/)
+         || html.match(/chat\\/api\\/chat\\/(\\d+)/);
+  if (!m) return new Response('chat id not found', { status: 404 });
+
+  const api = await fetch(
+    'https://rumble.com/chat/api/chat/' + m[1] + '/messages',
+    { headers: { 'user-agent': 'Mozilla/5.0' } }
+  );
+  const body = await api.text();
+  return new Response(body, {
+    status: api.status,
+    headers: {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+    },
+  });
+});</code></pre>
+<h4 style="margin:12px 0 6px;color:var(--accent)">ENDPOINT SHAPE</h4>
+<p>The app always calls <code>GET /rumble/messages?streamId=&lt;id&gt;</code> and expects Rumble's chat JSON in response. Any host that implements that path works — the code above is just one way to do it.</p>
 <h4 style="margin:12px 0 6px;color:#ff4800">NOTES</h4>
 <ul>
-  <li>The URL is stored <strong>locally in your browser</strong> only.</li>
-  <li>No trailing slash needed — paste the bare <code>https://...workers.dev</code> URL.</li>
-  <li>If Rumble changes their page markup and the Worker stops finding chat IDs, tweak the regex in step 2 and redeploy.</li>
+  <li>Only <strong>live</strong> streams have active chat. VODs return no messages.</li>
+  <li>The saved URL lives in your browser only — nothing is uploaded.</li>
+  <li>No trailing slash needed on the saved URL.</li>
+  <li>If Rumble changes their page markup and the regex stops matching, tweak it in the proxy code and restart.</li>
+  <li>If you don't have a home machine to run this on, Rumble chat in this app isn't realistically usable right now. Twitch, YouTube, and Kick work without any proxy.</li>
 </ul>`
   }
 };
