@@ -316,9 +316,16 @@ export class ConnectionManager {
         if (this._onFirstConnect && !state.rafHandle) {
           this._onFirstConnect();
         }
+      } else if (statusInfo.type === 'progress') {
+        // Intermediate step during connect — keep yellow 'connecting' dot,
+        // update text so user sees what the adapter is doing.
+        this._setSlotStatus(slot.id, statusInfo.text || 'Connecting...', 'connecting');
       } else if (statusInfo.type === 'error') {
         slot.status = 'error';
+        slot.loggingActive = false;
         this._setSlotStatus(slot.id, statusInfo.text || 'Error', 'error');
+        const btn = document.getElementById('slotConnectBtn_' + slot.id);
+        if (btn) btn.disabled = false;
       } else if (statusInfo.type === 'disconnected') {
         this._handleSlotDisconnect(slot);
       }

@@ -176,6 +176,13 @@ export class YouTubeAdapter extends PlatformAdapter {
       this._reconnectAttempt++;
       if (this._reconnectAttempt < 5 && this._polling) {
         this._pollTimer = setTimeout(() => this._pollInnertube(), 8000);
+      } else if (this._polling) {
+        // Exhausted retries — surface a clear error so the slot doesn't hang
+        this._polling = false;
+        setStatus('YouTube chat lost connection (CORS proxy or API failure).', 'error');
+        if (this._onStatusCallback) {
+          this._onStatusCallback({ type: 'error', text: 'Lost connection' });
+        }
       }
     }
   }
@@ -183,30 +190,41 @@ export class YouTubeAdapter extends PlatformAdapter {
   async connect(channel, _isReconnect) {
     console.info('[MoodRadar][YouTube] YouTube connection uses unofficial methods. For compliant access, use a YouTube Data API v3 key.');
     const raw = sanitize(typeof channel === 'string' ? channel : '').trim();
-    if (!raw) { setStatus('Enter a channel name, @handle, or video URL.', 'error'); return; }
 
     const btn = document.getElementById('connectBtn');
+    const reportError = (text) => {
+      setStatus(text, 'error');
+      if (btn) btn.disabled = false;
+      if (this._onStatusCallback) this._onStatusCallback({ type: 'error', text });
+    };
+    const reportProgress = (text) => {
+      setStatus(text, '');
+      if (this._onStatusCallback) this._onStatusCallback({ type: 'progress', text });
+    };
+
+    if (!raw) { reportError('Enter a channel name, @handle, or video URL.'); return; }
+
     if (btn) btn.disabled = true;
 
     let videoId = _parseVideoId(raw);
     if (!videoId) {
-      setStatus('Looking for live stream...', '');
+      reportProgress('Looking for live stream...');
       videoId = await _resolveChannelToLive(raw);
       if (!videoId) {
-        setStatus('No live stream found for this channel.', 'error');
-        if (btn) btn.disabled = false;
+        reportError('No live stream found (channel offline, handle wrong, or CORS proxies blocked).');
         return;
       }
     }
     this._videoId = videoId;
 
     // Approach 1: innertube 'next' API
-    setStatus('Connecting to chat...', '');
+    reportProgress('Connecting to chat (innertube)...');
     let continuation = null;
     try { continuation = await this._getContinuationViaNext(videoId); } catch(e) { console.warn('[MoodRadar] YouTube innertube next API failed, trying chat page scrape:', e.message); }
 
     // Approach 2: scrape chat page
     if (!continuation) {
+      reportProgress('Connecting to chat (page scrape)...');
       try { continuation = await this._getContinuationViaChatPage(videoId); } catch(e) { console.warn('[MoodRadar] YouTube chat page scrape failed:', e.message); }
     }
 
@@ -226,13 +244,12 @@ export class YouTubeAdapter extends PlatformAdapter {
     let apiKey = '';
     try { apiKey = localStorage.getItem(YT_API_KEY_STORAGE) || ''; } catch { }
     if (!apiKey) {
-      setStatus('Could not reach YouTube chat (CORS). Set localStorage["' + YT_API_KEY_STORAGE + '"] to a YouTube Data API v3 key to enable the fallback.', 'error');
+      reportError('Could not reach YouTube chat — all CORS proxies failed. A YouTube Data API v3 key is the only fallback.');
       console.warn('[MoodRadar][YouTube] No saved API key. To enable the Data API fallback, run in DevTools:\n  localStorage.setItem("' + YT_API_KEY_STORAGE + '", "<your-api-key>")\nGet a key at console.cloud.google.com (enable "YouTube Data API v3").');
-      if (btn) btn.disabled = false;
       return;
     }
 
-    setStatus('Resolving via API key...', '');
+    reportProgress('Resolving via API key...');
     try {
       const res = await fetch(
         'https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey
@@ -240,7 +257,7 @@ export class YouTubeAdapter extends PlatformAdapter {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const liveChatId = data.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
-      if (!liveChatId) { setStatus('No active live chat found.', 'error'); if (btn) btn.disabled = false; return; }
+      if (!liveChatId) { reportError('No active live chat found.'); return; }
 
       // Poll via Data API
       this._polling = true;
@@ -258,7 +275,12 @@ export class YouTubeAdapter extends PlatformAdapter {
           (nextPageToken ? '&pageToken=' + nextPageToken : '');
         try {
           const r = await fetch('https://www.googleapis.com/youtube/v3/liveChat/messages?' + params);
-          if (r.status === 403) { setStatus('Quota exceeded', 'error'); self._polling = false; return; }
+          if (r.status === 403) {
+            setStatus('Quota exceeded', 'error');
+            self._polling = false;
+            if (self._onStatusCallback) self._onStatusCallback({ type: 'error', text: 'Quota exceeded' });
+            return;
+          }
           if (!r.ok) throw new Error('HTTP ' + r.status);
           const d = await r.json();
           nextPageToken = d.nextPageToken || null;
@@ -278,8 +300,7 @@ export class YouTubeAdapter extends PlatformAdapter {
       pollApiKey();
     } catch (e) {
       console.warn('[MoodRadar] YouTube live chat resolution via API key failed:', e.message);
-      setStatus('Failed to resolve live chat.', 'error');
-      if (btn) btn.disabled = false;
+      reportError('Failed to resolve live chat via API key.');
       try { localStorage.removeItem(YT_API_KEY_STORAGE); } catch { }
     }
   }
