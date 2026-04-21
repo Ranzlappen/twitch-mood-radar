@@ -1,14 +1,30 @@
 /* ============================================================
    TOP-10 SUBSTRINGS CARD
-   The parent .chart-wrap enforces aspect-ratio:1; the list
-   flex-grows to fill it.
+   Shares the square slot with #pieCard inside .charts-top and
+   auto-scales its content to whatever size the card gets resized
+   to, using CSS container queries.
    ============================================================ */
+
+/* Override the generic .chart-card's container-type so cqh is meaningful.
+   inline-size (the default for .chart-card) only tracks width; we also
+   need to track height to scale the 10 rows to whatever vertical space
+   the user's resize gives us. */
 #topWordsCard {
+  container-type: size;
   --tw-font-scale: 1;
   --tw-emote-size: 22px;
 }
 
+/* The wrap inside .chart-card.resizable has flex:1 and aspect-ratio:unset
+   (see css/layout-mgr.css) so it fills whatever box the user drags the
+   card to. We rely on that here. */
+#topWordsCard .chart-wrap { overflow: hidden; }
+
+/* Base unit = 3.6% of wrap height, then clamped so it stays readable on
+   both very small and very large cards. Everything inside a row scales
+   against this unit so 10 rows always fit end-to-end. */
 .top-words-list {
+  --tw-base: clamp(7px, calc(3.6cqh * var(--tw-font-scale)), 22px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -16,7 +32,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: calc(var(--tw-base) * 0.1);
   font-family: 'Share Tech Mono', monospace;
 }
 
@@ -24,34 +40,42 @@
   flex: 1 1 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: 22px var(--tw-emote-size) minmax(0, 1fr) 42px;
-  grid-template-rows: auto auto;
+  /* rank | emote | word/bar | count */
+  grid-template-columns:
+    calc(var(--tw-base) * 1.8)
+    min(var(--tw-emote-size), calc(var(--tw-base) * 2.4))
+    minmax(0, 1fr)
+    calc(var(--tw-base) * 3.2);
+  grid-template-rows: 1fr auto;
   grid-template-areas:
     "rank emote word count"
     "rank emote bar  bar";
   align-items: center;
-  column-gap: 8px;
-  row-gap: 2px;
-  padding: 2px 2px;
+  column-gap: calc(var(--tw-base) * 0.55);
+  row-gap: calc(var(--tw-base) * 0.08);
+  padding: 0 2px;
   border-bottom: 1px solid rgba(255,255,255,.03);
+  overflow: hidden;
 }
 .top-words-row:last-child { border-bottom: none; }
 
 .top-words-row .tw-rank {
   grid-area: rank;
   font-family: 'Orbitron', sans-serif;
-  font-size: calc(.7em * var(--tw-font-scale));
+  font-size: calc(var(--tw-base) * 0.8);
   font-weight: 700;
   letter-spacing: .08em;
   color: var(--muted);
   text-align: right;
+  line-height: 1;
 }
 
 .top-words-row .tw-emote {
   grid-area: emote;
-  grid-row: span 2;
-  width: var(--tw-emote-size);
-  height: var(--tw-emote-size);
+  /* Slider value is a px ceiling; the cqh-based min() keeps the emote
+     from ever exceeding ~2.4x the text base so it never crowds the row. */
+  width:  min(var(--tw-emote-size), calc(var(--tw-base) * 2.4));
+  height: min(var(--tw-emote-size), calc(var(--tw-base) * 2.4));
   object-fit: contain;
   image-rendering: pixelated;
   align-self: center;
@@ -61,24 +85,29 @@
 
 .top-words-row .tw-word {
   grid-area: word;
-  font-size: calc(.88em * var(--tw-font-scale));
+  font-size: calc(var(--tw-base) * 1);
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.1;
+  min-width: 0;
 }
 
 .top-words-row .tw-count {
   grid-area: count;
-  font-size: calc(.72em * var(--tw-font-scale));
+  font-size: calc(var(--tw-base) * 0.82);
   color: var(--accent);
   text-align: right;
   font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .top-words-row .tw-bar-wrap {
   grid-area: bar;
-  height: 4px;
+  height: calc(var(--tw-base) * 0.28);
+  min-height: 2px;
   background: rgba(255,255,255,.04);
   border-radius: 2px;
   overflow: hidden;
@@ -92,8 +121,6 @@
 
 .top-words-row.tw-empty .tw-word { color: rgba(255,255,255,.15); }
 .top-words-row.tw-empty .tw-count { color: transparent; }
-
-#topWordsCard .chart-wrap { overflow: hidden; }
 
 /* ============================================================
    TOP-WORDS SETTINGS MODAL
@@ -205,6 +232,6 @@
 .stopwords-reset:hover { color: var(--accent2); border-color: var(--accent2); }
 
 /* ============================================================
-   Title-bar icon button (settings cog)
+   Title-bar cog button
    ============================================================ */
 #topWordsEditStopwords { margin-left: 2px; }

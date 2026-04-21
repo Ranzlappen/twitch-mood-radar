@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '24' },
-    { url: '/index.html', revision: '24' },
+    { url: '/', revision: '25' },
+    { url: '/index.html', revision: '25' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -20,7 +20,7 @@ if (workbox) {
     { url: '/css/chat-input.css', revision: '1' },
     { url: '/css/emote-modal.css', revision: '2' },
     { url: '/css/link-modal.css', revision: '1' },
-    { url: '/css/top-words.css', revision: '2' },
+    { url: '/css/top-words.css', revision: '3' },
     // JS modules
     { url: '/js/app.js', revision: '14' },
     { url: '/js/config.js', revision: '12' },
