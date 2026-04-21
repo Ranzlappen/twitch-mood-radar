@@ -8,7 +8,7 @@
 import { state } from '../state.js';
 import { registerModuleSettings, attachInfoButton } from './infoDrawer.js';
 import {
-  setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity, setOptBubbleHeight,
+  setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity,
   setOptPieLabels, setOptPieAnimation,
   setOptApprovalMini, setOptApprovalVerdict,
 } from './options.js';
@@ -67,12 +67,6 @@ export function registerModuleInfoDrawers() {
       value: o.bubbleOpacity ?? 0.28, min: 0.1, max: 1, step: 0.05,
       format: v => Math.round(+v * 100) + '%',
       onInput: setOptBubbleOpacity,
-    }));
-    body.appendChild(sliderRow({
-      label: 'HEIGHT', id: 'optBubbleHeight', valId: 'optBubbleHeightVal',
-      value: o.bubbleHeight ?? 260, min: 80, max: 500, step: 10,
-      format: v => v + 'px',
-      onInput: setOptBubbleHeight,
     }));
     body.appendChild(sliderRow({
       label: 'BUBBLE SCALE', id: 'bubbleScaleSlider', valId: 'bubbleScaleVal',

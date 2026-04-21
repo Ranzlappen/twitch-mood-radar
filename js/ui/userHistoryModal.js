@@ -91,6 +91,8 @@ function _loadMore() { return document.getElementById('userHistLoadMore'); }
 function _botCheckbox() { return document.getElementById('userHistBots'); }
 function _fontSlider() { return document.getElementById('userHistFontSlider'); }
 function _fontVal() { return document.getElementById('userHistFontVal'); }
+function _searchInput() { return document.getElementById('userHistSearchInput'); }
+function _searchBtn() { return document.getElementById('userHistSearchBtn'); }
 
 /**
  * Clamp an (x, y) point so a w×h modal stays at least partially on screen
@@ -148,6 +150,9 @@ function _initDrag() {
 
   handle.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
+    // Ignore pointerdowns on interactive children (search input, button).
+    // Without this, clicking the input to type would immediately start a drag.
+    if (e.target !== handle) return;
     dragging = true;
     pointerId = e.pointerId;
     const rect = m.getBoundingClientRect();
@@ -522,8 +527,8 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
   _state.hasMore = false;
   _state.stats = { total: 0, firstTs: null, lastTs: null, moodCounts: {} };
 
-  const titleEl = _title();
-  if (titleEl) titleEl.textContent = (_state.user || 'USER').toUpperCase();
+  const searchInput = _searchInput();
+  if (searchInput) searchInput.value = _state.user || '';
   const botBox = _botCheckbox();
   if (botBox) botBox.checked = _state.includeBots;
   const radios = document.querySelectorAll('input[name="userHistScope"]');
@@ -651,6 +656,28 @@ export function initUserHistoryModal() {
 
   const lm = _loadMore();
   if (lm) lm.addEventListener('click', _loadOlder);
+
+  _wireSearch();
+}
+
+function _wireSearch() {
+  const input = _searchInput();
+  const btn = _searchBtn();
+  if (!input || !btn) return;
+
+  const run = () => {
+    const typed = (input.value || '').trim();
+    if (!typed) return;
+    openUserHistory(typed.toLowerCase(), typed);
+  };
+
+  btn.addEventListener('click', run);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      run();
+    }
+  });
 }
 
 let _resizeHandleAttached = false;

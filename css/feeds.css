@@ -12,7 +12,7 @@
   margin-bottom:var(--gap);
 }
 .feed-title { font-family:'Orbitron',sans-serif; font-size:.58em; letter-spacing:.2em; color:var(--muted); margin-bottom:7px; display:flex; align-items:center; gap:4px }
-.feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:8px auto 1fr 62px 80px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }
+.feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:8px auto 1fr 62px 44px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }
 .feed-plat { width:8px; height:8px; border-radius:50%; flex-shrink:0; align-self:center }
 .feed-plat-twitch  { background:#9146ff }
 .feed-plat-youtube { background:#ff0000 }
@@ -27,8 +27,6 @@
 .feed-meta { display:flex; align-items:center; gap:5px; flex-shrink:0 }
 .feed-mood { font-size:.68em; padding:1px 4px; border-radius:4px; white-space:nowrap; text-align:center; display:inline-block; min-width:52px; max-width:72px; overflow:hidden; text-overflow:ellipsis }
 .feed-apv { display:flex; align-items:center; gap:3px }
-.feed-apv-bar { width:28px; height:4px; border-radius:2px; background:var(--border); overflow:hidden; flex-shrink:0 }
-.feed-apv-fill { height:100%; border-radius:2px; transition:width .3s }
 .feed-apv-num { font-size:.65em; color:var(--muted); min-width:34px; text-align:right; font-variant-numeric:tabular-nums }
 .mood-hype      { background:rgba(0,255,229,.12);  color:var(--hype) }
 .mood-funny     { background:rgba(255,230,0,.12);  color:var(--funny) }

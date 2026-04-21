@@ -17,7 +17,6 @@ const TOKEN_SPLIT_RE = /[^\p{L}\p{N}]+/u;
 const APOSTROPHE_RE = /['’]/g;
 const EMOTE_RE = /\[emote:[^:\]]*:[^:\]]*:([^\]]+)\]/g;
 const URL_RE = /https?:\/\/\S+/gi;
-const DIGITS_ONLY_RE = /^\d+$/;
 const MIN_LEN = 2;
 const MAX_LEN = 20;
 
@@ -46,7 +45,6 @@ function isValidUnigram(tok) {
   if (!tok) return false;
   const len = tok.length;
   if (len < MIN_LEN || len > MAX_LEN) return false;
-  if (DIGITS_ONLY_RE.test(tok)) return false;
   if (isStopword(tok)) return false;
   return true;
 }

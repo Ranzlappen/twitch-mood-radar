@@ -49,11 +49,19 @@ describe('tokenize (unigrams)', () => {
     expect(toks.unigrams).not.toContain('example');
   });
 
-  it('filters pure-digit tokens', () => {
+  it('keeps pure-digit tokens as regular tokens', () => {
     const toks = tokenize('123 456 banger');
     expect(toks.unigrams).toContain('banger');
+    expect(toks.unigrams).toContain('123');
+    expect(toks.unigrams).toContain('456');
+  });
+
+  it('suppresses digit tokens when added to stopwords', () => {
+    setStopwordOverrides({ add: ['123'] });
+    const toks = tokenize('123 456 banger');
     expect(toks.unigrams).not.toContain('123');
-    expect(toks.unigrams).not.toContain('456');
+    expect(toks.unigrams).toContain('456');
+    expect(toks.unigrams).toContain('banger');
   });
 
   it('deduplicates tokens within a single message', () => {
@@ -62,8 +70,9 @@ describe('tokenize (unigrams)', () => {
   });
 
   it('drops tokens under 2 chars and over 20 chars', () => {
-    const toks = tokenize('w fireeeeeeeeeeeeeeeeeeeeee banger');
+    const toks = tokenize('w 7 fireeeeeeeeeeeeeeeeeeeeee banger');
     expect(toks.unigrams).not.toContain('w');
+    expect(toks.unigrams).not.toContain('7');
     expect(toks.unigrams).toContain('banger');
     expect(toks.unigrams.some(t => t.length > 20)).toBe(false);
   });

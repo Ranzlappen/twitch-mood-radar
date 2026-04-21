@@ -301,7 +301,7 @@ export const HELP_CONTENT = {
 <ul>
   <li><strong>Standalone matching</strong> — "gg" inside "toggle" does NOT count. Only whole tokens are tallied, split on punctuation and whitespace.</li>
   <li><strong>Decay</strong> — Each word's count reflects occurrences in the past ~120 seconds. Older mentions drop off automatically.</li>
-  <li><strong>Emotes</strong> — Emote names (Kappa, PogChamp, …) count as words. URLs and pure numbers are ignored.</li>
+  <li><strong>Emotes</strong> — Emote names (Kappa, PogChamp, …) count as words. URLs are stripped; numbers count as regular tokens and can be added to the stopwords list below if you want them suppressed.</li>
   <li><strong>Within-message dedupe</strong> — One user typing "gg gg gg gg" in one message is +1 for "gg", not +4.</li>
   <li><strong>Stopwords</strong> — Common function words (the, and, to, is, …) are filtered by default. Click the &#9881; icon in the title bar to add your own or unblock defaults; your list is saved locally.</li>
   <li><strong>Bot filter</strong> — Messages from detected bots are skipped when the bot filter is on, same as every other module.</li>
