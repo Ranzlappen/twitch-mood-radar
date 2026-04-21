@@ -378,6 +378,20 @@ export function registerFeedInfoDrawers() {
       value: state.filteredFeedFontSize, min: 0.1, max: 20, step: 0.05,
       onInput: updateFilteredFeedFontSize,
     }));
+    // Secondary action: open the full filter editor modal. The editor is
+    // complex enough (simple/advanced tabs, chip inputs, regex, username,
+    // history) to warrant its own overlay — this drawer links to it.
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'filter-btn filter-btn-primary';
+    editBtn.style.cssText = 'margin-top:4px;width:100%;padding:10px';
+    editBtn.textContent = 'Edit filter (regex / chips / username)';
+    editBtn.addEventListener('click', () => {
+      // Close the info drawer first so the filter modal isn't covered.
+      import('./infoDrawer.js').then(m => m.closeInfoDrawer());
+      openFilterModal();
+    });
+    body.appendChild(editBtn);
   }, { title: 'FILTERED FEED' });
 }
 
