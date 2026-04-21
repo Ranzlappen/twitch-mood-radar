@@ -22,7 +22,7 @@ if (workbox) {
     { url: '/css/link-modal.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '12' },
-    { url: '/js/config.js', revision: '12' },
+    { url: '/js/config.js', revision: '13' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
