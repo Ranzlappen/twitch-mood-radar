@@ -41,9 +41,9 @@ if (workbox) {
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '7' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '8' },
     { url: '/js/platform/RumbleAdapter.js', revision: '9' },
-    { url: '/js/platform/ConnectionManager.js', revision: '2' },
+    { url: '/js/platform/ConnectionManager.js', revision: '3' },
     { url: '/js/platform/emotes.js', revision: '4' },
     // History (IndexedDB)
     { url: '/js/history/historyDb.js', revision: '1' },
