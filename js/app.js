@@ -19,7 +19,8 @@ import {
   openFilterModal, closeFilterModal, onFilterModalInput,
   applyFilterModal, clearFilterModal, setFilterTab,
   selectFilterHistoryItem, deleteFilterHistoryItem,
-  updateFilterTriggerButton, refreshUserDatalist
+  updateFilterTriggerButton, refreshUserDatalist,
+  registerFeedInfoDrawers, attachFeedInfoButtons,
 } from './ui/feeds.js';
 import {
   loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
@@ -285,16 +286,17 @@ window.onload = function () {
   if (bsSlider) bsSlider.value = state.bubbleScale;
   document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
 
-  // Init feed font size slider
-  const feedSlider = document.getElementById('feedFontSlider');
-  if (feedSlider) feedSlider.value = state.feedFontSize;
-  document.getElementById('feedFontVal').textContent = state.feedFontSize.toFixed(2);
+  // Per-module info drawers: register settings builders + attach the "ⓘ"
+  // button on each card title row.
+  registerFeedInfoDrawers();
+  attachFeedInfoButtons();
+
+  // Init feed font size — slider lives inside the feedCard info drawer
+  // (rebuilt each time the drawer opens), so the DOM elements may not
+  // exist yet at load time. Only applyFeedFontSize() affects the rendered list.
   applyFeedFontSize();
 
-  // Init filtered feed font size slider
-  const filteredFeedSlider = document.getElementById('filteredFeedFontSlider');
-  if (filteredFeedSlider) filteredFeedSlider.value = state.filteredFeedFontSize;
-  document.getElementById('filteredFeedFontVal').textContent = state.filteredFeedFontSize.toFixed(2);
+  // Init filtered feed font size (slider in filteredFeedCard info drawer)
   applyFilteredFeedFontSize();
 
   // Init filtered-feed filter from storage (regex + username substring)
@@ -305,10 +307,7 @@ window.onload = function () {
   refreshUserDatalist();
   updateFilterTriggerButton();
 
-  // Init outlier font size slider
-  const outlierSlider = document.getElementById('outlierFontSlider');
-  if (outlierSlider) outlierSlider.value = state.outlierFontSize;
-  document.getElementById('outlierFontVal').textContent = state.outlierFontSize.toFixed(2);
+  // Init outlier font size (slider in outlierCard info drawer)
   applyOutlierFontSize();
 
   // Init timeline settings sliders

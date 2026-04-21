@@ -501,13 +501,6 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       LIVE FEED
-      <button class="help-btn" onclick="showHelp('feed')" title="About the live feed">?</button>
-    </div>
-    <div class="feed-font-slider-wrap" title="Adjust live feed font size">
-      <span class="feed-font-slider-label">SIZE</span>
-      <input type="range" id="feedFontSlider" min="0.1" max="20" step="0.05" value="2"
-        oninput="updateFeedFontSize(this.value)"/>
-      <span class="feed-font-slider-val" id="feedFontVal">2.00</span>
     </div>
   </div>
   <div class="collapsible-body" id="feedCard-body">
@@ -519,15 +512,8 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       FILTERED FEED
-      <button class="help-btn" onclick="showHelp('filteredFeed')" title="About the filtered feed">?</button>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap">
-      <div class="feed-font-slider-wrap" title="Adjust filtered feed font size">
-        <span class="feed-font-slider-label">SIZE</span>
-        <input type="range" id="filteredFeedFontSlider" min="0.1" max="20" step="0.05" value="2"
-          oninput="updateFilteredFeedFontSize(this.value)"/>
-        <span class="feed-font-slider-val" id="filteredFeedFontVal">2.00</span>
-      </div>
+    <div style="margin-left:auto">
       <div class="filtered-feed-filter-wrap">
         <button type="button" class="filter-trigger-btn" id="filteredFeedFilterBtn"
           onclick="openFilterModal()" title="Edit filter">
@@ -546,13 +532,6 @@ function unlockApp() {
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
       STANDOUT MESSAGES
-      <button class="help-btn" onclick="showHelp('outlier')" title="About standout messages">?</button>
-    </div>
-    <div class="feed-font-slider-wrap" title="Adjust standout feed font size">
-      <span class="feed-font-slider-label">SIZE</span>
-      <input type="range" id="outlierFontSlider" min="0.1" max="20" step="0.05" value="2"
-        oninput="updateOutlierFontSize(this.value)"/>
-      <span class="feed-font-slider-val" id="outlierFontVal">2.00</span>
     </div>
   </div>
   <div class="collapsible-body" id="outlierCard-body">
