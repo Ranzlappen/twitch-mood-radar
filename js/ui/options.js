@@ -8,6 +8,11 @@ import { save, load } from '../utils/storage.js';
 import { resizeBubbleCanvas } from './bubbles.js';
 
 export const RUMBLE_PROXY_STORAGE_KEY = 'moodradar_rumble_proxy_v1';
+export const YT_API_KEY_STORAGE_KEY = 'moodradar_yt_apikey_v1';
+export const YT_DAILY_BUDGET_KEY = 'moodradar_yt_daily_budget_v1';
+export const YT_QUOTA_USAGE_KEY = 'moodradar_yt_quota_usage_v1';
+export const YT_DEFAULT_BUDGET = 9000;
+export const YT_HARD_CAP = 10000;
 
 /* ── helpers ─────────────────────────────────────────── */
 
@@ -321,6 +326,129 @@ export function saveRumbleProxyUrl() {
   } catch {
     showFeedback('Storage blocked', true);
   }
+}
+
+/* ── YouTube Data API key + quota tracking ──────────── */
+
+// Produces today's date in YYYY-MM-DD using local time. YouTube quota actually
+// resets at midnight Pacific, so near the boundary a local tally can be off by
+// up to a day — but we keep a 1000-unit safety margin below the real 10k cap,
+// so a mis-attributed day still can't push past Google's hard quota.
+function _ytToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+export function getYoutubeApiKey() {
+  try { return localStorage.getItem(YT_API_KEY_STORAGE_KEY) || ''; } catch { return ''; }
+}
+
+export function getYoutubeDailyBudget() {
+  try {
+    const n = parseInt(localStorage.getItem(YT_DAILY_BUDGET_KEY), 10);
+    if (!isFinite(n)) return YT_DEFAULT_BUDGET;
+    return Math.max(100, Math.min(YT_HARD_CAP, n));
+  } catch { return YT_DEFAULT_BUDGET; }
+}
+
+export function getYoutubeQuotaUsed() {
+  try {
+    const raw = localStorage.getItem(YT_QUOTA_USAGE_KEY);
+    if (!raw) return 0;
+    const { date, units } = JSON.parse(raw);
+    if (date !== _ytToday()) return 0;
+    return Math.max(0, parseInt(units, 10) || 0);
+  } catch { return 0; }
+}
+
+export function addYoutubeQuotaUsage(units) {
+  const next = getYoutubeQuotaUsed() + Math.max(0, units | 0);
+  try {
+    localStorage.setItem(YT_QUOTA_USAGE_KEY, JSON.stringify({ date: _ytToday(), units: next }));
+  } catch { /* private browsing */ }
+  refreshYoutubeQuotaDisplay();
+  return next;
+}
+
+export function markYoutubeQuotaExhausted() {
+  try {
+    localStorage.setItem(YT_QUOTA_USAGE_KEY, JSON.stringify({ date: _ytToday(), units: YT_HARD_CAP }));
+  } catch { /* private browsing */ }
+  refreshYoutubeQuotaDisplay();
+}
+
+export function isYoutubeBudgetExceeded(pendingUnits) {
+  const pending = Math.max(0, pendingUnits | 0);
+  return getYoutubeQuotaUsed() + pending > getYoutubeDailyBudget();
+}
+
+export function refreshYoutubeQuotaDisplay() {
+  const used = getYoutubeQuotaUsed();
+  const budget = getYoutubeDailyBudget();
+  const usedEl = document.getElementById('optYtQuotaUsed');
+  if (usedEl) {
+    usedEl.textContent = used.toLocaleString() + ' / ' + budget.toLocaleString();
+    usedEl.classList.toggle('warn', used >= budget * 0.85);
+    usedEl.classList.toggle('err', used >= budget);
+  }
+  const budgetValEl = document.getElementById('optYtBudgetVal');
+  if (budgetValEl) budgetValEl.textContent = budget.toLocaleString();
+  const budgetInput = document.getElementById('optYtBudget');
+  if (budgetInput && String(budget) !== budgetInput.value) budgetInput.value = budget;
+}
+
+export function loadYouTubeApiKey() {
+  const input = document.getElementById('optYtApiKey');
+  if (input) input.value = getYoutubeApiKey();
+  refreshYoutubeQuotaDisplay();
+}
+
+export function saveYouTubeApiKey() {
+  const input = document.getElementById('optYtApiKey');
+  const fb = document.getElementById('optYtApiKeySaved');
+  if (!input) return;
+  const raw = input.value.trim();
+
+  const showFeedback = (msg, isErr) => {
+    if (!fb) return;
+    fb.textContent = msg;
+    fb.classList.toggle('err', !!isErr);
+    fb.classList.add('show');
+    clearTimeout(saveYouTubeApiKey._t);
+    saveYouTubeApiKey._t = setTimeout(() => fb.classList.remove('show'), 2500);
+  };
+
+  try {
+    if (raw === '') {
+      localStorage.removeItem(YT_API_KEY_STORAGE_KEY);
+      input.value = '';
+      showFeedback('Cleared', false);
+      return;
+    }
+    // Light validation: Google API keys start with "AIza" and are 39 chars.
+    if (!/^AIza[0-9A-Za-z_-]{35}$/.test(raw)) {
+      showFeedback('Looks off — keys start with AIza', true);
+      return;
+    }
+    localStorage.setItem(YT_API_KEY_STORAGE_KEY, raw);
+    input.value = raw;
+    showFeedback('Saved', false);
+  } catch {
+    showFeedback('Storage blocked', true);
+  }
+}
+
+export function setYouTubeDailyBudget(v) {
+  const n = Math.max(100, Math.min(YT_HARD_CAP, parseInt(v, 10) || YT_DEFAULT_BUDGET));
+  try { localStorage.setItem(YT_DAILY_BUDGET_KEY, String(n)); } catch { /* private browsing */ }
+  refreshYoutubeQuotaDisplay();
+}
+
+export function resetYoutubeQuotaCounter() {
+  try { localStorage.removeItem(YT_QUOTA_USAGE_KEY); } catch { /* private browsing */ }
+  refreshYoutubeQuotaDisplay();
 }
 
 export function resetAllOptions() {

@@ -383,6 +383,59 @@ export const HELP_CONTENT = {
   <li>Tokens expire — if sending fails, generate a new one.</li>
 </ul>`
   },
+  youtubeApiKey: {
+    title: 'YOUTUBE API KEY — FREE SETUP',
+    body: `<p>YouTube blocks browser-only chat polling via CORS. The clean workaround is a <strong>free YouTube Data API v3 key</strong> from Google Cloud. <strong>No billing required.</strong></p>
+<h4 style="margin:12px 0 6px;color:#00ffe5">COST: $0 — GUARANTEED</h4>
+<ul>
+  <li>YouTube Data API v3 has a <strong>hard daily cap of 10,000 units</strong>. When hit, requests return HTTP 403 — Google does <strong>not</strong> charge overage.</li>
+  <li>You can only be charged if you (a) submit a quota-increase form, (b) wait for approval, and (c) manually enable billing. None of this happens automatically.</li>
+  <li>This app adds a second safety layer: a local budget (default 9,000) that pauses polling before Google's cap.</li>
+</ul>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 1 — CREATE A GOOGLE CLOUD PROJECT</h4>
+<ol>
+  <li>Go to <strong>console.cloud.google.com</strong> and sign in with any Google account.</li>
+  <li>Click the project dropdown at the top → <strong>"New Project"</strong>. Name it anything (e.g. <code>mood-radar</code>). Leave "Organization" as-is. Click <strong>Create</strong>.</li>
+  <li>Select the new project from the dropdown.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 2 — ENABLE THE YOUTUBE DATA API</h4>
+<ol>
+  <li>In the search bar at top, type <strong>"YouTube Data API v3"</strong>.</li>
+  <li>Click the result → click <strong>Enable</strong>.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 3 — CREATE AN API KEY</h4>
+<ol>
+  <li>In the left nav: <strong>APIs & Services → Credentials</strong>.</li>
+  <li>Click <strong>"+ Create credentials" → "API key"</strong>.</li>
+  <li>Copy the key (starts with <code>AIza...</code>).</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 4 — RESTRICT THE KEY (recommended)</h4>
+<p>Click <strong>"Edit API key"</strong> on the key you just made and add these restrictions — extra safety in case the key ever leaks:</p>
+<ul>
+  <li><strong>Application restrictions:</strong> "HTTP referrers" → add your domain (e.g. <code>*.ranzlappen.com/*</code>) plus <code>http://localhost/*</code> if you run it locally.</li>
+  <li><strong>API restrictions:</strong> "Restrict key" → select only <strong>YouTube Data API v3</strong>.</li>
+</ul>
+<p>This is optional but strongly recommended. An unrestricted key leaked on the web could be used by others, burning through your 10k daily quota.</p>
+<h4 style="margin:12px 0 6px;color:var(--accent)">STEP 5 — PASTE IT HERE</h4>
+<ol>
+  <li>Paste the key into the <strong>API KEY</strong> field in this drawer.</li>
+  <li>Click <strong>Save</strong>.</li>
+  <li>Connect a YouTube channel that's currently live — chat will start flowing.</li>
+</ol>
+<h4 style="margin:12px 0 6px;color:var(--accent)">QUOTA ARITHMETIC</h4>
+<ul>
+  <li>Each poll for new messages = <strong>5 units</strong>. Each initial connect = <strong>1 unit</strong> extra.</li>
+  <li>At Google's typical polling interval (~2s), 9,000 units ≈ <strong>1,800 polls ≈ 1 hour</strong> of continuous chat.</li>
+  <li>Busy channels return a shorter polling interval, so real-world yield varies.</li>
+  <li>Multiple YouTube feeds at once share the same daily counter.</li>
+</ul>
+<h4 style="margin:12px 0 6px;color:#ff4800">NOTES</h4>
+<ul>
+  <li>The key is stored <strong>locally in your browser</strong> only (localStorage). Never uploaded.</li>
+  <li>The local usage counter resets at your <strong>local midnight</strong>. Google's real counter resets at <strong>midnight Pacific Time</strong>. If you burn near the cap right at local midnight, the daily budget protects you from drift.</li>
+  <li>If Google ever returns 403 <code>quotaExceeded</code>, the app marks the day as exhausted until local midnight — reconnect attempts won't burn through.</li>
+</ul>`
+  },
   rumbleWorker: {
     title: 'RUMBLE CHAT PROXY — SETUP',
     body: `<p><strong>Rumble sits behind Cloudflare's bot protection</strong>, which now rejects fetches from every major free serverless provider — Cloudflare Workers, Deno Deploy, Vercel, Netlify. Any proxy running on a known datacenter IP receives a "Just a moment..." challenge page instead of chat HTML.</p>
