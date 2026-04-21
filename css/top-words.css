@@ -57,6 +57,7 @@
 .top-words-row:last-child { border-bottom: none; }
 
 .top-words-row .tw-rank {
+  grid-column: 1;
   font-family: 'Orbitron', sans-serif;
   font-size: calc(var(--tw-base) * 0.8);
   font-weight: 700;
@@ -69,6 +70,7 @@
 }
 
 .top-words-row .tw-emote {
+  grid-column: 2;
   /* Slider value is a px ceiling; the cqh-based min() keeps the emote
      from ever exceeding ~2.2x the text base so it never crowds the row. */
   width:  min(var(--tw-emote-size), calc(var(--tw-base) * 2.2));
@@ -80,9 +82,14 @@
   position: relative;
   z-index: 1;
 }
+/* display:none removes the img from layout; the explicit grid-column
+   assignments on each sibling cell keep the rest of the row pinned to
+   the right tracks so empty emote rows don't shift the word into the
+   narrow emote track or push the count out of the right-hand column. */
 .top-words-row .tw-emote[hidden] { display: none; }
 
 .top-words-row .tw-word {
+  grid-column: 3;
   font-size: calc(var(--tw-base) * 1.15);
   color: var(--text);
   white-space: nowrap;
@@ -96,6 +103,7 @@
 }
 
 .top-words-row .tw-count {
+  grid-column: 4;
   font-size: calc(var(--tw-base) * 0.95);
   color: var(--accent);
   text-align: right;
