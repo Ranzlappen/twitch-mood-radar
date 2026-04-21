@@ -22,7 +22,7 @@ if (workbox) {
     { url: '/css/link-modal.css', revision: '1' },
     // JS modules
     { url: '/js/app.js', revision: '12' },
-    { url: '/js/config.js', revision: '11' },
+    { url: '/js/config.js', revision: '12' },
     { url: '/js/state.js', revision: '4' },
     { url: '/js/processing.js', revision: '4' },
     // Utils
@@ -41,7 +41,7 @@ if (workbox) {
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
     { url: '/js/platform/TwitchAdapter.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
-    { url: '/js/platform/YouTubeAdapter.js', revision: '10' },
+    { url: '/js/platform/YouTubeAdapter.js', revision: '11' },
     { url: '/js/platform/RumbleAdapter.js', revision: '9' },
     { url: '/js/platform/ConnectionManager.js', revision: '3' },
     { url: '/js/platform/emotes.js', revision: '4' },

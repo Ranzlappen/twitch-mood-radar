@@ -442,7 +442,27 @@ export const HELP_CONTENT = {
   <li>The key is stored <strong>locally in your browser</strong> only (localStorage). Never uploaded.</li>
   <li>The local usage counter resets at your <strong>local midnight</strong>. Google's real counter resets at <strong>midnight Pacific Time</strong>. If you burn near the cap right at local midnight, the daily budget protects you from drift.</li>
   <li>If Google ever returns 403 <code>quotaExceeded</code>, the app marks the day as exhausted until local midnight — reconnect attempts won't burn through.</li>
-</ul>`
+</ul>
+<h4 style="margin:12px 0 6px;color:var(--accent)">IF 10,000 UNITS ISN'T ENOUGH</h4>
+<p>There are two legitimate ways to get more quota. Neither forces you into paid overages for YouTube Data API v3 — the per-unit cost stays $0 either way.</p>
+<p><strong>Option A — Request a quota increase on the same project</strong></p>
+<ol>
+  <li>Go to <strong>console.cloud.google.com</strong> → select your project.</li>
+  <li>Left nav: <strong>APIs & Services → Quotas & System Limits</strong> (older UI says just "Quotas").</li>
+  <li>In the filter bar at top: set <strong>Service = "YouTube Data API v3"</strong>.</li>
+  <li>Find the row <strong>"Queries per day"</strong> (value: 10,000).</li>
+  <li>Check the row's box → click <strong>"Edit Quotas"</strong> at the top of the table.</li>
+  <li>Google will require you to <strong>link a billing account</strong> to submit the request. Linking a billing account does <em>not</em> auto-charge you for Data API v3 — it stays at $0/unit. But be aware: other Google APIs you might enable on the same project can charge. That's why we recommended restricting the key to YouTube Data API only.</li>
+  <li>Enter your desired quota (e.g. 50,000) and a justification ("personal chat analytics tool, N concurrent live streams"). Submit.</li>
+  <li>Google reviews manually. Approval can take days to weeks and isn't guaranteed. Small increases for hobby projects are often approved.</li>
+</ol>
+<p><strong>Option B — Create a second Google Cloud project</strong></p>
+<ol>
+  <li>Each project gets its own independent 10,000-unit daily quota.</li>
+  <li>In the same Google account, create a second project, enable YouTube Data API v3 on it, create a second API key.</li>
+  <li>You'd need app support to rotate between keys — this app only holds one key at a time, so Option A is the practical path here.</li>
+</ol>
+<p>For most users, 10,000 units at a 5-second poll interval (~2.5h of chat) is plenty. Raise the <strong>MIN POLL</strong> slider first — 10s gives ~5h, 30s gives ~15h, before you go through the quota-request process.</p>`
   },
   rumbleWorker: {
     title: 'RUMBLE CHAT PROXY — SETUP',
