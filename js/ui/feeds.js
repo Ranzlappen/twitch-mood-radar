@@ -36,7 +36,7 @@ import {
  * @param {string} [item.platform]
  * @returns {HTMLElement}
  */
-export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 0, platform = '' }) {
+export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 0, platform = '', badges = null }) {
   const isBot = mood === 'bot';
   const el = document.createElement('div');
   el.className = 'feed-item' + (isBot ? ' feed-bot' : '');
@@ -49,6 +49,27 @@ export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 
   platDot.title = platform || '';
   el.appendChild(platDot);
 
+  // Wrap badges + username in a single grid cell so the fixed-column
+  // feed-item layout (see css/feeds.css .feed-item grid-template-columns)
+  // stays aligned regardless of how many badges the chatter has.
+  const userWrap = document.createElement('span');
+  userWrap.className = 'feed-user-wrap';
+
+  if (Array.isArray(badges) && badges.length) {
+    for (const b of badges) {
+      if (!b || !b.url) continue;
+      const img = document.createElement('img');
+      img.className = 'feed-badge';
+      img.src = b.url;
+      img.alt = b.title || '';
+      img.title = b.title || '';
+      img.referrerPolicy = 'no-referrer';
+      img.loading = 'lazy';
+      img.onerror = () => { img.remove(); };
+      userWrap.appendChild(img);
+    }
+  }
+
   const userSpan = document.createElement('span');
   userSpan.className = 'feed-user';
   userSpan.dataset.user = safeUser;
@@ -56,7 +77,8 @@ export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 
   userSpan.setAttribute('role', 'button');
   userSpan.tabIndex = 0;
   userSpan.textContent = safeUser;
-  el.appendChild(userSpan);
+  userWrap.appendChild(userSpan);
+  el.appendChild(userWrap);
 
   const msgSpan = document.createElement('span');
   msgSpan.className = 'feed-msg';
@@ -136,9 +158,9 @@ export class FeedRenderer {
   /**
    * Queue a feed item for rendering on the next animation frame.
    */
-  add(user, msg, mood, botScore, approvalVote, platform) {
+  add(user, msg, mood, botScore, approvalVote, platform, badges) {
     if (this._filterFn && !this._filterFn(user, msg, mood, botScore, approvalVote)) return;
-    this._pending.push({ user, msg, mood, botScore: botScore || 0, approvalVote: approvalVote || 0, platform: platform || '' });
+    this._pending.push({ user, msg, mood, botScore: botScore || 0, approvalVote: approvalVote || 0, platform: platform || '', badges: badges || null });
     if (!this._rafId) this._rafId = requestAnimationFrame(() => this.flush());
   }
 
@@ -152,7 +174,7 @@ export class FeedRenderer {
     this._pending = [];
     while (list.firstChild) list.removeChild(list.firstChild);
     for (const it of items) {
-      this.add(it.user, it.msg, it.mood, it.botScore, it.approvalVote, it.platform);
+      this.add(it.user, it.msg, it.mood, it.botScore, it.approvalVote, it.platform, it.badges);
     }
   }
 
@@ -662,7 +684,8 @@ export function onFilterModalInput() {
   for (const rec of matches.slice().reverse()) {
     frag.appendChild(buildFeedItemEl({
       user: rec.user, msg: rec.msg, mood: rec.mood,
-      botScore: rec.botScore, approvalVote: rec.approvalVote, platform: rec.platform
+      botScore: rec.botScore, approvalVote: rec.approvalVote, platform: rec.platform,
+      badges: rec.badges
     }));
   }
   previewEl.innerHTML = '';

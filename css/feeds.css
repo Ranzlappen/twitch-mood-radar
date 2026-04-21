@@ -19,9 +19,11 @@
 .feed-plat-kick    { background:#53fc18 }
 .feed-plat-rumble  { background:#85c742 }
 @keyframes fadeIn { from { opacity:0; transform:translateY(3px) } }
+.feed-user-wrap { display:inline-flex; align-items:center; gap:2px; min-width:0; overflow:hidden }
 .feed-user { color:var(--accent); min-width:66px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .feed-msg { color:#6a6a8e; word-break:break-word; white-space:normal }
 .chat-emote { display:inline-block; height:1.5em; vertical-align:middle; margin:0 1px; }
+.feed-badge { height:1em; width:1em; flex-shrink:0; vertical-align:-0.15em; image-rendering:-webkit-optimize-contrast; }
 .feed-meta { display:flex; align-items:center; gap:5px; flex-shrink:0 }
 .feed-mood { font-size:.68em; padding:1px 4px; border-radius:4px; white-space:nowrap; text-align:center; display:inline-block; min-width:52px; max-width:72px; overflow:hidden; text-overflow:ellipsis }
 .feed-apv { display:flex; align-items:center; gap:3px }
