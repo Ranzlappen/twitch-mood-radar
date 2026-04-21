@@ -13,7 +13,7 @@ import { state } from '../state.js';
 // Placeholder format injected by adapters:
 //   [emote:<source>:<id>:<name>]             — 3 parts
 //   [emote:<source>:<extra>:<id>:<name>]     — 4 parts (Kick sometimes wraps an extra token)
-const PLACEHOLDER_RE = /\[emote:(twitch|kick)(?::[^:\]]+)?:(\d+):([A-Za-z0-9_]+)\]/g;
+const PLACEHOLDER_RE = /\[emote:(twitch|kick)(?::[^:\]]+)?:([A-Za-z0-9_]+):([A-Za-z0-9_]+)\]/g;
 
 const CDN = {
   twitch: (id) => `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/1.0`,

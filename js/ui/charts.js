@@ -6,6 +6,7 @@ import { MOODS, MOOD_COLORS } from '../config.js';
 import { hexAlpha, lerpColor } from '../utils/color.js';
 import { computeWeightedMoods } from '../analysis/ewma.js';
 import { initBubbles } from './bubbles.js';
+import { initTopWords } from './topWords.js';
 
 /* ── plugins ─────────────────────────────────────────── */
 
@@ -89,22 +90,7 @@ export function initCharts() {
     }
   });
 
-  const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-  state.radarChart = new Chart(document.getElementById('radarChart'), {
-    type: 'radar',
-    data: {
-      labels: moodsForWeb.map(m => m.toUpperCase()),
-      datasets: [{ label: 'Mood Weight', data: moodsForWeb.map(() => 0), fill: true,
-        backgroundColor: 'rgba(0,255,229,.09)', borderColor: '#00ffe5', borderWidth: 2.5,
-        pointBackgroundColor: '#00ffe5', pointBorderColor: '#06060f', pointRadius: 4, pointHoverRadius: 7 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 400, easing: 'easeOutCubic' },
-      scales: { r: { min: 0, max: 10, ticks: { display: false }, grid: { color: 'rgba(255,255,255,.055)' }, angleLines: { color: 'rgba(255,255,255,.065)' }, pointLabels: { color: '#7a7aaa', font: { family: 'Share Tech Mono', size: 10, weight: '700' } } } },
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.chart.data.labels[c.dataIndex]}: ${c.parsed.r.toFixed(1)}%` }, backgroundColor: '#0d0d1f', borderColor: '#1a1a36', borderWidth: 1 } }
-    }
-  });
+  initTopWords();
 
   // Approval tick marks
   const tickContainer = document.getElementById('approvalTicks');

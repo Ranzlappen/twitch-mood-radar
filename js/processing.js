@@ -4,9 +4,11 @@ import { MOODS, MOOD_COLORS, QUEUE_CAP } from './config.js';
 import { classifyMessage } from './analysis/sentiment.js';
 import { detectBot } from './analysis/botDetector.js';
 import { computeWeightedMoods, computeKeywordWeights, getDominant } from './analysis/ewma.js';
+import { recordMessage as recordTopWord, getTop as getTopWords, clear as clearTopWords } from './analysis/topWords.js';
 import { hexAlpha } from './utils/color.js';
 import { fmtNum, setStatus, sanitize } from './utils/dom.js';
 import { updateBubbles } from './ui/bubbles.js';
+import { updateTopWords, clearTopWordsUI } from './ui/topWords.js';
 import { updateApprovalMeter } from './ui/approval-meter.js';
 import { pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot } from './ui/charts.js';
 import { enqueueHistory } from './history/historyDb.js';
@@ -41,9 +43,9 @@ function _emitProcessed(rec) {
   for (const fn of _processedSubs) { try { fn(rec); } catch { /* ignore */ } }
 }
 
-export function enqueue(user, msg, ts, platform, channel) {
+export function enqueue(user, msg, ts, platform, channel, badges) {
   if (state.msgQueue.length >= QUEUE_CAP) { state.msgQueue.shift(); state.droppedMessages++; }
-  state.msgQueue.push({ user, msg, ts, platform: platform || '', channel: channel || '' });
+  state.msgQueue.push({ user, msg, ts, platform: platform || '', channel: channel || '', badges: badges || null });
 }
 
 export function processingLoop() {
@@ -54,7 +56,7 @@ export function processingLoop() {
   const n = Math.min(state.msgQueue.length, burst);
 
   for (let i = 0; i < n; i++) {
-    const { user, msg, ts, platform, channel } = state.msgQueue.shift();
+    const { user, msg, ts, platform, channel, badges } = state.msgQueue.shift();
     // Derive userKey the same way feeds.js does so click-to-history matches.
     const userKey = sanitize(user || '').toLowerCase();
     if (state.botFilterEnabled) {
@@ -63,16 +65,17 @@ export function processingLoop() {
         state.botMessagesFiltered++;
         state.botUsersDetected.add(user);
         if (i % 5 === 0 && _mainFeed) {
-          _mainFeed.add(user, msg, 'bot', botScore, 0, platform);
-          if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform);
+          _mainFeed.add(user, msg, 'bot', botScore, 0, platform, badges);
+          if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform, badges);
         }
-        const botRec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true };
+        const botRec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true, badges: badges || null };
         enqueueHistory(botRec);
         _emitProcessed(botRec);
         continue;
       }
     }
     const { mood, strength, hits, approvalVote } = classifyMessage(msg);
+    recordTopWord(msg, ts);
     state.scoredMessages.push({ ts, mood, strength });
     state.uniqueUsers.add(user);
     state.totalMessages++;
@@ -83,17 +86,17 @@ export function processingLoop() {
       state.keywordStore.get(label).push({ ts, w: weight, mood: m });
     }
     if (i % 5 === 0 && _mainFeed) {
-      _mainFeed.add(user, msg, mood, 0, approvalVote, platform);
-      if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform);
+      _mainFeed.add(user, msg, mood, 0, approvalVote, platform, badges);
+      if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform, badges);
     }
-    const rec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false };
+    const rec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false, badges: badges || null };
     enqueueHistory(rec);
     _emitProcessed(rec);
     // Outlier detection: flag messages whose mood is underrepresented
     if (mood !== 'neutral' && strength >= 1.0 && state.totalMessages > 20) {
       const pct = computeWeightedMoods(ts);
       if (pct && pct[mood] < 15 && _outlierFeed) {
-        _outlierFeed.add(user, msg, mood, 0, approvalVote, platform);
+        _outlierFeed.add(user, msg, mood, 0, approvalVote, platform, badges);
       }
     }
   }
@@ -121,19 +124,8 @@ export function updateVisuals() {
 
   const kwList = computeKeywordWeights(now);
 
-  // Update radar chart
-  if (pct && state.radarChart) {
-    const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-    const radarData = moodsForWeb.map(m => Math.round(pct[m]));
-    state.radarChart.data.datasets[0].data = radarData;
-    const radarMax = Math.max(...radarData);
-    state.radarChart.options.scales.r.max = Math.max(10, Math.ceil(radarMax * 1.15));
-    const rc = MOOD_COLORS[dominant];
-    state.radarChart.data.datasets[0].borderColor = rc;
-    state.radarChart.data.datasets[0].backgroundColor = hexAlpha(rc, 0.1);
-    state.radarChart.data.datasets[0].pointBackgroundColor = rc;
-    state.radarChart.update('none');
-  }
+  // Update top-10 substrings
+  updateTopWords(getTopWords(10, now));
 
   updateBubbles(kwList.slice(0, (state.drawerOptions.bubbleCount || 22) + 6).map((k, i) => ({ ...k, count: i + 1 })));
 
@@ -149,7 +141,7 @@ export function updateVisuals() {
     alertEl.classList.add('show');
     clearTimeout(alertEl._t);
     alertEl._t = setTimeout(() => alertEl.classList.remove('show'), 5000);
-    ['pieCard', 'radarCard'].forEach(id => {
+    ['pieCard', 'topWordsCard'].forEach(id => {
       const el = document.getElementById(id);
       el.classList.add('flush');
       clearTimeout(el._ft);
@@ -217,16 +209,9 @@ export function flushChatterData() {
     state.pieChart.update('none');
   }
 
-  // -- Radar chart: reset to all zeros --
-  if (state.radarChart) {
-    const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-    state.radarChart.data.datasets[0].data = moodsForWeb.map(() => 0);
-    state.radarChart.options.scales.r.max = 10;
-    state.radarChart.data.datasets[0].borderColor = '#00ffe5';
-    state.radarChart.data.datasets[0].backgroundColor = 'rgba(0,255,229,.09)';
-    state.radarChart.data.datasets[0].pointBackgroundColor = '#00ffe5';
-    state.radarChart.update('none');
-  }
+  // -- Top 10 substrings: reset counts and UI --
+  clearTopWords();
+  clearTopWordsUI();
 
   // -- Timeline charts: fill with null --
   [state.timelineLinearChart, state.timelineLogChart].filter(Boolean).forEach(ch => {

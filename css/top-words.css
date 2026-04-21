@@ -1,0 +1,123 @@
+/* ============================================================
+   TOP-10 SUBSTRINGS CARD
+   The parent .chart-wrap enforces aspect-ratio:1; the list
+   flex-grows to fill it.
+   ============================================================ */
+.top-words-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.top-words-row {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 42px;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "rank word count"
+    "rank bar  bar";
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 2px;
+  padding: 2px 2px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.top-words-row:last-child { border-bottom: none; }
+
+.top-words-row .tw-rank {
+  grid-area: rank;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7em;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--muted);
+  text-align: right;
+}
+
+.top-words-row .tw-word {
+  grid-area: word;
+  font-size: .88em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-words-row .tw-count {
+  grid-area: count;
+  font-size: .72em;
+  color: var(--accent);
+  text-align: right;
+  font-weight: 700;
+}
+
+.top-words-row .tw-bar-wrap {
+  grid-area: bar;
+  height: 4px;
+  background: rgba(255,255,255,.04);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.top-words-row .tw-bar {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2, #9b6ef3));
+  transition: width .4s ease;
+}
+
+.top-words-row.tw-empty .tw-word { color: rgba(255,255,255,.15); }
+.top-words-row.tw-empty .tw-count { color: transparent; }
+
+/* Ensure the list wrapper doesn't clip rows when the card is short */
+#topWordsCard .chart-wrap { overflow: hidden; }
+
+/* ============================================================
+   STOPWORDS MODAL — reuses .help-overlay + .help-modal
+   ============================================================ */
+.stopwords-overlay[hidden] { display: none; }
+.stopwords-modal { max-width: 520px; }
+.stopwords-hint {
+  font-size: .75em;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.stopwords-field { margin-bottom: 14px; }
+.stopwords-field-label {
+  display: block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .62em;
+  letter-spacing: .18em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.stopwords-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.stopwords-reset {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .68em;
+  letter-spacing: .1em;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.stopwords-reset:hover { color: var(--accent2); border-color: var(--accent2); }
+
+/* ============================================================
+   Title-bar icon button (⚙) sits next to the help (?) button
+   ============================================================ */
+#topWordsEditStopwords { margin-left: 2px; }

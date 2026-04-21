@@ -247,6 +247,21 @@ function _buildRow(r) {
   const mid = document.createElement('span');
   mid.className = 'user-history-meta-mid';
 
+  if (Array.isArray(r.badges) && r.badges.length) {
+    for (const b of r.badges) {
+      if (!b || !b.url) continue;
+      const img = document.createElement('img');
+      img.className = 'feed-badge';
+      img.src = b.url;
+      img.alt = b.title || '';
+      img.title = b.title || '';
+      img.referrerPolicy = 'no-referrer';
+      img.loading = 'lazy';
+      img.onerror = () => { img.remove(); };
+      mid.appendChild(img);
+    }
+  }
+
   const userSpan = document.createElement('span');
   userSpan.className = 'feed-user';
   userSpan.dataset.user = safeUser;

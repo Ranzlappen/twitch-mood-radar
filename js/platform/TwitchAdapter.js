@@ -140,15 +140,20 @@ export class TwitchAdapter extends PlatformAdapter {
 
         // Parse IRCv3 tags (atStart === line begins with '@') and rewrite native
         // Twitch emote positions into [emote:twitch:<id>:<name>] placeholders so
-        // renderEmotes() can swap them for CDN images.
+        // renderEmotes() can swap them for CDN images. Also resolve the
+        // `badges` tag against state.twitchBadges so subscriber/mod/VIP badges
+        // can render next to the username downstream.
         let finalMsg = msgText;
+        let badges = null;
         if (atStart) {
           const emotesTag = this._readIrcTag(line, 'emotes');
           if (emotesTag) finalMsg = this._rewriteTwitchEmotes(msgText, emotesTag);
+          const badgesTag = this._readIrcTag(line, 'badges');
+          if (badgesTag) badges = this._resolveBadges(badgesTag);
         }
 
         if (this._onMessageCallback) {
-          this._onMessageCallback({ user, msg: finalMsg, ts: now, platform: 'twitch' });
+          this._onMessageCallback({ user, msg: finalMsg, ts: now, platform: 'twitch', badges });
         }
       }
     };
@@ -235,7 +240,10 @@ export class TwitchAdapter extends PlatformAdapter {
       const colon = group.indexOf(':');
       if (colon < 0) continue;
       const id = group.slice(0, colon);
-      if (!/^\d+$/.test(id)) continue;
+      // Accept numeric IDs (legacy/global emotes) and the modern `emotesv2_*`
+      // form used by subscriber, animated, and channel-point emotes. The public
+      // Twitch CDN serves every ID that appears in the IRC `emotes` tag.
+      if (!/^[A-Za-z0-9_]+$/.test(id)) continue;
       for (const span of group.slice(colon + 1).split(',')) {
         const dash = span.indexOf('-');
         if (dash < 0) continue;
@@ -259,6 +267,23 @@ export class TwitchAdapter extends PlatformAdapter {
     return cps.join('');
   }
 
+  /**
+   * Resolve an IRC `badges` tag value (e.g. "subscriber/12,moderator/1") into
+   * an array of { url, title } pairs using state.twitchBadges. Unknown pairs
+   * are skipped silently so a missing channel-specific version never breaks
+   * the row render.
+   */
+  _resolveBadges(badgesTag) {
+    if (!badgesTag || state.twitchBadges.size === 0) return null;
+    const out = [];
+    for (const pair of badgesTag.split(',')) {
+      if (!pair) continue;
+      const entry = state.twitchBadges.get(pair);
+      if (entry) out.push(entry);
+    }
+    return out.length ? out : null;
+  }
+
   // ------------------------------------------------------------------
   //  Third-party emotes — BTTV, 7TV, FrankerFaceZ
   // ------------------------------------------------------------------
@@ -267,7 +292,8 @@ export class TwitchAdapter extends PlatformAdapter {
     await Promise.all([
       this._fetchBTTVEmotes(roomId),
       this._fetch7TVEmotes(roomId),
-      this._fetchFFZEmotes(channelName)
+      this._fetchFFZEmotes(channelName),
+      this._loadTwitchBadges(roomId)
     ]);
     // Merge: FFZ first (lowest priority), then 7TV, then BTTV (highest priority)
     state.thirdPartyEmotes.clear();
@@ -276,8 +302,41 @@ export class TwitchAdapter extends PlatformAdapter {
     for (const [k, v] of this._bttvEmotes) state.thirdPartyEmotes.set(k, v);
     console.log(
       '[MoodRadar] Loaded ' + state.thirdPartyEmotes.size + ' third-party emotes (BTTV: ' +
-      this._bttvEmotes.size + ', 7TV: ' + this._seventvEmotes.size + ', FFZ: ' + this._ffzEmotes.size + ')'
+      this._bttvEmotes.size + ', 7TV: ' + this._seventvEmotes.size + ', FFZ: ' + this._ffzEmotes.size +
+      '), ' + state.twitchBadges.size + ' Twitch badges'
     );
+  }
+
+  /**
+   * Fetch global + channel chat badges from the public badges.twitch.tv/v1
+   * endpoint (no auth required). Channel-specific versions overwrite the
+   * global defaults on collision so subscriber-tier badges (e.g. 12-month
+   * loyalty art) take precedence over the generic subscriber/0 entry.
+   */
+  async _loadTwitchBadges(roomId) {
+    state.twitchBadges.clear();
+    const ingest = (data) => {
+      const sets = data && data.badge_sets;
+      if (!sets) return;
+      for (const setName of Object.keys(sets)) {
+        const versions = sets[setName] && sets[setName].versions;
+        if (!versions) continue;
+        for (const ver of Object.keys(versions)) {
+          const v = versions[ver];
+          const url = v.image_url_2x || v.image_url_1x || v.image_url_4x;
+          if (!url) continue;
+          state.twitchBadges.set(setName + '/' + ver, { url, title: v.title || setName });
+        }
+      }
+    };
+    try {
+      const [globalRes, channelRes] = await Promise.all([
+        fetch('https://badges.twitch.tv/v1/badges/global/display?language=en'),
+        fetch('https://badges.twitch.tv/v1/badges/channels/' + roomId + '/display?language=en')
+      ]);
+      if (globalRes.ok)  ingest(await globalRes.json());
+      if (channelRes.ok) ingest(await channelRes.json());
+    } catch (e) { console.warn('[MoodRadar] Twitch badge fetch failed:', e.message); }
   }
 
   async _fetchBTTVEmotes(roomId) {

@@ -64,6 +64,11 @@ export const state = {
   ffzEmotes: new Map(),
   thirdPartyEmotes: new Map(),
 
+  // Twitch chat badges, keyed "set/version" -> { url, title }. Populated per
+  // channel on ROOMSTATE; merged global + channel-specific so subscriber-tier
+  // badges override the global subscriber/0 entry.
+  twitchBadges: new Map(),
+
   // Auth
   twitchOAuthToken: '',
   twitchClientId: '',
@@ -74,7 +79,6 @@ export const state = {
 
   // Charts (references)
   pieChart: null,
-  radarChart: null,
   timelineLinearChart: null,
   timelineLogChart: null,
   approvalTimelineChart: null,

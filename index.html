@@ -48,6 +48,7 @@ DATE: 2026-04-02
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/top-words.css">
 <style id="authGateStyles">
   .auth-gate{position:fixed;inset:0;z-index:99999;background:#06060f;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace}
   .auth-gate-box{text-align:center;padding:40px;border:1px solid #1a1a36;border-radius:14px;background:#0d0d1f;box-shadow:0 0 40px rgba(0,255,229,.06);max-width:360px;width:90%}
@@ -405,13 +406,14 @@ function unlockApp() {
       <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
     </div>
   </div>
-  <div class="chart-card resizable" id="radarCard">
+  <div class="chart-card resizable" id="topWordsCard">
     <div class="chart-title card-title">
-      MOOD WEB - INTERACTIVE
-      <button class="help-btn" onclick="showHelp('radar')" title="How the mood web works">?</button>
+      TOP 10 SUBSTRINGS
+      <button class="help-btn" onclick="showHelp('topWords')" title="How substring frequency works">?</button>
+      <button class="help-btn" id="topWordsEditStopwords" title="Edit stopword list" aria-label="Edit stopword list">&#9881;</button>
     </div>
-    <div class="collapsible-body" id="radarCard-body">
-      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    <div class="collapsible-body" id="topWordsCard-body">
+      <div class="chart-wrap"><ol id="topWordsList" class="top-words-list"></ol></div>
     </div>
   </div>
 </div>
@@ -722,14 +724,6 @@ function unlockApp() {
           <input type="checkbox" id="optPieAnimation" checked onchange="setOptPieAnimation(this.checked)">
           <span class="opt-label">Pie animation</span>
         </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optRadarAnimation" checked onchange="setOptRadarAnimation(this.checked)">
-          <span class="opt-label">Radar animation</span>
-        </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optRadarGrid" checked onchange="setOptRadarGrid(this.checked)">
-          <span class="opt-label">Radar grid lines</span>
-        </label>
       </div>
     </details>
 
@@ -858,7 +852,7 @@ function unlockApp() {
       <summary>Card Visibility</summary>
       <div class="opt-content">
         <label class="opt-toggle"><input type="checkbox" id="optShowPie" checked onchange="setOptCardVisibility('pieCard',this.checked)"><span class="opt-label">Mood Distribution</span></label>
-        <label class="opt-toggle"><input type="checkbox" id="optShowRadar" checked onchange="setOptCardVisibility('radarCard',this.checked)"><span class="opt-label">Mood Web</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowTopWords" checked onchange="setOptCardVisibility('topWordsCard',this.checked)"><span class="opt-label">Top 10 Substrings</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowBubble" checked onchange="setOptCardVisibility('bubbleCard',this.checked)"><span class="opt-label">Consensus Bubbles</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowApproval" checked onchange="setOptCardVisibility('approvalCard',this.checked)"><span class="opt-label">Approval Meter</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowApprovalTL" checked onchange="setOptCardVisibility('approvalTimelineCard',this.checked)"><span class="opt-label">Approval Timeline</span></label>

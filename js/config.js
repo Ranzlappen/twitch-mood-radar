@@ -60,7 +60,7 @@ export const DEFAULT_OPTIONS = {
   crtOpacity:1, gridOpacity:1,
   showSubtitle:true, showLegend:true, showDividers:true, compactStats:false,
   bubbleCount:22, bubbleSpeed:1, bubbleOpacity:0.28, bubbleHeight:260,
-  pieLabels:true, pieAnimation:true, radarAnimation:true, radarGrid:true,
+  pieLabels:true, pieAnimation:true,
   timelineHeight:320, tlGrid:true, tlSmooth:true,
   approvalMini:true, approvalVerdict:true,
   wakeLockEnabled:false,
@@ -69,12 +69,12 @@ export const DEFAULT_OPTIONS = {
 };
 
 // --- Resizable Card IDs ---
-export const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','chatInputCard'];
+export const RESIZABLE_IDS = ['pieCard','topWordsCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','chatInputCard'];
 
 // --- Layout Sections ---
 export const LAYOUT_SECTIONS = [
   { id:'pieCard',             label:'Mood Distribution' },
-  { id:'radarCard',           label:'Mood Web' },
+  { id:'topWordsCard',        label:'Top 10 Substrings' },
   { id:'bubbleCard',          label:'Consensus Bubbles' },
   { id:'approvalCard',        label:'Approval Meter' },
   { id:'approvalTimelineCard', label:'Approval Timeline' },
@@ -295,15 +295,16 @@ export const HELP_CONTENT = {
 </ul>
 <p>Message length affects scoring. Longer messages with clear sentiment get higher weight. Very short messages contribute less.</p>`
   },
-  radar: {
-    title: 'INTERACTIVE MOOD WEB',
-    body: `<p>The mood web visualizes all active moods as interconnected nodes.</p>
+  topWords: {
+    title: 'TOP 10 SUBSTRINGS',
+    body: `<p>Shows the ten most-used standalone words across the live chat over the last 2 minutes, ranked by raw frequency.</p>
 <ul>
-  <li><strong>Nodes</strong> — Each node is a mood currently active in chat. Node size reflects its weighted percentage.</li>
-  <li><strong>Connections</strong> — Lines connect moods that co-occur frequently. Thicker lines mean stronger co-occurrence.</li>
-  <li><strong>Hover</strong> — Hover over a node to highlight it and its connections. Shows exact percentage.</li>
-  <li><strong>Click</strong> — Click a node to pin-highlight it. Click again or click elsewhere to unpin.</li>
-  <li><strong>Colors</strong> — Each node uses the mood's signature color from the legend.</li>
+  <li><strong>Standalone matching</strong> — "gg" inside "toggle" does NOT count. Only whole tokens are tallied, split on punctuation and whitespace.</li>
+  <li><strong>Decay</strong> — Each word's count reflects occurrences in the past ~120 seconds. Older mentions drop off automatically.</li>
+  <li><strong>Emotes</strong> — Emote names (Kappa, PogChamp, …) count as words. URLs and pure numbers are ignored.</li>
+  <li><strong>Within-message dedupe</strong> — One user typing "gg gg gg gg" in one message is +1 for "gg", not +4.</li>
+  <li><strong>Stopwords</strong> — Common function words (the, and, to, is, …) are filtered by default. Click the &#9881; icon in the title bar to add your own or unblock defaults; your list is saved locally.</li>
+  <li><strong>Bot filter</strong> — Messages from detected bots are skipped when the bot filter is on, same as every other module.</li>
 </ul>`
   },
   bubbles: {
