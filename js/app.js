@@ -7,6 +7,7 @@
 
 import { state, initState } from './state.js';
 import * as config from './config.js';
+import * as settings from './utils/settings.js';
 import { ConnectionManager } from './platform/ConnectionManager.js';
 import { enqueue, processingLoop, flushChatterData } from './processing.js';
 import { initCharts, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
@@ -264,6 +265,10 @@ window.esc = esc;
 //  Initialization
 // =============================================================
 window.onload = function () {
+  // One-shot: migrate scattered v1 localStorage keys into the v2 blob.
+  // Safe to run every load — it only touches fields still at their defaults.
+  try { settings.migrate(); } catch {}
+
   // Initialize state from localStorage
   initState();
 
