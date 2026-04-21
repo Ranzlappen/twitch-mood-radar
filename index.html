@@ -667,47 +667,7 @@ function unlockApp() {
     </details>
 
     <details class="opt-section">
-      <summary>Consensus Bubbles</summary>
-      <div class="opt-content">
-        <div class="opt-row">
-          <span class="opt-label">MAX COUNT</span>
-          <input type="range" id="optBubbleCount" min="5" max="40" step="1" value="22" oninput="setOptBubbleCount(this.value)">
-          <span class="opt-val" id="optBubbleCountVal">22</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">SPEED</span>
-          <input type="range" id="optBubbleSpeed" min="0.1" max="3" step="0.1" value="1" oninput="setOptBubbleSpeed(this.value)">
-          <span class="opt-val" id="optBubbleSpeedVal">1.0x</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">OPACITY</span>
-          <input type="range" id="optBubbleOpacity" min="0.1" max="1" step="0.05" value="0.28" oninput="setOptBubbleOpacity(this.value)">
-          <span class="opt-val" id="optBubbleOpacityVal">28%</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">HEIGHT</span>
-          <input type="range" id="optBubbleHeight" min="80" max="500" step="10" value="260" oninput="setOptBubbleHeight(this.value)">
-          <span class="opt-val" id="optBubbleHeightVal">260px</span>
-        </div>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Charts</summary>
-      <div class="opt-content">
-        <label class="opt-toggle">
-          <input type="checkbox" id="optPieLabels" checked onchange="setOptPieLabels(this.checked)">
-          <span class="opt-label">Pie chart labels</span>
-        </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optPieAnimation" checked onchange="setOptPieAnimation(this.checked)">
-          <span class="opt-label">Pie animation</span>
-        </label>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Timelines</summary>
+      <summary>Timelines (all)</summary>
       <div class="opt-content">
         <div class="opt-row">
           <span class="opt-label">HEIGHT</span>
@@ -721,20 +681,6 @@ function unlockApp() {
         <label class="opt-toggle">
           <input type="checkbox" id="optTlSmooth" checked onchange="setOptTlSmooth(this.checked)">
           <span class="opt-label">Smooth lines (tension)</span>
-        </label>
-      </div>
-    </details>
-
-    <details class="opt-section">
-      <summary>Approval Meter</summary>
-      <div class="opt-content">
-        <label class="opt-toggle">
-          <input type="checkbox" id="optApprovalMini" checked onchange="setOptApprovalMini(this.checked)">
-          <span class="opt-label">Show mini bar chart</span>
-        </label>
-        <label class="opt-toggle">
-          <input type="checkbox" id="optApprovalVerdict" checked onchange="setOptApprovalVerdict(this.checked)">
-          <span class="opt-label">Show verdict text</span>
         </label>
       </div>
     </details>

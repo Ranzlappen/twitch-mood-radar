@@ -22,6 +22,7 @@ import {
   updateFilterTriggerButton, refreshUserDatalist,
   registerFeedInfoDrawers, attachFeedInfoButtons,
 } from './ui/feeds.js';
+import { registerModuleInfoDrawers, attachModuleInfoButtons } from './ui/moduleDrawers.js';
 import {
   loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
   loadRumbleProxyUrl, saveRumbleProxyUrl,
@@ -290,6 +291,8 @@ window.onload = function () {
   // button on each card title row.
   registerFeedInfoDrawers();
   attachFeedInfoButtons();
+  registerModuleInfoDrawers();
+  attachModuleInfoButtons();
 
   // Init feed font size — slider lives inside the feedCard info drawer
   // (rebuilt each time the drawer opens), so the DOM elements may not
