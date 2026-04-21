@@ -11,8 +11,12 @@ export const RUMBLE_PROXY_STORAGE_KEY = 'moodradar_rumble_proxy_v1';
 export const YT_API_KEY_STORAGE_KEY = 'moodradar_yt_apikey_v1';
 export const YT_DAILY_BUDGET_KEY = 'moodradar_yt_daily_budget_v1';
 export const YT_QUOTA_USAGE_KEY = 'moodradar_yt_quota_usage_v1';
+export const YT_MIN_POLL_MS_KEY = 'moodradar_yt_min_poll_ms_v1';
 export const YT_DEFAULT_BUDGET = 9000;
 export const YT_HARD_CAP = 10000;
+export const YT_DEFAULT_MIN_POLL_MS = 5000;
+export const YT_MIN_POLL_FLOOR_MS = 2000;
+export const YT_MIN_POLL_CEIL_MS = 30000;
 
 /* ── helpers ─────────────────────────────────────────── */
 
@@ -384,9 +388,26 @@ export function isYoutubeBudgetExceeded(pendingUnits) {
   return getYoutubeQuotaUsed() + pending > getYoutubeDailyBudget();
 }
 
+export function getYoutubeMinPollMs() {
+  try {
+    const n = parseInt(localStorage.getItem(YT_MIN_POLL_MS_KEY), 10);
+    if (!isFinite(n)) return YT_DEFAULT_MIN_POLL_MS;
+    return Math.max(YT_MIN_POLL_FLOOR_MS, Math.min(YT_MIN_POLL_CEIL_MS, n));
+  } catch { return YT_DEFAULT_MIN_POLL_MS; }
+}
+
+export function setYoutubeMinPollMs(v) {
+  const n = Math.max(YT_MIN_POLL_FLOOR_MS,
+    Math.min(YT_MIN_POLL_CEIL_MS, parseInt(v, 10) || YT_DEFAULT_MIN_POLL_MS));
+  try { localStorage.setItem(YT_MIN_POLL_MS_KEY, String(n)); } catch { /* private browsing */ }
+  refreshYoutubeQuotaDisplay();
+}
+
 export function refreshYoutubeQuotaDisplay() {
   const used = getYoutubeQuotaUsed();
   const budget = getYoutubeDailyBudget();
+  const minPollMs = getYoutubeMinPollMs();
+
   const usedEl = document.getElementById('optYtQuotaUsed');
   if (usedEl) {
     usedEl.textContent = used.toLocaleString() + ' / ' + budget.toLocaleString();
@@ -397,6 +418,21 @@ export function refreshYoutubeQuotaDisplay() {
   if (budgetValEl) budgetValEl.textContent = budget.toLocaleString();
   const budgetInput = document.getElementById('optYtBudget');
   if (budgetInput && String(budget) !== budgetInput.value) budgetInput.value = budget;
+
+  // Poll-interval slider + live projection of quota duration
+  const pollInput = document.getElementById('optYtMinPoll');
+  if (pollInput && String(minPollMs) !== pollInput.value) pollInput.value = minPollMs;
+  const pollValEl = document.getElementById('optYtMinPollVal');
+  if (pollValEl) {
+    const seconds = minPollMs / 1000;
+    // Units-per-hour = (3600 / seconds) polls * 5 units
+    const unitsPerHour = Math.round((3600 / seconds) * 5);
+    const hoursOfQuota = unitsPerHour > 0 ? (budget / unitsPerHour) : 0;
+    const hh = hoursOfQuota >= 10 ? Math.round(hoursOfQuota) + 'h'
+             : hoursOfQuota >= 1 ? hoursOfQuota.toFixed(1) + 'h'
+             : Math.round(hoursOfQuota * 60) + 'm';
+    pollValEl.textContent = seconds + 's · ≈ ' + hh;
+  }
 }
 
 export function loadYouTubeApiKey() {

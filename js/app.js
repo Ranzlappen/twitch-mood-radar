@@ -23,7 +23,8 @@ import {
 import {
   loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
   loadRumbleProxyUrl, saveRumbleProxyUrl,
-  loadYouTubeApiKey, saveYouTubeApiKey, setYouTubeDailyBudget, resetYoutubeQuotaCounter, refreshYoutubeQuotaDisplay,
+  loadYouTubeApiKey, saveYouTubeApiKey, setYouTubeDailyBudget, setYoutubeMinPollMs,
+  resetYoutubeQuotaCounter, refreshYoutubeQuotaDisplay,
 } from './ui/options.js';
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
@@ -165,6 +166,7 @@ window.resetAllOptions = resetAllOptions;
 window.saveRumbleProxyUrl = saveRumbleProxyUrl;
 window.saveYouTubeApiKey = saveYouTubeApiKey;
 window.setYouTubeDailyBudget = setYouTubeDailyBudget;
+window.setYoutubeMinPollMs = setYoutubeMinPollMs;
 window.resetYoutubeQuotaCounter = resetYoutubeQuotaCounter;
 
 // Help

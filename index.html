@@ -839,6 +839,12 @@ function unlockApp() {
           <span class="opt-val" id="optYtBudgetVal">9,000</span>
         </div>
         <div class="opt-row">
+          <span class="opt-label">MIN POLL</span>
+          <input type="range" id="optYtMinPoll" min="2000" max="30000" step="1000" value="5000"
+            oninput="setYoutubeMinPollMs(this.value)">
+          <span class="opt-val" id="optYtMinPollVal">5s · ≈ 2.5h</span>
+        </div>
+        <div class="opt-row">
           <span class="opt-label">USED TODAY</span>
           <span class="opt-val opt-quota-used" id="optYtQuotaUsed">0 / 9,000</span>
         </div>

@@ -18,6 +18,7 @@ import {
   addYoutubeQuotaUsage,
   markYoutubeQuotaExhausted,
   isYoutubeBudgetExceeded,
+  getYoutubeMinPollMs,
 } from '../ui/options.js';
 const YT_INNERTUBE_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
 const YT_CLIENT_VERSION = '2.20260414.01.00';
@@ -338,10 +339,16 @@ export class YouTubeAdapter extends PlatformAdapter {
             const msg = item.snippet?.displayMessage || '';
             if (self._onMessageCallback && msg) self._onMessageCallback({ user, msg, ts, platform: 'youtube' });
           }
-          if (self._polling) self._pollTimer = setTimeout(pollApiKey, Math.max(interval, 2000));
+          if (self._polling) {
+            const floor = getYoutubeMinPollMs();
+            self._pollTimer = setTimeout(pollApiKey, Math.max(interval, floor));
+          }
         } catch (e) {
           console.warn('[MoodRadar] YouTube Data API poll failed, will retry:', e.message);
-          if (self._polling) self._pollTimer = setTimeout(pollApiKey, 5000);
+          if (self._polling) {
+            // On transient errors, back off to at least the configured floor.
+            self._pollTimer = setTimeout(pollApiKey, Math.max(getYoutubeMinPollMs(), 5000));
+          }
         }
       }
       pollApiKey();

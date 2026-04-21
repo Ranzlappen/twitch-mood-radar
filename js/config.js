@@ -425,9 +425,17 @@ export const HELP_CONTENT = {
 <h4 style="margin:12px 0 6px;color:var(--accent)">QUOTA ARITHMETIC</h4>
 <ul>
   <li>Each poll for new messages = <strong>5 units</strong>. Each initial connect = <strong>1 unit</strong> extra.</li>
-  <li>At Google's typical polling interval (~2s), 9,000 units ≈ <strong>1,800 polls ≈ 1 hour</strong> of continuous chat.</li>
-  <li>Busy channels return a shorter polling interval, so real-world yield varies.</li>
-  <li>Multiple YouTube feeds at once share the same daily counter.</li>
+  <li>Units burned per hour = <code>3600 / min-poll-seconds × 5</code>. Yield at 9,000 budget by setting:
+    <ul>
+      <li><strong>2s</strong> (Google minimum) → ≈ 1 hour</li>
+      <li><strong>5s</strong> (default) → ≈ 2.5 hours</li>
+      <li><strong>10s</strong> → ≈ 5 hours</li>
+      <li><strong>30s</strong> (max) → ≈ 15 hours</li>
+    </ul>
+  </li>
+  <li>Use the <strong>MIN POLL</strong> slider in this drawer to stretch the daily quota — the live "≈ Xh" label shows the projected yield.</li>
+  <li>Tradeoff: longer poll interval = more latency before new messages appear. On <em>extremely</em> fast chats (>50 msg/s), very long intervals can drop older messages because each call returns at most 200 items.</li>
+  <li>Multiple YouTube feeds share the same daily counter.</li>
 </ul>
 <h4 style="margin:12px 0 6px;color:#ff4800">NOTES</h4>
 <ul>
