@@ -27,6 +27,13 @@ export const USER_HIST_SCOPE_KEY = 'moodradar_userhistscope_v1';
 export const USER_HIST_SIZE_KEY = 'moodradar_userhistsize_v1';
 export const USER_HIST_POS_KEY  = 'moodradar_userhistpos_v1';
 
+// Justlog (logs.ivr.fi) — third-party chat log archive used by the user-history
+// modal's "Global" scope. Strictly user-initiated; one HTTP call per channel
+// the user picks. Per-channel (not cross-channel) is a property of the justlog
+// data model, not a rate-limit workaround.
+export const JUSTLOG_BASE_URL = 'https://logs.ivr.fi';
+export const JUSTLOG_PAGE_LIMIT = 200;
+
 // User-message history (IndexedDB)
 export const HISTORY_DB_NAME = 'moodradar_history_v1';
 export const HISTORY_DB_VERSION = 1;

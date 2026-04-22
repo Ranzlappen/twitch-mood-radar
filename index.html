@@ -152,7 +152,8 @@ function unlockApp() {
     <div id="userHistoryStats" class="user-history-stats"></div>
     <div class="user-history-controls">
       <label><input type="radio" name="userHistScope" value="channel" checked> This channel</label>
-      <label><input type="radio" name="userHistScope" value="all"> All channels</label>
+      <label><input type="radio" name="userHistScope" value="all"> All channels (local)</label>
+      <label><input type="radio" name="userHistScope" value="justlog"> Global (logs.ivr.fi)</label>
       <label><input type="checkbox" id="userHistBots"> Show bot messages</label>
       <label class="user-hist-font-label">
         Font
@@ -160,6 +161,23 @@ function unlockApp() {
         <span id="userHistFontVal"></span>
       </label>
       <button class="user-hist-clear" onclick="clearCurrentUserHistory()">Clear this user</button>
+    </div>
+    <div id="userHistSources" class="uh-sources" hidden>
+      <div class="uh-sources-row">
+        <span class="uh-sources-label">Sources</span>
+        <span id="uhSourceChips" class="uh-sources-chips"></span>
+        <input id="uhAddSource" class="uh-sources-add" list="uhLoggedChannels"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="+ add channel" />
+        <datalist id="uhLoggedChannels"></datalist>
+        <button id="uhSearchBtn" type="button" class="uh-sources-search">Search 1 channel</button>
+      </div>
+      <div id="uhSuggestRow" class="uh-sources-suggest" hidden></div>
+      <div id="uhSourceStatus" class="uh-sources-status" hidden></div>
+      <div class="uh-sources-note">
+        Messages are fetched from <a href="https://logs.ivr.fi/" target="_blank" rel="noopener">logs.ivr.fi</a>
+        — a community chat-log bot. Coverage is limited to channels it has been invited to and users who haven't opted out.
+      </div>
     </div>
     <div id="userHistoryList" class="user-history-list" role="log"></div>
     <button class="user-hist-load-more" id="userHistLoadMore" hidden>Load older</button>
