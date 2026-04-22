@@ -43,9 +43,42 @@ function _emitProcessed(rec) {
   for (const fn of _processedSubs) { try { fn(rec); } catch { /* ignore */ } }
 }
 
-export function enqueue(user, msg, ts, platform, channel, badges) {
+/**
+ * Build a deterministic content-hash msg_id for platforms that don't expose a
+ * native message UUID (Kick / YouTube / Rumble / Twitch when tag is missing).
+ *
+ * Inputs were chosen so that two ingests of the same wire message collapse to
+ * the same hash regardless of which client observed them, while two genuinely
+ * different messages — same user, same channel, same text, but different
+ * millisecond — produce distinct hashes.
+ *
+ * 64-bit hex (16 chars) is well past the birthday-collision threshold for
+ * the message volumes this app is sized for and keeps the row narrow.
+ */
+function _contentHashId(platform, channel, userKeyOrLogin, tsMs, text) {
+  // FNV-1a 64-bit, BigInt-arithmetic. Pure ES modules, no Web Crypto async,
+  // so we can stay synchronous in the hot path.
+  const PRIME = 1099511628211n;
+  const MASK = (1n << 64n) - 1n;
+  let h = 14695981039346656037n;
+  const s = `${platform}|${channel}|${userKeyOrLogin}|${tsMs}|${text}`;
+  for (let i = 0; i < s.length; i++) {
+    h ^= BigInt(s.charCodeAt(i));
+    h = (h * PRIME) & MASK;
+  }
+  return 'h' + h.toString(16).padStart(16, '0');
+}
+
+export function enqueue(user, msg, ts, platform, channel, badges, msgId, userId) {
   if (state.msgQueue.length >= QUEUE_CAP) { state.msgQueue.shift(); state.droppedMessages++; }
-  state.msgQueue.push({ user, msg, ts, platform: platform || '', channel: channel || '', badges: badges || null });
+  state.msgQueue.push({
+    user, msg, ts,
+    platform: platform || '',
+    channel: channel || '',
+    badges: badges || null,
+    msgId: msgId || null,
+    userId: userId || null,
+  });
 }
 
 export function processingLoop() {
@@ -56,9 +89,13 @@ export function processingLoop() {
   const n = Math.min(state.msgQueue.length, burst);
 
   for (let i = 0; i < n; i++) {
-    const { user, msg, ts, platform, channel, badges } = state.msgQueue.shift();
+    const { user, msg, ts, platform, channel, badges, msgId, userId } = state.msgQueue.shift();
     // Derive userKey the same way feeds.js does so click-to-history matches.
     const userKey = sanitize(user || '').toLowerCase();
+    // Resolve a stable msg_id: native if the adapter supplied one (Twitch
+    // IRCv3 `id`), otherwise a content hash so non-Twitch platforms still
+    // dedup correctly when shipped to the server-side archive.
+    const resolvedMsgId = msgId || _contentHashId(platform || '', channel || '', userKey, ts, msg || '');
     if (state.botFilterEnabled) {
       const { botScore, isBot } = detectBot(user, msg, ts);
       if (isBot) {
@@ -68,7 +105,7 @@ export function processingLoop() {
           _mainFeed.add(user, msg, 'bot', botScore, 0, platform, badges);
           if (_filteredFeed) _filteredFeed.add(user, msg, 'bot', botScore, 0, platform, badges);
         }
-        const botRec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true, badges: badges || null };
+        const botRec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood: 'bot', approvalVote: 0, botScore, isBot: true, badges: badges || null, msgId: resolvedMsgId, userId: userId || null };
         enqueueHistory(botRec);
         _emitProcessed(botRec);
         continue;
@@ -90,7 +127,7 @@ export function processingLoop() {
       _mainFeed.add(user, msg, mood, 0, approvalVote, platform, badges);
       if (_filteredFeed) _filteredFeed.add(user, msg, mood, 0, approvalVote, platform, badges);
     }
-    const rec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false, badges: badges || null };
+    const rec = { user, userKey, msg, ts, platform: platform || '', channel: channel || '', mood, approvalVote: approvalVote || 0, botScore: 0, isBot: false, badges: badges || null, msgId: resolvedMsgId, userId: userId || null };
     enqueueHistory(rec);
     _emitProcessed(rec);
     // Outlier detection: flag messages whose mood is underrepresented

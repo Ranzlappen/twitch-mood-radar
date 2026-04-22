@@ -19,6 +19,10 @@ import { load, save } from '../utils/storage.js';
 const IDX_USER = 'userKey';
 const IDX_TS = 'ts';
 const IDX_USER_CHANNEL_TS = 'user_channel_ts';
+// v2 — added so the supabaseSync batcher can cursor over rows that haven't
+// been pushed upstream yet. Stored as 0 / 1 because IndexedDB indexes do not
+// allow boolean values.
+const IDX_SYNCED = 'synced';
 
 let _db = null;
 let _opening = null;
@@ -77,6 +81,19 @@ function _open() {
         store.createIndex(IDX_TS, 'ts', { unique: false });
         store.createIndex(IDX_USER_CHANNEL_TS, ['userKey', 'channel', 'platform', 'ts'], { unique: false });
       }
+      if (oldVersion < 2) {
+        // Add the synced index. Pre-v2 rows have no `synced` field, so they
+        // don't appear in the index and won't be picked up by the sync
+        // loop — that's intentional: those rows lack msg_id, so we can't
+        // dedup them server-side.
+        const tx = req.transaction;
+        if (tx) {
+          const store = tx.objectStore(HISTORY_DB_STORE);
+          if (!store.indexNames.contains(IDX_SYNCED)) {
+            store.createIndex(IDX_SYNCED, 'synced', { unique: false });
+          }
+        }
+      }
     };
     req.onsuccess = () => { _db = req.result; resolve(_db); };
     req.onerror = () => { resolve(null); };
@@ -114,6 +131,9 @@ export async function initHistoryDb() {
 export function enqueueHistory(rec) {
   if (!isHistoryEnabled()) return;
   if (!rec || !rec.userKey) return;
+  // 0 = unsynced (default for new rows), 1 = pushed to the server archive.
+  // Stored as a number because IndexedDB indexes can't hold booleans.
+  if (rec.synced == null) rec.synced = 0;
   _queue.push(rec);
   if (_queue.length >= HISTORY_FLUSH_BATCH) {
     flushQueue().catch(() => {});
@@ -227,6 +247,62 @@ export async function queryByUser(userKey, opts = {}) {
       c.continue();
     };
     cursorReq.onerror = () => resolve({ rows: [], oldestTs: null, hasMore: false });
+  });
+}
+
+/**
+ * Cursor over rows that haven't been pushed to the server archive yet.
+ * Returns up to `limit` records plus the autoincrement IDs the caller will
+ * need to mark them synced once the upload succeeds.
+ *
+ * Pre-v2 rows have no `synced` field and therefore aren't in the index —
+ * they're invisible here on purpose (no msg_id ⇒ unsafe to dedup server-side).
+ */
+export async function queryUnsynced(limit = 250) {
+  const db = await _open();
+  if (!db) return [];
+  return new Promise((resolve) => {
+    const tx = db.transaction(HISTORY_DB_STORE, 'readonly');
+    const idx = tx.objectStore(HISTORY_DB_STORE).index(IDX_SYNCED);
+    const cursorReq = idx.openCursor(IDBKeyRange.only(0));
+    const out = [];
+    cursorReq.onsuccess = (e) => {
+      const c = e.target.result;
+      if (!c || out.length >= limit) { resolve(out); return; }
+      // Skip rows missing msg_id — defensive, shouldn't happen post-v2.
+      const r = c.value;
+      if (r && r.msgId) out.push(r);
+      c.continue();
+    };
+    cursorReq.onerror = () => resolve(out);
+  });
+}
+
+/**
+ * Flip a batch of rows from synced=0 to synced=1 once the server has acked.
+ * Uses the autoincrement primary key from the records returned by
+ * queryUnsynced so we don't re-read by index.
+ */
+export async function markSynced(ids) {
+  const db = await _open();
+  if (!db || !ids || !ids.length) return 0;
+  return new Promise((resolve) => {
+    const tx = db.transaction(HISTORY_DB_STORE, 'readwrite');
+    const store = tx.objectStore(HISTORY_DB_STORE);
+    let updated = 0;
+    for (const id of ids) {
+      const getReq = store.get(id);
+      getReq.onsuccess = () => {
+        const r = getReq.result;
+        if (r && r.synced !== 1) {
+          r.synced = 1;
+          store.put(r);
+          updated++;
+        }
+      };
+    }
+    tx.oncomplete = () => resolve(updated);
+    tx.onerror = () => resolve(updated);
   });
 }
 

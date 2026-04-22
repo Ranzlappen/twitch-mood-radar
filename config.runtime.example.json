@@ -1,0 +1,10 @@
+{
+  "_comment": "Copy to config.runtime.json (which is gitignored) and fill in your values. The PWA fetches /config.runtime.json on boot; missing or empty fields disable the Supabase sync loop without breaking anything else.",
+  "supabase": {
+    "url": "https://YOUR-PROJECT-REF.supabase.co",
+    "ingestPath": "/functions/v1/ingest"
+  },
+  "turnstile": {
+    "siteKey": "0xAAAAAAAA-YOUR-PUBLIC-SITE-KEY"
+  }
+}

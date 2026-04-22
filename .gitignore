@@ -1,1 +1,6 @@
 node_modules/
+
+# Runtime config — Supabase URL + public Turnstile site key. Not strictly
+# secret (browser fetches /config.runtime.json), but kept out of source so
+# different deployments / forks target different backends.
+/config.runtime.json
