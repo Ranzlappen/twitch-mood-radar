@@ -4,13 +4,13 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '26' },
-    { url: '/index.html', revision: '26' },
+    { url: '/', revision: '27' },
+    { url: '/index.html', revision: '27' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
     { url: '/css/header.css', revision: '1' },
-    { url: '/css/connect.css', revision: '7' },
+    { url: '/css/connect.css', revision: '8' },
     { url: '/css/cards.css', revision: '1' },
     { url: '/css/feeds.css', revision: '5' },
     { url: '/css/filter-modal.css', revision: '3' },
@@ -23,7 +23,7 @@ if (workbox) {
     { url: '/css/top-words.css', revision: '3' },
     // JS modules
     { url: '/js/app.js', revision: '14' },
-    { url: '/js/config.js', revision: '12' },
+    { url: '/js/config.js', revision: '13' },
     { url: '/js/state.js', revision: '6' },
     { url: '/js/processing.js', revision: '8' },
     // Utils
@@ -48,8 +48,9 @@ if (workbox) {
     { url: '/js/platform/RumbleAdapter.js', revision: '9' },
     { url: '/js/platform/ConnectionManager.js', revision: '3' },
     { url: '/js/platform/emotes.js', revision: '5' },
-    // History (IndexedDB)
-    { url: '/js/history/historyDb.js', revision: '1' },
+    // History (IndexedDB + third-party logs)
+    { url: '/js/history/historyDb.js', revision: '2' },
+    { url: '/js/history/justlogClient.js', revision: '1' },
     // UI
     { url: '/js/ui/charts.js', revision: '2' },
     { url: '/js/ui/bubbles.js', revision: '1' },
@@ -60,7 +61,7 @@ if (workbox) {
     { url: '/js/ui/layout.js', revision: '3' },
     { url: '/js/ui/help.js', revision: '4' },
     { url: '/js/ui/wake-lock.js', revision: '1' },
-    { url: '/js/ui/userHistoryModal.js', revision: '4' },
+    { url: '/js/ui/userHistoryModal.js', revision: '5' },
     { url: '/js/ui/filterBuilder.js', revision: '1' },
     { url: '/js/ui/chipInput.js', revision: '1' },
     { url: '/js/ui/emoteModal.js', revision: '1' },

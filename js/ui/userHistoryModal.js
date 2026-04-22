@@ -11,7 +11,8 @@
  *  - a font-size slider for message text inside the list
  *  - persisted controls (bot checkbox, scope, font size) across reloads
  */
-import { queryByUser, userStats, clearUser } from '../history/historyDb.js';
+import { queryByUser, userStats, clearUser, listChannelsForUser } from '../history/historyDb.js';
+import { listChannels as justlogListChannels, fetchUserAcrossChannels } from '../history/justlogClient.js';
 import { attachResizeHandle } from './layout.js';
 import { esc, sanitize } from '../utils/dom.js';
 import { appendMessageSegments } from '../platform/emotes.js';
@@ -39,7 +40,7 @@ const _state = {
   userKey: '',
   channel: null,
   platform: null,
-  scope: 'channel',          // 'channel' | 'all'
+  scope: 'channel',          // 'channel' | 'all' | 'justlog'
   includeBots: false,
   fontSize: FONT_DEFAULT,
   oldestTs: null,
@@ -49,6 +50,10 @@ const _state = {
   // Locally-incremented stats so live appends update the header without
   // re-querying IndexedDB on every message.
   stats: { total: 0, firstTs: null, lastTs: null, moodCounts: {} },
+  // Justlog-scope state: the chips the user has assembled and the abort
+  // handle for the in-flight multi-channel search.
+  justlogChannels: [],       // array of lowercased channel names (deduped)
+  justlogAbort: null,        // AbortController | null
 };
 
 // Persisted defaults — read once at module load; updated whenever the user
@@ -58,7 +63,7 @@ const _persisted = {
   includeBots: load(USER_HIST_BOTS_KEY, false) === true,
   scopePref: (() => {
     const v = loadRaw(USER_HIST_SCOPE_KEY, 'channel');
-    return (v === 'all' || v === 'channel') ? v : 'channel';
+    return (v === 'all' || v === 'channel' || v === 'justlog') ? v : 'channel';
   })(),
   size: (() => {
     const v = load(USER_HIST_SIZE_KEY, null);
@@ -93,6 +98,14 @@ function _fontSlider() { return document.getElementById('userHistFontSlider'); }
 function _fontVal() { return document.getElementById('userHistFontVal'); }
 function _searchInput() { return document.getElementById('userHistSearchInput'); }
 function _searchBtn() { return document.getElementById('userHistSearchBtn'); }
+function _sourcesPanel() { return document.getElementById('userHistSources'); }
+function _sourceChips() { return document.getElementById('uhSourceChips'); }
+function _addSourceInput() { return document.getElementById('uhAddSource'); }
+function _loggedDatalist() { return document.getElementById('uhLoggedChannels'); }
+function _jlSearchBtn() { return document.getElementById('uhSearchBtn'); }
+function _suggestRow() { return document.getElementById('uhSuggestRow'); }
+function _sourceStatus() { return document.getElementById('uhSourceStatus'); }
+function _clearBtn() { return document.querySelector('.user-history-modal .user-hist-clear'); }
 
 /**
  * Clamp an (x, y) point so a w×h modal stays at least partially on screen
@@ -300,7 +313,13 @@ function _buildRow(r) {
 
   const right = document.createElement('span');
   right.className = 'user-history-meta-right';
-  if (isBot) {
+  if (r._source === 'justlog') {
+    const tag = document.createElement('span');
+    tag.className = 'user-history-source-tag';
+    tag.textContent = 'logs.ivr.fi';
+    tag.title = 'Fetched from logs.ivr.fi';
+    right.appendChild(tag);
+  } else if (isBot) {
     const b = document.createElement('span');
     b.className = 'feed-mood mood-bot';
     b.textContent = `BOT ${r.botScore || 0}`;
@@ -350,9 +369,15 @@ function _renderRows(rows, append) {
   if (!append) list.innerHTML = '';
 
   if (!rows.length && !append) {
-    list.innerHTML = '<div class="user-history-empty">No messages logged for this user' +
-      (_state.scope === 'channel' ? ' on this channel.' : '.') +
-      '</div>';
+    let msg;
+    if (_state.scope === 'justlog') {
+      msg = _state.justlogChannels.length
+        ? 'No messages found on logs.ivr.fi for the selected channels.'
+        : 'Pick one or more channels above, then click Search to query logs.ivr.fi.';
+    } else {
+      msg = 'No messages logged for this user' + (_state.scope === 'channel' ? ' on this channel.' : '.');
+    }
+    list.innerHTML = `<div class="user-history-empty">${esc(msg)}</div>`;
     return;
   }
 
@@ -364,6 +389,11 @@ function _renderRows(rows, append) {
 async function _renderStats() {
   const statsEl = _stats();
   if (!statsEl) return;
+  if (_state.scope === 'justlog') {
+    // Justlog stats come from the fetched rows, populated in _runJustlogSearch.
+    _paintStats();
+    return;
+  }
   const scopeOpts = _state.scope === 'channel'
     ? { channel: _state.channel, platform: _state.platform, includeBots: _state.includeBots }
     : { includeBots: _state.includeBots };
@@ -386,21 +416,37 @@ function _paintStats() {
   if (!statsEl) return;
   const s = _state.stats;
   const top = _topMood(s.moodCounts);
-  const scopeText = _state.scope === 'channel' && _state.channel
-    ? `${_state.platform || '?'} / #${_state.channel}`
-    : 'all logged channels';
+  let scopeText;
+  if (_state.scope === 'justlog') {
+    const n = _state.justlogChannels.length;
+    scopeText = n ? `logs.ivr.fi · ${n} channel${n === 1 ? '' : 's'}` : 'logs.ivr.fi';
+  } else if (_state.scope === 'channel' && _state.channel) {
+    scopeText = `${_state.platform || '?'} / #${_state.channel}`;
+  } else {
+    scopeText = 'all logged channels';
+  }
   statsEl.innerHTML =
     `<div class="user-history-stat-row">` +
       `<span><span class="user-history-stat-label">scope</span> ${esc(scopeText)}</span>` +
       `<span><span class="user-history-stat-label">total</span> ${s.total.toLocaleString()}</span>` +
       `<span><span class="user-history-stat-label">first seen</span> ${_fmtRelative(s.firstTs)}</span>` +
       `<span><span class="user-history-stat-label">last seen</span> ${_fmtRelative(s.lastTs)}</span>` +
-      (top ? `<span><span class="user-history-stat-label">top mood</span> ${esc(top)}</span>` : '') +
+      (top && _state.scope !== 'justlog' ? `<span><span class="user-history-stat-label">top mood</span> ${esc(top)}</span>` : '') +
     `</div>`;
 }
 
 async function _loadFirstPage() {
   if (_state.loading) return;
+  if (_state.scope === 'justlog') {
+    // Justlog is lazy: render empty state + Sources panel and wait for the
+    // user to click Search. No network traffic happens here.
+    _renderRows([], false);
+    _state.stats = { total: 0, firstTs: null, lastTs: null, moodCounts: {} };
+    _paintStats();
+    const lm = _loadMore();
+    if (lm) lm.hidden = true;
+    return;
+  }
   _state.loading = true;
   _state.oldestTs = null;
   _state.hasMore = false;
@@ -423,6 +469,7 @@ async function _loadFirstPage() {
 }
 
 async function _loadOlder() {
+  if (_state.scope === 'justlog') return; // "Load older" doesn't apply — results are a snapshot
   if (_state.loading || !_state.hasMore || _state.oldestTs == null) return;
   _state.loading = true;
   const opts = {
@@ -518,9 +565,14 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
   _state.userKey = userKey;
   _state.channel = ctx.channel || _resolveCurrentChannel();
   _state.platform = ctx.platform || _resolveCurrentPlatform();
-  // Respect the persisted scope preference; fall back to 'all' if no channel
-  // is currently live (the "This channel" scope would be empty).
-  _state.scope = (_persisted.scopePref === 'channel' && _state.channel) ? 'channel' : 'all';
+  // Respect the persisted scope preference; downgrade 'channel' to 'all' if
+  // nothing is currently live (the channel scope would be empty anyway).
+  const pref = _persisted.scopePref;
+  if (pref === 'justlog') _state.scope = 'justlog';
+  else if (pref === 'channel' && _state.channel) _state.scope = 'channel';
+  else _state.scope = 'all';
+  _state.justlogChannels = [];
+  _abortJustlog();
   _state.includeBots = _persisted.includeBots;
   _state.fontSize = _persisted.fontSize;
   _state.oldestTs = null;
@@ -549,11 +601,16 @@ export async function openUserHistory(userKey, displayUser, ctx = {}) {
   if (_state.unsubLive) { _state.unsubLive(); _state.unsubLive = null; }
   _state.unsubLive = onMessageProcessed(_onLiveMsg);
 
+  _applyScopeVisibility();
+  if (_state.scope === 'justlog') {
+    await _setupJustlogSources();
+  }
   await _loadFirstPage();
 }
 
 export function closeUserHistory() {
   if (_state.unsubLive) { _state.unsubLive(); _state.unsubLive = null; }
+  _abortJustlog();
   const ov = _overlay();
   if (!ov) return;
   ov.classList.remove('open');
@@ -561,22 +618,236 @@ export function closeUserHistory() {
 }
 
 export async function setUserHistoryScope(scope) {
-  if (scope !== 'channel' && scope !== 'all') return;
+  if (scope !== 'channel' && scope !== 'all' && scope !== 'justlog') return;
+  _abortJustlog();
   _state.scope = scope;
   _persisted.scopePref = scope;
   saveRaw(USER_HIST_SCOPE_KEY, scope);
+  _applyScopeVisibility();
+  if (scope === 'justlog') {
+    await _setupJustlogSources();
+  }
   await _loadFirstPage();
+}
+
+/**
+ * Show/hide the Sources panel and disable controls that don't apply to the
+ * current scope. Remote justlog results can't be filtered by the app's bot
+ * detector (we don't run detection on them) and can't be deleted from this
+ * app, so the relevant controls are greyed out in that scope.
+ */
+function _applyScopeVisibility() {
+  const panel = _sourcesPanel();
+  if (panel) panel.hidden = _state.scope !== 'justlog';
+  const botBox = _botCheckbox();
+  if (botBox) {
+    botBox.disabled = _state.scope === 'justlog';
+    botBox.parentElement.style.opacity = _state.scope === 'justlog' ? '0.45' : '';
+  }
+  const clearBtn = _clearBtn();
+  if (clearBtn) {
+    clearBtn.disabled = _state.scope === 'justlog';
+    clearBtn.title = _state.scope === 'justlog' ? 'Remote source — read-only' : '';
+    clearBtn.style.opacity = _state.scope === 'justlog' ? '0.45' : '';
+  }
+}
+
+/**
+ * Seed the justlog chip list with the current channel (if any) and populate
+ * suggestions/datalist. Called on modal open and on scope change; resets
+ * state so re-entering the scope starts clean.
+ */
+async function _setupJustlogSources() {
+  _state.justlogChannels = _state.channel ? [_state.channel.toLowerCase()] : [];
+  _renderSourceChips();
+  _renderSourceStatus('');
+  await _refreshJustlogSourcesUi();
+}
+
+/**
+ * Refresh the <datalist> and the "seen locally" suggestion row from the
+ * current state without touching the chip list. Used after a chip is added
+ * or removed so the suggestion row doesn't keep showing stale entries.
+ */
+async function _refreshJustlogSourcesUi() {
+  const [logged, localSeen] = await Promise.all([
+    justlogListChannels(),
+    listChannelsForUser(_state.userKey),
+  ]);
+
+  const dl = _loggedDatalist();
+  if (dl && !dl.childElementCount) {
+    // Populate once per session — justlog's channel list is stable enough
+    // and rebuilding the datalist on every chip change is wasteful.
+    const cap = 5000;
+    let i = 0;
+    for (const name of logged) {
+      if (i++ >= cap) break;
+      const opt = document.createElement('option');
+      opt.value = name;
+      dl.appendChild(opt);
+    }
+  }
+
+  const suggestions = [];
+  for (const { channel } of localSeen) {
+    const n = channel.toLowerCase();
+    if (!n || _state.justlogChannels.includes(n)) continue;
+    if (logged.size > 0 && !logged.has(n)) continue;
+    suggestions.push(n);
+    if (suggestions.length >= 10) break;
+  }
+  _renderSuggestChips(suggestions);
+}
+
+function _renderSourceChips() {
+  const host = _sourceChips();
+  if (!host) return;
+  host.innerHTML = '';
+  for (const ch of _state.justlogChannels) {
+    const chip = document.createElement('span');
+    chip.className = 'uh-chip';
+    const label = document.createElement('span');
+    label.className = 'uh-chip-label';
+    label.textContent = '#' + ch;
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'uh-chip-x';
+    x.setAttribute('aria-label', `Remove #${ch}`);
+    x.textContent = '×';
+    x.addEventListener('click', () => _removeJustlogChannel(ch));
+    chip.appendChild(label);
+    chip.appendChild(x);
+    host.appendChild(chip);
+  }
+  const btn = _jlSearchBtn();
+  if (btn) {
+    const n = _state.justlogChannels.length;
+    btn.disabled = n === 0;
+    btn.textContent = n === 1 ? 'Search 1 channel' : `Search ${n} channels`;
+  }
+}
+
+function _renderSuggestChips(suggestions) {
+  const row = _suggestRow();
+  if (!row) return;
+  row.innerHTML = '';
+  if (!suggestions.length) { row.hidden = true; return; }
+  row.hidden = false;
+  const label = document.createElement('span');
+  label.className = 'uh-sources-suggest-label';
+  label.textContent = 'Seen locally:';
+  row.appendChild(label);
+  for (const ch of suggestions) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'uh-chip uh-chip-suggest';
+    chip.textContent = '+ #' + ch;
+    chip.addEventListener('click', () => _addJustlogChannel(ch));
+    row.appendChild(chip);
+  }
+}
+
+function _renderSourceStatus(html) {
+  const el = _sourceStatus();
+  if (!el) return;
+  if (!html) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = html;
+}
+
+function _addJustlogChannel(name) {
+  const n = String(name || '').trim().toLowerCase().replace(/^#/, '');
+  if (!n) return;
+  if (_state.justlogChannels.includes(n)) return;
+  _state.justlogChannels.push(n);
+  _abortJustlog();               // Previous search (if any) is now stale
+  _renderSourceChips();
+  _refreshJustlogSourcesUi().catch(() => {});
+}
+
+function _removeJustlogChannel(name) {
+  _state.justlogChannels = _state.justlogChannels.filter((x) => x !== name);
+  _abortJustlog();
+  _renderSourceChips();
+  _refreshJustlogSourcesUi().catch(() => {});
+}
+
+function _abortJustlog() {
+  if (_state.justlogAbort) {
+    try { _state.justlogAbort.abort(); } catch { /* ignore */ }
+    _state.justlogAbort = null;
+  }
+}
+
+async function _runJustlogSearch() {
+  if (_state.scope !== 'justlog') return;
+  if (!_state.justlogChannels.length) return;
+  _abortJustlog();
+  const controller = new AbortController();
+  _state.justlogAbort = controller;
+
+  const chans = _state.justlogChannels.slice();
+  const statusMap = new Map(chans.map((c) => [c, { status: 'pending', count: 0 }]));
+  const paintStatus = () => {
+    const parts = [];
+    for (const c of chans) {
+      const s = statusMap.get(c);
+      let icon = '·';
+      if (s.status === 'loading') icon = '⏳';
+      else if (s.status === 'ok') icon = s.count ? '✓' : '∅';
+      else if (s.status === 'not_logged') icon = '—';
+      else if (s.status === 'opted_out') icon = '🚫';
+      else if (s.status === 'not_found') icon = '∅';
+      else if (s.status === 'aborted') icon = '×';
+      else if (s.status === 'error') icon = '!';
+      const suffix = s.count ? ` ${s.count}` : '';
+      parts.push(`<span class="uh-status-chan uh-status-${s.status}">#${esc(c)} ${icon}${suffix}</span>`);
+    }
+    _renderSourceStatus(parts.join(' · '));
+  };
+  paintStatus();
+
+  const rows = await fetchUserAcrossChannels(_state.user || _state.userKey, chans, {
+    signal: controller.signal,
+    onChannelStatus: ({ channel, status, count }) => {
+      const entry = statusMap.get(channel);
+      if (!entry) return;
+      entry.status = status;
+      entry.count = count || 0;
+      paintStatus();
+    },
+  });
+
+  if (controller.signal.aborted) return;
+  _state.justlogAbort = null;
+
+  _renderRows(rows, false);
+  _state.stats = _computeStatsFromRows(rows);
+  _paintStats();
+}
+
+function _computeStatsFromRows(rows) {
+  let total = 0, firstTs = null, lastTs = null;
+  for (const r of rows) {
+    total++;
+    if (firstTs === null || r.ts < firstTs) firstTs = r.ts;
+    if (lastTs === null || r.ts > lastTs) lastTs = r.ts;
+  }
+  return { total, firstTs, lastTs, moodCounts: {} };
 }
 
 export async function setUserHistoryBots(include) {
   _state.includeBots = !!include;
   _persisted.includeBots = _state.includeBots;
   save(USER_HIST_BOTS_KEY, _state.includeBots);
+  if (_state.scope === 'justlog') return; // remote rows have no bot flag
   await _loadFirstPage();
 }
 
 export async function clearCurrentUserHistory() {
   if (!_state.userKey) return;
+  if (_state.scope === 'justlog') return; // can't delete remote data from here
   const scopeText = _state.scope === 'channel' && _state.channel
     ? `for ${_state.user} on ${_state.platform || '?'} / #${_state.channel}`
     : `for ${_state.user} across ALL channels`;
@@ -658,6 +929,34 @@ export function initUserHistoryModal() {
   if (lm) lm.addEventListener('click', _loadOlder);
 
   _wireSearch();
+  _wireJustlogSources();
+}
+
+/**
+ * Wire the Sources panel: add-channel input (Enter), Search button, and make
+ * sure the panel's initial visibility matches the current scope.
+ */
+function _wireJustlogSources() {
+  const input = _addSourceInput();
+  if (input) {
+    const submit = () => {
+      const v = (input.value || '').trim();
+      if (!v) return;
+      _addJustlogChannel(v);
+      input.value = '';
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+    input.addEventListener('change', () => {
+      // Fires on <datalist> selection in most browsers. Only submit if the
+      // value looks like a channel name picked from the list.
+      if ((input.value || '').trim()) submit();
+    });
+  }
+  const btn = _jlSearchBtn();
+  if (btn) btn.addEventListener('click', () => { _runJustlogSearch().catch(() => {}); });
+  _applyScopeVisibility();
 }
 
 function _wireSearch() {
