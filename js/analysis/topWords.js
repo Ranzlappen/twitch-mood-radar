@@ -9,7 +9,7 @@
 import { DEFAULT_STOPWORDS } from './stopwords.js';
 
 export const BUCKET_COUNT = 12;
-export const DEFAULT_WINDOW_MS = 120_000;
+export const DEFAULT_WINDOW_MS = 30_000;
 // Mutable so the decay slider can retune without reshuffling the ring.
 let BUCKET_MS = Math.floor(DEFAULT_WINDOW_MS / BUCKET_COUNT);
 

@@ -12,7 +12,7 @@ import { registerModuleSettings, attachInfoButton, openInfoDrawer } from './info
 const STOPWORDS_KEY = 'mr.topwords.stopwords.v1';
 const DISPLAY_KEY = 'mr.topwords.display.v1';
 
-const DISPLAY_DEFAULTS = { windowMs: DEFAULT_WINDOW_MS, fontScale: 1.0, emoteSize: 22 };
+const DISPLAY_DEFAULTS = { windowMs: DEFAULT_WINDOW_MS, fontScale: 1.5, emoteSize: 22 };
 const WINDOW_MIN = 15_000;
 const WINDOW_MAX = 300_000;
 const FONT_MIN = 0.7;
@@ -25,8 +25,19 @@ let displayState = { ...DISPLAY_DEFAULTS };
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+// First-boot seed: everything but the 1–2-letter function words starts
+// unblocked, so the top-10 module isn't aggressively filtered out of the box.
+let DEFAULT_REMOVE_CACHED = null;
+function defaultRemoveList() {
+  if (!DEFAULT_REMOVE_CACHED) {
+    DEFAULT_REMOVE_CACHED = Array.from(DEFAULT_STOPWORDS).filter(w => w.length >= 3);
+  }
+  return DEFAULT_REMOVE_CACHED;
+}
+
 function readStopwords() {
-  const raw = load(STOPWORDS_KEY, { add: [], remove: [] }) || {};
+  const raw = load(STOPWORDS_KEY, null);
+  if (!raw) return { add: [], remove: defaultRemoveList().slice() };
   const add = Array.isArray(raw.add) ? raw.add.map(s => String(s).toLowerCase()) : [];
   const remove = Array.isArray(raw.remove) ? raw.remove.map(s => String(s).toLowerCase()) : [];
   return { add, remove };
@@ -124,8 +135,16 @@ function buildTopWordsSettings(body) {
       <div class="sw-defaults-grid" id="stopwordsDefaultsGrid"></div>
     </div>
 
-    <div class="stopwords-actions">
-      <button type="button" class="stopwords-reset" id="stopwordsReset">Reset all</button>
+    <div class="stopwords-field">
+      <span class="stopwords-field-label">MASS TOGGLE BY LENGTH</span>
+      <div class="sw-toggle-row" id="swToggleRow">
+        <button type="button" class="sw-toggle-btn" data-group="all">ALL</button>
+        <button type="button" class="sw-toggle-btn" data-group="1">1</button>
+        <button type="button" class="sw-toggle-btn" data-group="2">2</button>
+        <button type="button" class="sw-toggle-btn" data-group="3">3</button>
+        <button type="button" class="sw-toggle-btn" data-group="4">4</button>
+        <button type="button" class="sw-toggle-btn" data-group="5+">5+</button>
+      </div>
     </div>
   `;
 
@@ -176,16 +195,59 @@ function buildTopWordsSettings(body) {
   });
   emote.addEventListener('change', () => persistDisplay());
 
-  body.querySelector('#stopwordsReset').addEventListener('click', () => {
-    stopwordsState = { add: [], remove: [] };
+  // Mass-toggle row: each button block/unblocks every default word in its
+  // length group. "ALL" operates on the full default set.
+  const toggleRow = body.querySelector('#swToggleRow');
+  const defaultsByGroup = groupDefaultsByLength();
+
+  function wordsForGroup(group) {
+    return group === 'all'
+      ? Array.from(DEFAULT_STOPWORDS)
+      : (defaultsByGroup[group] || []);
+  }
+
+  function refreshToggleStates() {
+    const unblocked = new Set(stopwordsState.remove);
+    for (const btn of toggleRow.querySelectorAll('.sw-toggle-btn')) {
+      const words = wordsForGroup(btn.dataset.group);
+      const blockedCount = words.reduce((n, w) => n + (unblocked.has(w) ? 0 : 1), 0);
+      const allBlocked = blockedCount === words.length && words.length > 0;
+      btn.classList.toggle('is-blocked', blockedCount > 0);
+      btn.classList.toggle('is-all-blocked', allBlocked);
+      btn.title = blockedCount > 0
+        ? `Unblock ${blockedCount}/${words.length} in this group`
+        : `Block all ${words.length} in this group`;
+    }
+  }
+
+  toggleRow.addEventListener('click', e => {
+    const btn = e.target.closest('.sw-toggle-btn');
+    if (!btn) return;
+    const words = wordsForGroup(btn.dataset.group);
+    if (!words.length) return;
+    const unblocked = new Set(stopwordsState.remove);
+    const anyBlocked = words.some(w => !unblocked.has(w));
+    if (anyBlocked) {
+      for (const w of words) unblocked.add(w);
+    } else {
+      for (const w of words) unblocked.delete(w);
+    }
+    stopwordsState.remove = Array.from(unblocked);
     persistStopwords();
-    displayState = { ...DISPLAY_DEFAULTS };
-    persistDisplay();
-    setWindowMs(displayState.windowMs);
-    applyDisplaySettings(displayState);
-    // Rebuild this drawer body to reflect the reset.
-    buildTopWordsSettings(body);
+    renderDefaultsGrid(defaultsWrap);
+    refreshToggleStates();
   });
+
+  refreshToggleStates();
+}
+
+function groupDefaultsByLength() {
+  const out = { '1': [], '2': [], '3': [], '4': [], '5+': [] };
+  for (const w of DEFAULT_STOPWORDS) {
+    const key = w.length >= 5 ? '5+' : String(w.length);
+    if (out[key]) out[key].push(w);
+  }
+  return out;
 }
 
 export function registerTopWordsInfoDrawer() {
