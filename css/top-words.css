@@ -229,23 +229,33 @@
   opacity: 1;
 }
 
-.stopwords-actions {
+.sw-toggle-row {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 6px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.stopwords-reset {
+.sw-toggle-btn {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
   padding: 6px 12px;
+  min-width: 38px;
   font-family: 'Orbitron', sans-serif;
   font-size: .68em;
   letter-spacing: .1em;
   border-radius: 6px;
   cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
 }
-.stopwords-reset:hover { color: var(--accent2); border-color: var(--accent2); }
+.sw-toggle-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+.sw-toggle-btn.is-blocked {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(0,255,229,.08);
+}
+.sw-toggle-btn.is-all-blocked {
+  background: rgba(0,255,229,.18);
+}
 
 /* ============================================================
    Title-bar cog button
