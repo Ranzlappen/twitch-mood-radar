@@ -7,8 +7,10 @@ export default [
       globals: {
         window: 'readonly',
         document: 'readonly',
+        location: 'readonly',
         localStorage: 'readonly',
         navigator: 'readonly',
+        caches: 'readonly',
         console: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
