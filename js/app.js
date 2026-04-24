@@ -25,6 +25,7 @@ import {
 import { registerModuleInfoDrawers, attachModuleInfoButtons } from './ui/moduleDrawers.js';
 import {
   loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
+  refreshAppAssets,
   loadRumbleProxyUrl, saveRumbleProxyUrl,
   loadYouTubeApiKey, saveYouTubeApiKey, setYouTubeDailyBudget, setYoutubeMinPollMs,
   resetYoutubeQuotaCounter, refreshYoutubeQuotaDisplay,
@@ -165,6 +166,7 @@ window.setOptApprovalVerdict = setOptApprovalVerdict;
 window.setOptCardVisibility = setOptCardVisibility;
 window.setOptWakeLock = setOptWakeLock;
 window.resetAllOptions = resetAllOptions;
+window.refreshAppAssets = refreshAppAssets;
 window.saveRumbleProxyUrl = saveRumbleProxyUrl;
 window.saveYouTubeApiKey = saveYouTubeApiKey;
 window.setYouTubeDailyBudget = setYouTubeDailyBudget;

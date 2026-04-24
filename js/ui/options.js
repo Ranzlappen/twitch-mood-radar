@@ -477,6 +477,43 @@ export function resetAllOptions() {
   applyAllOptions();
 }
 
+/* ── Refetch app assets ──────────────────────────────── */
+// Unregisters the service worker and purges Cache Storage so the next
+// load pulls fresh HTML / CSS / JS from the network. IndexedDB (logged
+// messages) and localStorage (options, API keys) are untouched.
+export async function refreshAppAssets() {
+  if (!window.confirm(
+    'Reload the app with fresh code?\n\n' +
+    'Logged messages and settings are kept — only cached HTML / CSS / JS are cleared.'
+  )) return;
+
+  const btn = document.getElementById('optRefreshAssetsBtn');
+  const fb = document.getElementById('optRefreshAssetsFeedback');
+  const setFeedback = (msg, isErr) => {
+    if (!fb) return;
+    fb.textContent = msg;
+    fb.classList.toggle('err', !!isErr);
+    fb.classList.add('show');
+  };
+  if (btn) { btn.disabled = true; btn.textContent = 'CLEARING…'; }
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    setFeedback('Reloading…', false);
+    setTimeout(() => location.reload(), 200);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'REFRESH APP CODE'; }
+    setFeedback('Failed: ' + (e && e.message ? e.message : String(e)), true);
+  }
+}
+
 export function applyAllOptions() {
   const o = state.drawerOptions;
   // Density
