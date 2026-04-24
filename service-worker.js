@@ -4,8 +4,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '27' },
-    { url: '/index.html', revision: '27' },
+    { url: '/', revision: '28' },
+    { url: '/index.html', revision: '28' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
@@ -22,7 +22,7 @@ if (workbox) {
     { url: '/css/link-modal.css', revision: '1' },
     { url: '/css/top-words.css', revision: '3' },
     // JS modules
-    { url: '/js/app.js', revision: '14' },
+    { url: '/js/app.js', revision: '15' },
     { url: '/js/config.js', revision: '13' },
     { url: '/js/state.js', revision: '6' },
     { url: '/js/processing.js', revision: '8' },
@@ -56,7 +56,7 @@ if (workbox) {
     { url: '/js/ui/bubbles.js', revision: '1' },
     { url: '/js/ui/feeds.js', revision: '6' },
     { url: '/js/ui/approval-meter.js', revision: '1' },
-    { url: '/js/ui/options.js', revision: '6' },
+    { url: '/js/ui/options.js', revision: '7' },
     { url: '/js/ui/settings.js', revision: '2' },
     { url: '/js/ui/layout.js', revision: '3' },
     { url: '/js/ui/help.js', revision: '4' },

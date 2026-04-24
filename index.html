@@ -795,6 +795,19 @@ function unlockApp() {
       </div>
     </details>
 
+    <details class="opt-section">
+      <summary>App Cache</summary>
+      <div class="opt-content">
+        <div class="opt-hint">
+          Refetch HTML / CSS / JS from the network. Logged messages and settings are preserved.
+        </div>
+        <div class="opt-row opt-row-actions">
+          <button type="button" class="opt-save-btn" id="optRefreshAssetsBtn" onclick="refreshAppAssets()">REFRESH APP CODE</button>
+          <span class="opt-save-feedback" id="optRefreshAssetsFeedback" aria-live="polite"></span>
+        </div>
+      </div>
+    </details>
+
     <div style="padding:12px 16px">
       <button class="opt-reset-btn" onclick="resetAllOptions()">RESET ALL OPTIONS</button>
     </div>
