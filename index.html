@@ -21,10 +21,11 @@ DATE: 2026-04-02
 <!-- Content Security Policy -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com;
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com https://challenges.cloudflare.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src https://fonts.gstatic.com;
   img-src 'self' data: https://cdn.betterttv.net https://cdn.7tv.app https://cdn.frankerfacez.com https://static-cdn.jtvnw.net https://files.kick.com https://storage.ko-fi.com;
+  frame-src https://challenges.cloudflare.com;
   connect-src 'self'
     wss://irc-ws.chat.twitch.tv
     wss://ws-us2.pusher.com
@@ -43,10 +44,15 @@ DATE: 2026-04-02
     https://cors.eu.org
     https://proxy.cors.sh
     https://cors.isomorphic-git.org
-    https://thingproxy.freeboard.io;
+    https://thingproxy.freeboard.io
+    https://logs.ivr.fi
+    https://*.supabase.co
+    https://challenges.cloudflare.com;
 "/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
+<!-- Cloudflare Turnstile — loaded async so missing /config.runtime.json is harmless. -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="/css/top-words.css">
 <style id="authGateStyles">
@@ -699,6 +705,26 @@ function unlockApp() {
         <div class="opt-row" style="flex-direction:column;align-items:stretch;gap:4px">
           <span class="opt-label">STORAGE USAGE</span>
           <span class="opt-val" id="optStorageUsage" style="font-size:.85em;opacity:.8">…</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="opt-section">
+      <summary>Server Sync (Supabase)</summary>
+      <div class="opt-content">
+        <div class="opt-hint">
+          Push every logged message to a shared Supabase archive so future stats modules
+          can query across all viewers + sessions. Requires <code>config.runtime.json</code>
+          to be deployed alongside the app — see <code>SETUP_BACKEND.md</code>. Disabled
+          when missing; the app still works fully local.
+        </div>
+        <label class="opt-toggle">
+          <input type="checkbox" id="optSupabaseSync" onchange="setSupabaseSyncEnabledFromUi(this.checked)">
+          <span class="opt-label">Push messages to server archive</span>
+        </label>
+        <div class="opt-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <span class="opt-label">SYNC STATUS</span>
+          <span class="opt-val" id="optSupabaseSyncStatus" style="font-size:.85em;opacity:.8">idle</span>
         </div>
       </div>
     </details>

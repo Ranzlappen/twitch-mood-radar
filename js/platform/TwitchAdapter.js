@@ -145,15 +145,24 @@ export class TwitchAdapter extends PlatformAdapter {
         // can render next to the username downstream.
         let finalMsg = msgText;
         let badges = null;
+        let msgId = null;
+        let userId = null;
         if (atStart) {
           const emotesTag = this._readIrcTag(line, 'emotes');
           if (emotesTag) finalMsg = this._rewriteTwitchEmotes(msgText, emotesTag);
           const badgesTag = this._readIrcTag(line, 'badges');
           if (badgesTag) badges = this._resolveBadges(badgesTag);
+          // Twitch IRCv3 message UUID — used as the natural dedup key when we
+          // forward this record to the server-side archive. Falls back to a
+          // content hash downstream if missing.
+          const idTag = this._readIrcTag(line, 'id');
+          if (idTag) msgId = idTag;
+          const uidTag = this._readIrcTag(line, 'user-id');
+          if (uidTag) userId = uidTag;
         }
 
         if (this._onMessageCallback) {
-          this._onMessageCallback({ user, msg: finalMsg, ts: now, platform: 'twitch', badges });
+          this._onMessageCallback({ user, msg: finalMsg, ts: now, platform: 'twitch', badges, msgId, userId });
         }
       }
     };

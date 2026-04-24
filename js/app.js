@@ -36,6 +36,7 @@ import { loadStopwordOverrides, registerTopWordsInfoDrawer, attachTopWordsInfoBu
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
 import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
+import { startSupabaseSync, stopSupabaseSync, isSupabaseSyncEnabled, setSupabaseSyncEnabled } from './history/supabaseSync.js';
 import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
 import { initEmoteModal } from './ui/emoteModal.js';
 import { initLinkModal } from './ui/linkModal.js';
@@ -61,8 +62,8 @@ const connMgr = new ConnectionManager();
 window.__connMgr = connMgr;
 
 // Wire incoming messages to the processing pipeline
-connMgr.onMessage(({ user, msg, ts, platform, channel, badges }) => {
-  enqueue(user, msg, ts, platform, channel, badges);
+connMgr.onMessage(({ user, msg, ts, platform, channel, badges, msgId, userId }) => {
+  enqueue(user, msg, ts, platform, channel, badges, msgId, userId);
 });
 
 // Start the processing loop when first slot connects
@@ -200,6 +201,11 @@ window.setHistoryMaxRows = (v) => {
   const n = setMaxRows(v);
   const valEl = document.getElementById('optHistoryRowsVal');
   if (valEl) valEl.textContent = n.toLocaleString();
+};
+window.setSupabaseSyncEnabledFromUi = (v) => {
+  setSupabaseSyncEnabled(v);
+  const status = document.getElementById('optSupabaseSyncStatus');
+  if (status) status.textContent = v ? 'sync requested — see console for first batch' : 'idle';
 };
 
 // Layout
@@ -433,6 +439,11 @@ window.onload = function () {
   const histRowsVal = document.getElementById('optHistoryRowsVal');
   if (histRows) histRows.value = getMaxRows();
   if (histRowsVal) histRowsVal.textContent = getMaxRows().toLocaleString();
+  const syncCb = document.getElementById('optSupabaseSync');
+  if (syncCb) syncCb.checked = isSupabaseSyncEnabled();
+  // Kick off the sync loop on boot if the user already opted in last session.
+  // No-op if /config.runtime.json is missing — the loop logs once and exits.
+  if (isSupabaseSyncEnabled()) startSupabaseSync().catch(() => {});
 
   // Guard against ResizeObserver overwriting saved sizes during init
   state.isRestoringLayout = true;

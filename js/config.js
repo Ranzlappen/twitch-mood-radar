@@ -36,8 +36,23 @@ export const JUSTLOG_PAGE_LIMIT = 200;
 
 // User-message history (IndexedDB)
 export const HISTORY_DB_NAME = 'moodradar_history_v1';
-export const HISTORY_DB_VERSION = 1;
+// v2: adds `synced` + `msgId` fields and the `synced` index for the
+// supabaseSync batcher to find rows that haven't been pushed upstream yet.
+export const HISTORY_DB_VERSION = 2;
 export const HISTORY_DB_STORE = 'messages';
+
+// Supabase ingest pipeline. URL + anon key are filled in at runtime from
+// /config.runtime.json (see SETUP_BACKEND.md). Leaving them empty disables
+// the sync loop completely — the app keeps working as a local-only PWA.
+export const SUPABASE_SYNC_BATCH = 250;
+export const SUPABASE_SYNC_INTERVAL_MS = 8000;
+export const SUPABASE_SYNC_MAX_RETRY_MS = 5 * 60_000;
+// localStorage key used to track an opaque per-browser id so the server can
+// audit which client posted a row (not for auth — purely diagnostic).
+export const SUPABASE_CLIENT_ID_KEY = 'moodradar_supabase_client_id_v1';
+// localStorage key for the user-facing on/off toggle. Defaults to off so the
+// app doesn't start phoning home until the user explicitly opts in.
+export const SUPABASE_SYNC_ENABLED_KEY = 'moodradar_supabase_sync_v1';
 export const HISTORY_RETENTION_DAYS_KEY = 'moodradar_histdays_v1';
 export const HISTORY_MAX_ROWS_KEY = 'moodradar_histrows_v1';
 export const HISTORY_ENABLED_KEY = 'moodradar_histenabled_v1';
