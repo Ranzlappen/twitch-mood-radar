@@ -14,6 +14,7 @@ import {
   RECONNECT_DELAY_MS
 } from '../config.js';
 import { saveRaw, loadRaw, load, save } from '../utils/storage.js';
+import { twitchPubSub } from './TwitchPubSub.js';
 
 export class TwitchAdapter extends PlatformAdapter {
   constructor() {
@@ -42,6 +43,11 @@ export class TwitchAdapter extends PlatformAdapter {
     // Emote picker
     this._emotePickerOpen = false;
     this._emotePickerTab = 'bttv';
+
+    // Polls — bound handler so subscribe/unsubscribe pass the same identity.
+    this._onPollCallback = null;
+    this._pollSubscribed = false;
+    this._pollHandler = (inner) => this._handlePollFrame(inner);
 
     // Restore saved OAuth token on construction
     this._restoreOAuth();
@@ -113,6 +119,7 @@ export class TwitchAdapter extends PlatformAdapter {
             this._currentRoomId = roomMatch[1];
             this._currentChannelName = ch.replace('#', '');
             this.loadEmotes(this._currentRoomId, this._currentChannelName);
+            this._subscribePolls();
           }
         }
 
@@ -174,6 +181,7 @@ export class TwitchAdapter extends PlatformAdapter {
     this._loggingActive = false;             // user intentionally stopped
     clearTimeout(this._reconnectTimer);
     this._reconnectAttempt = 0;
+    this._unsubscribePolls();
     this._currentRoomId = null;              // reset so emotes reload for next channel
     document.body.classList.remove('disconnected');
     if (this._ws) { this._ws.close(); this._ws = null; }
@@ -198,6 +206,43 @@ export class TwitchAdapter extends PlatformAdapter {
       this._reconnectTimer = setTimeout(() => {
         if (this._loggingActive) this.connect(this._currentChannelName, true);
       }, RECONNECT_DELAY_MS);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  //  Polls — Twitch PubSub bridge (unofficial)
+  // ------------------------------------------------------------------
+
+  /** Register a callback for poll events on this adapter's channel. */
+  onPoll(cb) { this._onPollCallback = cb; }
+
+  _subscribePolls() {
+    if (this._pollSubscribed || !this._currentRoomId) return;
+    twitchPubSub.subscribe(this._currentRoomId, this._pollHandler);
+    this._pollSubscribed = true;
+  }
+
+  _unsubscribePolls() {
+    if (!this._pollSubscribed || !this._currentRoomId) return;
+    twitchPubSub.unsubscribe(this._currentRoomId, this._pollHandler);
+    this._pollSubscribed = false;
+  }
+
+  /**
+   * Forward a raw PubSub poll frame to the registered callback, attaching the
+   * channel id and login so a single global handler can route by channel.
+   * Defensive: never throws on malformed frames.
+   */
+  _handlePollFrame(inner) {
+    if (!this._onPollCallback) return;
+    try {
+      this._onPollCallback({
+        inner,
+        channelId: this._currentRoomId,
+        channelLogin: this._currentChannelName,
+      });
+    } catch (e) {
+      console.warn('[MoodRadar] Poll callback threw:', e && e.message);
     }
   }
 

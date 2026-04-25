@@ -483,6 +483,18 @@ function unlockApp() {
   </div>
 </div>
 
+<div class="poll-card resizable" id="pollCard">
+  <div class="card-title">
+    CHANNEL POLLS
+    <button class="help-btn" onclick="showHelp('channelPolls')" title="About channel polls">?</button>
+  </div>
+  <div class="collapsible-body" id="pollCard-body">
+    <div id="pollList" class="poll-list">
+      <div class="poll-empty">No active polls</div>
+    </div>
+  </div>
+</div>
+
 <div class="feed-card resizable" id="outlierCard">
   <div class="feed-title-row">
     <div class="feed-title" style="margin-bottom:0">
@@ -779,6 +791,7 @@ function unlockApp() {
         <label class="opt-toggle"><input type="checkbox" id="optShowFeed" checked onchange="setOptCardVisibility('feedCard',this.checked)"><span class="opt-label">Live Feed</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowFilteredFeed" checked onchange="setOptCardVisibility('filteredFeedCard',this.checked)"><span class="opt-label">Filtered Feed</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowOutlier" checked onchange="setOptCardVisibility('outlierCard',this.checked)"><span class="opt-label">Standout Messages</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowPoll" checked onchange="setOptCardVisibility('pollCard',this.checked)"><span class="opt-label">Channel Polls</span></label>
       </div>
     </details>
 

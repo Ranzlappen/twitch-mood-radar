@@ -93,6 +93,12 @@ export const state = {
   layoutInline: {},
   layoutAlignItems: 'start',
   layoutJustifyContent: 'start',
+
+  // Live Twitch polls — keyed by channelId. Populated by the PubSub event
+  // handler in app.js. Each entry: { id, channelId, channelLogin, title,
+  // choices, status, startedAt, endsAt, totalVotes, lastUpdate }. Ended polls
+  // linger briefly so the result stays visible, then are removed by a timer.
+  polls: new Map(),
 };
 
 // Initialize state from localStorage persisted values

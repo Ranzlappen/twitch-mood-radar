@@ -583,7 +583,8 @@ export function applyAllOptions() {
     approvalCard:'optShowApproval', approvalTimelineCard:'optShowApprovalTL',
     throughputTimelineCard:'optShowThroughputTL', timelineLinearCard:'optShowLinearTL',
     timelineLogCard:'optShowLogTL', feedCard:'optShowFeed',
-    filteredFeedCard:'optShowFilteredFeed', outlierCard:'optShowOutlier'
+    filteredFeedCard:'optShowFilteredFeed', outlierCard:'optShowOutlier',
+    pollCard:'optShowPoll'
   };
   for (const [cid, cbid] of Object.entries(visMap)) {
     const vis = o.cardVisibility[cid] !== false;
