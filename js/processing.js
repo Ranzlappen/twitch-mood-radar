@@ -4,9 +4,11 @@ import { MOODS, MOOD_COLORS, QUEUE_CAP } from './config.js';
 import { classifyMessage } from './analysis/sentiment.js';
 import { detectBot } from './analysis/botDetector.js';
 import { computeWeightedMoods, computeKeywordWeights, getDominant } from './analysis/ewma.js';
+import { recordMessage as recordTopWord, getTop as getTopWords, clear as clearTopWords } from './analysis/topWords.js';
 import { hexAlpha } from './utils/color.js';
 import { fmtNum, setStatus, sanitize } from './utils/dom.js';
 import { updateBubbles } from './ui/bubbles.js';
+import { updateTopWords, clearTopWordsUI, captureEmotesFromMessage, fetchPoolSize } from './ui/topWords.js';
 import { updateApprovalMeter } from './ui/approval-meter.js';
 import { pushTimelineSnapshot, pushApprovalTimelineSnapshot, pushThroughputTimelineSnapshot } from './ui/charts.js';
 import { enqueueHistory } from './history/historyDb.js';
@@ -73,6 +75,8 @@ export function processingLoop() {
       }
     }
     const { mood, strength, hits, approvalVote } = classifyMessage(msg);
+    captureEmotesFromMessage(msg);
+    recordTopWord(user, msg, ts);
     state.scoredMessages.push({ ts, mood, strength });
     state.uniqueUsers.add(user);
     state.totalMessages++;
@@ -121,19 +125,8 @@ export function updateVisuals() {
 
   const kwList = computeKeywordWeights(now);
 
-  // Update radar chart
-  if (pct && state.radarChart) {
-    const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-    const radarData = moodsForWeb.map(m => Math.round(pct[m]));
-    state.radarChart.data.datasets[0].data = radarData;
-    const radarMax = Math.max(...radarData);
-    state.radarChart.options.scales.r.max = Math.max(10, Math.ceil(radarMax * 1.15));
-    const rc = MOOD_COLORS[dominant];
-    state.radarChart.data.datasets[0].borderColor = rc;
-    state.radarChart.data.datasets[0].backgroundColor = hexAlpha(rc, 0.1);
-    state.radarChart.data.datasets[0].pointBackgroundColor = rc;
-    state.radarChart.update('none');
-  }
+  // Update top-10 substrings (fetch pool gives phrase-dedupe room to work)
+  updateTopWords(getTopWords(fetchPoolSize(), now));
 
   updateBubbles(kwList.slice(0, (state.drawerOptions.bubbleCount || 22) + 6).map((k, i) => ({ ...k, count: i + 1 })));
 
@@ -149,7 +142,7 @@ export function updateVisuals() {
     alertEl.classList.add('show');
     clearTimeout(alertEl._t);
     alertEl._t = setTimeout(() => alertEl.classList.remove('show'), 5000);
-    ['pieCard', 'radarCard'].forEach(id => {
+    ['pieCard', 'topWordsCard'].forEach(id => {
       const el = document.getElementById(id);
       el.classList.add('flush');
       clearTimeout(el._ft);
@@ -217,16 +210,9 @@ export function flushChatterData() {
     state.pieChart.update('none');
   }
 
-  // -- Radar chart: reset to all zeros --
-  if (state.radarChart) {
-    const moodsForWeb = MOODS.filter(m => m !== 'neutral');
-    state.radarChart.data.datasets[0].data = moodsForWeb.map(() => 0);
-    state.radarChart.options.scales.r.max = 10;
-    state.radarChart.data.datasets[0].borderColor = '#00ffe5';
-    state.radarChart.data.datasets[0].backgroundColor = 'rgba(0,255,229,.09)';
-    state.radarChart.data.datasets[0].pointBackgroundColor = '#00ffe5';
-    state.radarChart.update('none');
-  }
+  // -- Top 10 substrings: reset counts and UI --
+  clearTopWords();
+  clearTopWordsUI();
 
   // -- Timeline charts: fill with null --
   [state.timelineLinearChart, state.timelineLogChart].filter(Boolean).forEach(ch => {

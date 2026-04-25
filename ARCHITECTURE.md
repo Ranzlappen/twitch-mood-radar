@@ -1,8 +1,8 @@
 # Architecture Review & Elevation Roadmap
 
-> **Date**: 2026-04-15
+> **Date**: 2026-04-21
 > **Scope**: Full codebase architecture review
-> **Status**: Initial assessment complete
+> **Status**: Modular refactor complete; options/settings rework in progress
 
 ---
 
@@ -30,39 +30,70 @@ The project is written in vanilla HTML/CSS/JS with no build system, using Chart.
 
 ---
 
-## Critical Architectural Finding: Dead Module Tree
+## Current Module Tree
 
-### The Problem
+The ES-module refactor (formerly listed as Phase 3 here) is **complete**. The
+root-level `app.js` monolith and `styles.css` stylesheet are gone. `index.html`
+loads `<script type="module" src="/js/app.js">` and `<link href="/css/main.css">`.
 
-The repository contains **two copies** of the application logic:
+```
+js/
+  app.js                  entry — wires everything at window.onload
+  config.js               storage keys, DEFAULT_OPTIONS, HELP_CONTENT, dictionaries
+  state.js                centralized mutable state
+  processing.js           message queue + processing loop
+  analysis/               pure analysis (EWMA, sentiment, approval, bot, topWords)
+    __tests__/            vitest unit tests
+  platform/               ConnectionManager + TwitchAdapter/KickAdapter/YouTubeAdapter/RumbleAdapter + emotes
+  history/historyDb.js    IndexedDB user message history
+  ui/
+    options.js            Options Drawer — global + multi-module settings
+    moduleDrawers.js      bubbleCard/pieCard/approvalCard info drawers
+    stopwordsModal.js     topWordsCard info drawer (absorbed the old standalone modal)
+    feeds.js              main/filtered/outlier feed + their info drawers
+    modal.js              shared createModal() / createDrawer() factories
+    infoDrawer.js         per-module info drawer pattern (ⓘ button + drawer shell)
+    settings.js           preset apply/save (the Settings Dropdown is retired)
+    layout.js             custom layout manager, resize observer, half-life/scale sliders
+    charts.js             Chart.js wiring, timeline updates
+    bubbles.js            custom canvas physics engine
+    approval-meter.js     approval gauge + mini bar
+    topWords.js           top-N word list rendering
+    chipInput.js          reusable chip input component
+    filterBuilder.js      simple↔regex filter translation
+    userHistoryModal.js   draggable user history popout
+    emoteModal.js         emote preview modal
+    linkModal.js          link safety prompt
+    help.js               help overlay + Escape-key stack
+    wake-lock.js          Screen Wake Lock API
+  utils/
+    settings.js           unified get/set/migrate/on/off + CustomEvent bus (v2 blob)
+    storage.js            localStorage JSON helpers
+    CircularBuffer.js     fixed-size ring buffer
+    dom.js                sanitize/esc helpers
+    color.js, cors.js, urlSafety.js
+    __tests__/            vitest unit tests
+```
 
-1. **`app.js`** (root, 4,208 lines) — The **active** monolithic file loaded by `index.html:632` via `<script src="app.js">`. This is what runs in production.
+## Options & Settings (2026-04 rework)
 
-2. **`js/`** directory (20+ ES module files) — A **dead** modular refactor that is **never loaded**. `index.html` does not reference it. These files use ES module `import`/`export` syntax but are not loaded via `<script type="module">`.
+Every option has a home determined by scope:
 
-Additionally, **`styles.css`** (1,238 lines) at root is dead — `index.html` loads `css/main.css` (the modular CSS) instead.
+- **Global Options Drawer** (`#optionsDrawer`, right slide-in) holds everything
+  that affects multiple modules or is operational: presets, label scale, half-life,
+  timeline settings, density/gap/pad/font scale, CRT/grid, header toggles, card
+  visibility, history logging, YouTube/Rumble API keys, custom layout arranger,
+  reset all.
+- **Per-module info drawers** (one shared `#infoDrawer` shell, ⓘ button on each
+  card title bar) hold everything that affects exactly one module: feed font
+  sliders, bubble count/speed/opacity/height + bubble scale, pie labels/animation,
+  approval mini/verdict, top-words decay/font/emote-size + stopword editor.
+- **Dedicated editor modals** stay for complex edit surfaces: filter editor
+  (opens from the filteredFeedCard info drawer), user history popout.
 
-**Total dead code: ~5,450 lines.**
-
-### Why the Modules Can't Simply Replace the Monolith
-
-The modular `js/` tree represents an **earlier, incomplete refactoring** of the monolith. The monolith has since evolved significantly. Key gaps:
-
-| Feature | Monolith (`app.js`) | Modules (`js/`) |
-|---------|---------------------|-----------------|
-| Multi-connection slots (up to 10 feeds) | ✅ Full implementation | ❌ Single adapter only |
-| Processing loop startup | ✅ `processingLoop()` called via `requestAnimationFrame` | ❌ Imports non-existent `startProcessingLoop` |
-| Message pipeline wiring | ✅ `enqueue()` called directly in message handlers | ❌ `adapter.onMessage()` never connected |
-| Per-slot status bar | ✅ `setSlotStatus()` + `updateGlobalStatus()` | ❌ Only simple `setStatus()` |
-| Multi-source emote merging | ✅ `mergeAllEmotes()` across all active slots | ❌ Single adapter emotes only |
-| Tablet/first-visit detection | ✅ Layout defaults for tablets | ❌ Missing entirely |
-| Slot-scoped DOM IDs | ✅ `channelInput_N`, `slotConnectBtn_N`, etc. | ❌ Single-instance IDs only |
-
-### Recommended Path Forward
-
-**Option A (Recommended): Complete the modular refactor** by porting the multi-connection slot system from the monolith into the ES module tree. Then switch `index.html` to load the modules.
-
-**Option B: Modernize the monolith in-place** — add linting, extract the most critical functions, add tests around the analysis pipeline.
+Unified storage lives in `js/utils/settings.js` (`moodradar_options_v2` blob)
+with migration from the scattered v1 keys. A `settings:change` CustomEvent is
+dispatched on every write so modules can subscribe without importing setters.
 
 ---
 
@@ -148,9 +179,9 @@ Multi-criteria scoring (threshold: 60/100):
 
 | # | Issue | Location | Impact |
 |---|-------|----------|--------|
-| C1 | Dead modular code (5,450 lines) never loaded | `js/`, `styles.css` | Confuses contributors, repo bloat |
-| C2 | 4,208-line monolith with 100+ globals | `app.js` | Untestable, high regression risk |
-| C3 | Zero tests | Entire project | No safety net for changes |
+| ~~C1~~ | ~~Dead modular code~~ — **resolved 2026-04**: refactor complete, root `app.js`/`styles.css` removed | — | — |
+| ~~C2~~ | ~~Monolithic app.js~~ — **resolved 2026-04**: split into `js/ui/*`, `js/platform/*`, `js/utils/*`, `js/analysis/*` | — | — |
+| C3 | UI tests missing | Entire UI | vitest covers `js/analysis/*` + `js/utils/*` only |
 
 ### High
 
@@ -198,7 +229,7 @@ Multi-criteria scoring (threshold: 60/100):
 
 ### Phase 1: Quick Wins (1-2 days)
 
-- [ ] Remove dead `styles.css` (confirmed not loaded)
+- [x] Remove dead `styles.css` (done — the root-level styles.css is gone)
 - [ ] Add SRI integrity hashes to CDN script tags
 - [ ] Add security warning / change default auth gate password hash
 - [ ] Update README to reflect multi-platform support
@@ -242,30 +273,25 @@ Multi-criteria scoring (threshold: 60/100):
 
 ## File Reference
 
-### Active (Running in Production)
+All active code lives under `js/`, `css/`, and the root PWA trio. The pre-2026
+monolithic `app.js` + `styles.css` at the repo root have been removed.
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `index.html` | 643 | SPA entry, auth gate, full UI markup |
-| `app.js` | 4,208 | **Monolith** — all application logic |
-| `css/main.css` | 11 | CSS import aggregator |
-| `css/tokens.css` | 82 | Design tokens / CSS variables |
-| `css/layout.css` | 47 | App container layout |
-| `css/header.css` | 119 | Header, title, status bar |
-| `css/connect.css` | 238 | Connection UI, platform tabs |
-| `css/cards.css` | 163 | Card containers, resize handles |
-| `css/feeds.css` | 123 | Live feed styling |
-| `css/presets.css` | 163 | Layout presets |
-| `css/options-drawer.css` | 137 | Options drawer panel |
-| `css/layout-mgr.css` | 173 | Drag-and-drop layout manager |
-| `css/chat-input.css` | 102 | Chat input + emote picker |
-| `manifest.json` | 30 | PWA manifest |
-| `service-worker.js` | 147 | Workbox precaching + runtime |
-| `install-prompt.js` | 16 | PWA install prompt |
-
-### Dead Code (Not Loaded)
-
-| File/Dir | Lines | Status |
-|----------|-------|--------|
-| `styles.css` | 1,238 | Dead — `index.html` loads `css/main.css` instead |
-| `js/` directory | ~4,200 | Dead — `index.html` loads root `app.js` instead |
+| Path | Purpose |
+|------|---------|
+| `index.html` | SPA entry, auth gate, full UI markup |
+| `js/app.js` | ES module entry — `window.onload` wire-up |
+| `js/config.js` | Storage keys, DEFAULT_OPTIONS, HELP_CONTENT, keyword dictionaries |
+| `js/state.js` | Centralized mutable state |
+| `js/processing.js` | Message queue + processing loop |
+| `js/analysis/*` | Pure analysis (EWMA, sentiment, approval, bot, topWords) — has vitest tests |
+| `js/platform/*` | ConnectionManager + per-platform adapters + emotes |
+| `js/ui/*` | UI modules — see tree above |
+| `js/utils/settings.js` | Unified settings API with event bus + migration |
+| `js/utils/storage.js` | localStorage JSON helpers |
+| `js/utils/CircularBuffer.js` | Fixed-size ring buffer |
+| `css/main.css` | CSS import aggregator |
+| `css/tokens.css` | Design tokens + global slider touch-select rules |
+| `css/modal.css` | Shared modal/drawer base (`.mr-overlay/.mr-modal/.mr-drawer`) |
+| `css/options-drawer.css` | Options Drawer panel |
+| `css/*.css` | Layout, header, connect, cards, feeds, presets, etc. |
+| `manifest.json`, `service-worker.js`, `install-prompt.js` | PWA trio |

@@ -79,7 +79,6 @@ export const state = {
 
   // Charts (references)
   pieChart: null,
-  radarChart: null,
   timelineLinearChart: null,
   timelineLogChart: null,
   approvalTimelineChart: null,

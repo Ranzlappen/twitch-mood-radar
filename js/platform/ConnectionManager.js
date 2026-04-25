@@ -411,7 +411,7 @@ export class ConnectionManager {
       '</select>' +
       '<div class="input-wrap" style="position:relative">' +
         '<span class="input-prefix" id="inputPrefix_' + slot.id + '">' + (PLATFORM_PREFIXES[slot.platform] || '#') + '</span>' +
-        '<input type="text" id="channelInput_' + slot.id + '" placeholder="' + (PLATFORM_PLACEHOLDERS[slot.platform] || 'channel name') + '" spellcheck="false" autocomplete="off" ' +
+        '<input type="text" id="channelInput_' + slot.id + '" name="mr-chan" placeholder="' + (PLATFORM_PLACEHOLDERS[slot.platform] || 'channel name') + '" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" ' +
           'onfocus="openChannelHistory(' + slot.id + ')" oninput="openChannelHistory(' + slot.id + ')" ' +
           'onblur="setTimeout(function(){closeChannelHistory(' + slot.id + ')},150)" ' +
           'onkeydown="handleChannelKey(' + slot.id + ',event)" aria-label="Channel name"/>' +

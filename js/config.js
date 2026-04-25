@@ -27,6 +27,13 @@ export const USER_HIST_SCOPE_KEY = 'moodradar_userhistscope_v1';
 export const USER_HIST_SIZE_KEY = 'moodradar_userhistsize_v1';
 export const USER_HIST_POS_KEY  = 'moodradar_userhistpos_v1';
 
+// Justlog (logs.ivr.fi) — third-party chat log archive used by the user-history
+// modal's "Global" scope. Strictly user-initiated; one HTTP call per channel
+// the user picks. Per-channel (not cross-channel) is a property of the justlog
+// data model, not a rate-limit workaround.
+export const JUSTLOG_BASE_URL = 'https://logs.ivr.fi';
+export const JUSTLOG_PAGE_LIMIT = 200;
+
 // User-message history (IndexedDB)
 export const HISTORY_DB_NAME = 'moodradar_history_v1';
 export const HISTORY_DB_VERSION = 1;
@@ -67,7 +74,7 @@ export const DEFAULT_OPTIONS = {
   crtOpacity:1, gridOpacity:1,
   showSubtitle:true, showLegend:true, showDividers:true, compactStats:false,
   bubbleCount:22, bubbleSpeed:1, bubbleOpacity:0.28, bubbleHeight:260,
-  pieLabels:true, pieAnimation:true, radarAnimation:true, radarGrid:true,
+  pieLabels:true, pieAnimation:true,
   timelineHeight:320, tlGrid:true, tlSmooth:true,
   approvalMini:true, approvalVerdict:true,
   wakeLockEnabled:false,
@@ -76,12 +83,12 @@ export const DEFAULT_OPTIONS = {
 };
 
 // --- Resizable Card IDs ---
-export const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','pollCard','chatInputCard'];
+export const RESIZABLE_IDS = ['pieCard','topWordsCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','pollCard','chatInputCard'];
 
 // --- Layout Sections ---
 export const LAYOUT_SECTIONS = [
   { id:'pieCard',             label:'Mood Distribution' },
-  { id:'radarCard',           label:'Mood Web' },
+  { id:'topWordsCard',        label:'Top 10 Substrings' },
   { id:'bubbleCard',          label:'Consensus Bubbles' },
   { id:'approvalCard',        label:'Approval Meter' },
   { id:'approvalTimelineCard', label:'Approval Timeline' },
@@ -303,15 +310,16 @@ export const HELP_CONTENT = {
 </ul>
 <p>Message length affects scoring. Longer messages with clear sentiment get higher weight. Very short messages contribute less.</p>`
   },
-  radar: {
-    title: 'INTERACTIVE MOOD WEB',
-    body: `<p>The mood web visualizes all active moods as interconnected nodes.</p>
+  topWords: {
+    title: 'TOP 10 SUBSTRINGS',
+    body: `<p>Shows the ten most-used standalone words across the live chat over the last 2 minutes, ranked by raw frequency.</p>
 <ul>
-  <li><strong>Nodes</strong> — Each node is a mood currently active in chat. Node size reflects its weighted percentage.</li>
-  <li><strong>Connections</strong> — Lines connect moods that co-occur frequently. Thicker lines mean stronger co-occurrence.</li>
-  <li><strong>Hover</strong> — Hover over a node to highlight it and its connections. Shows exact percentage.</li>
-  <li><strong>Click</strong> — Click a node to pin-highlight it. Click again or click elsewhere to unpin.</li>
-  <li><strong>Colors</strong> — Each node uses the mood's signature color from the legend.</li>
+  <li><strong>Standalone matching</strong> — "gg" inside "toggle" does NOT count. Only whole tokens are tallied, split on punctuation and whitespace.</li>
+  <li><strong>Decay</strong> — Each word's count reflects occurrences in the past ~120 seconds. Older mentions drop off automatically.</li>
+  <li><strong>Emotes</strong> — Emote names (Kappa, PogChamp, …) count as words. URLs are stripped; numbers count as regular tokens and can be added to the stopwords list below if you want them suppressed.</li>
+  <li><strong>Within-message dedupe</strong> — One user typing "gg gg gg gg" in one message is +1 for "gg", not +4.</li>
+  <li><strong>Stopwords</strong> — Common function words (the, and, to, is, …) are filtered by default. Click the &#9881; icon in the title bar to add your own or unblock defaults; your list is saved locally.</li>
+  <li><strong>Bot filter</strong> — Messages from detected bots are skipped when the bot filter is on, same as every other module.</li>
 </ul>`
   },
   bubbles: {
@@ -462,7 +470,19 @@ export const HELP_CONTENT = {
   <li>The key is stored <strong>locally in your browser</strong> only (localStorage). Never uploaded.</li>
   <li>The local usage counter resets at your <strong>local midnight</strong>. Google's real counter resets at <strong>midnight Pacific Time</strong>. If you burn near the cap right at local midnight, the daily budget protects you from drift.</li>
   <li>If Google ever returns 403 <code>quotaExceeded</code>, the app marks the day as exhausted until local midnight — reconnect attempts won't burn through.</li>
-</ul>`
+</ul>
+<h4 style="margin:12px 0 6px;color:var(--accent)">IF 10,000 UNITS ISN'T ENOUGH</h4>
+<p>Be warned: Google's quota-increase process for YouTube Data API v3 is <strong>not a simple click-to-raise</strong>. It routes to a dedicated application form (<code>support.google.com/youtube/contact/yt_api_form</code>) that asks for business details, expected traffic, and the justification for why your use case needs more. Approval for personal/hobby projects is <strong>unreliable</strong> and can take weeks. For most users: don't bother.</p>
+<p><strong>Realistic lever — raise the MIN POLL slider first.</strong> That single slider in this drawer multiplies your daily yield for free:</p>
+<ul>
+  <li><strong>5s</strong> (default) → ≈ 2.5 h/day</li>
+  <li><strong>10s</strong> → ≈ 5 h/day</li>
+  <li><strong>15s</strong> → ≈ 7.5 h/day</li>
+  <li><strong>30s</strong> (max) → ≈ 15 h/day</li>
+</ul>
+<p>10s is barely noticeable latency for mood analysis and gives you double the chat time. 30s covers a full workday of continuous chat on the free tier.</p>
+<p><strong>Theoretical workaround — second project, second 10k quota.</strong> Each Google Cloud project gets an independent 10k/day quota. You could create a second project, enable the API on it, and make a second key. But <em>this app only holds one key at a time</em>, so you'd be manually swapping keys when one hits its cap — awkward UX. Not recommended.</p>
+<p>If you genuinely do need more than ~15 hours/day of low-latency YouTube chat analysis, the quota-increase form is still the only official path. Otherwise, the MIN POLL slider is almost always the right answer.</p>`
   },
   rumbleWorker: {
     title: 'RUMBLE CHAT PROXY — SETUP',

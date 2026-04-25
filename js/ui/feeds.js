@@ -11,8 +11,10 @@ import {
   FILTER_SIMPLE_STATE_KEY, FILTER_TAB_KEY,
 } from '../config.js';
 import { saveRaw, loadRaw, save, load } from '../utils/storage.js';
+import * as settings from '../utils/settings.js';
 import { onMessageProcessed } from '../processing.js';
 import { createChipInput } from './chipInput.js';
+import { registerModuleSettings, attachInfoButton } from './infoDrawer.js';
 import {
   FILTER_PRESETS, buildRegexFromSimple, parseSimpleFromRegex,
 } from './filterBuilder.js';
@@ -102,27 +104,18 @@ export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 
 
 
 function _approvalParts(vote) {
-  const pct = Math.round(Math.min(100, Math.max(0, (vote + 8) / 16 * 100)));
   let color;
   if (vote > 1) color = '#00ffe5';
   else if (vote < -1) color = '#ff4800';
   else color = '#4a4a7a';
   const num = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
-  return { pct, color, num };
+  return { color, num };
 }
 
 export function buildApprovalEl(vote) {
-  const { pct, color, num } = _approvalParts(vote);
+  const { color, num } = _approvalParts(vote);
   const wrap = document.createElement('span');
   wrap.className = 'feed-apv';
-  const bar = document.createElement('span');
-  bar.className = 'feed-apv-bar';
-  const fill = document.createElement('span');
-  fill.className = 'feed-apv-fill';
-  fill.style.width = pct + '%';
-  fill.style.background = color;
-  bar.appendChild(fill);
-  wrap.appendChild(bar);
   const numEl = document.createElement('span');
   numEl.className = 'feed-apv-num';
   numEl.style.color = color;
@@ -292,8 +285,10 @@ export const filteredFeed = new FeedRenderer('filteredFeedList', {
 
 export function updateFeedFontSize(v) {
   state.feedFontSize = Math.min(20, Math.max(0.1, parseFloat(v)));
-  document.getElementById('feedFontVal').textContent = state.feedFontSize.toFixed(2);
+  const valEl = document.getElementById('feedFontVal');
+  if (valEl) valEl.textContent = state.feedFontSize.toFixed(2);
   saveRaw(FEED_FONT_KEY, state.feedFontSize);
+  try { settings.set('feedFont', state.feedFontSize, { scope: 'feedCard' }); } catch {}
   applyFeedFontSize();
 }
 
@@ -306,8 +301,10 @@ export function applyFeedFontSize() {
 
 export function updateOutlierFontSize(v) {
   state.outlierFontSize = Math.min(20, Math.max(0.1, parseFloat(v)));
-  document.getElementById('outlierFontVal').textContent = state.outlierFontSize.toFixed(2);
+  const valEl = document.getElementById('outlierFontVal');
+  if (valEl) valEl.textContent = state.outlierFontSize.toFixed(2);
   saveRaw(OUTLIER_FONT_KEY, state.outlierFontSize);
+  try { settings.set('outlierFont', state.outlierFontSize, { scope: 'outlierCard' }); } catch {}
   applyOutlierFontSize();
 }
 
@@ -320,8 +317,10 @@ export function applyOutlierFontSize() {
 
 export function updateFilteredFeedFontSize(v) {
   state.filteredFeedFontSize = Math.min(20, Math.max(0.1, parseFloat(v)));
-  document.getElementById('filteredFeedFontVal').textContent = state.filteredFeedFontSize.toFixed(2);
+  const valEl = document.getElementById('filteredFeedFontVal');
+  if (valEl) valEl.textContent = state.filteredFeedFontSize.toFixed(2);
   saveRaw(FILTERED_FEED_FONT_KEY, state.filteredFeedFontSize);
+  try { settings.set('filteredFeedFont', state.filteredFeedFontSize, { scope: 'filteredFeedCard' }); } catch {}
   applyFilteredFeedFontSize();
 }
 
@@ -330,6 +329,82 @@ export function applyFilteredFeedFontSize() {
   if (!list) return;
   list.style.fontSize = state.filteredFeedFontSize + 'em';
   list.style.lineHeight = Math.max(1.2, 1.4 + (state.filteredFeedFontSize - 2) * 0.15).toFixed(2);
+}
+
+/* ── info drawer registration for feed / filtered / outlier ────────── */
+
+function _buildFontSliderRow({ sliderId, valId, value, min, max, step, onInput, label = 'TEXT SIZE' }) {
+  const row = document.createElement('div');
+  row.className = 'sw-slider-row';
+  row.innerHTML = `
+    <span class="sw-slider-label">${label}</span>
+    <input type="range" id="${sliderId}" min="${min}" max="${max}" step="${step}" value="${value}">
+    <span class="sw-slider-val" id="${valId}">${(+value).toFixed(2)}</span>
+  `;
+  const slider = row.querySelector('input');
+  slider.addEventListener('input', () => onInput(slider.value));
+  return row;
+}
+
+export function registerFeedInfoDrawers() {
+  registerModuleSettings('feedCard', (body) => {
+    body.appendChild(_buildFontSliderRow({
+      sliderId: 'feedFontSlider', valId: 'feedFontVal',
+      value: state.feedFontSize, min: 0.1, max: 20, step: 0.05,
+      onInput: updateFeedFontSize,
+    }));
+  }, { title: 'LIVE FEED' });
+
+  registerModuleSettings('outlierCard', (body) => {
+    body.appendChild(_buildFontSliderRow({
+      sliderId: 'outlierFontSlider', valId: 'outlierFontVal',
+      value: state.outlierFontSize, min: 0.1, max: 20, step: 0.05,
+      onInput: updateOutlierFontSize,
+    }));
+  }, { title: 'STANDOUT MESSAGES' });
+
+  registerModuleSettings('filteredFeedCard', (body) => {
+    body.appendChild(_buildFontSliderRow({
+      sliderId: 'filteredFeedFontSlider', valId: 'filteredFeedFontVal',
+      value: state.filteredFeedFontSize, min: 0.1, max: 20, step: 0.05,
+      onInput: updateFilteredFeedFontSize,
+    }));
+    // Secondary action: open the full filter editor modal. The editor is
+    // complex enough (simple/advanced tabs, chip inputs, regex, username,
+    // history) to warrant its own overlay — this drawer links to it.
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'filter-btn filter-btn-primary';
+    editBtn.style.cssText = 'margin-top:4px;width:100%;padding:10px';
+    editBtn.textContent = 'Edit filter (regex / chips / username)';
+    editBtn.addEventListener('click', () => {
+      // Close the info drawer first so the filter modal isn't covered.
+      import('./infoDrawer.js').then(m => m.closeInfoDrawer());
+      openFilterModal();
+    });
+    body.appendChild(editBtn);
+  }, { title: 'FILTERED FEED' });
+}
+
+export function attachFeedInfoButtons() {
+  const map = [
+    ['feedCard',         'LIVE FEED'],
+    ['outlierCard',      'STANDOUT MESSAGES'],
+    ['filteredFeedCard', 'FILTERED FEED'],
+  ];
+  for (const [moduleId, title] of map) {
+    const card = document.getElementById(moduleId);
+    if (!card) continue;
+    const titleRow = card.querySelector('.feed-title-row .feed-title');
+    if (!titleRow) continue;
+    // Remove the old "?" help button — its content moves into the drawer.
+    const oldHelp = titleRow.querySelector('.help-btn');
+    if (oldHelp) oldHelp.remove();
+    // Only attach once
+    if (!titleRow.querySelector('.card-info-btn')) {
+      attachInfoButton(titleRow, moduleId, { title });
+    }
+  }
 }
 
 /* ── filter state writers ────────────────────────────── */

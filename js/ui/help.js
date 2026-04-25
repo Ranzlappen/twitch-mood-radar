@@ -23,7 +23,6 @@ export function initHelpKeys() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeHelp();
-      document.getElementById('settingsDropdown').classList.remove('open');
       document.getElementById('optionsDrawer').classList.remove('open');
       document.getElementById('optionsOverlay').classList.remove('open');
       const userHist = document.getElementById('userHistoryOverlay');
@@ -35,6 +34,11 @@ export function initHelpKeys() {
       if (filterOv && filterOv.classList.contains('open')) {
         if (typeof window.closeFilterModal === 'function') window.closeFilterModal();
         else { filterOv.classList.remove('open'); filterOv.hidden = true; }
+      }
+      const swOv = document.getElementById('stopwordsOverlay');
+      if (swOv && swOv.classList.contains('open')) {
+        swOv.classList.remove('open');
+        swOv.hidden = true;
       }
     }
   });

@@ -9,6 +9,7 @@ import {
 } from '../config.js';
 import { load, save } from '../utils/storage.js';
 import { resizeBubbleCanvas } from './bubbles.js';
+import { resizeTopWordsPanel } from './topWords.js';
 
 /* ── module-level layout state ───────────────────────── */
 
@@ -22,7 +23,7 @@ let isRestoringLayout = false;      // guard against ResizeObserver during DOM r
 
 function allCharts() {
   return [
-    state.pieChart, state.radarChart,
+    state.pieChart,
     state.approvalTimelineChart, state.throughputTimelineChart,
     state.timelineLinearChart, state.timelineLogChart
   ].filter(Boolean);
@@ -66,7 +67,7 @@ export function restoreSizes() {
 
 export function notifyChartResize(cardId) {
   if (cardId === 'pieCard'               && state.pieChart)              { state.pieChart.resize(); state.pieChart.update('none'); }
-  if (cardId === 'radarCard'             && state.radarChart)            { state.radarChart.resize(); state.radarChart.update('none'); }
+  if (cardId === 'topWordsCard')                                         resizeTopWordsPanel();
   if (cardId === 'approvalTimelineCard'  && state.approvalTimelineChart)  state.approvalTimelineChart.resize();
   if (cardId === 'throughputTimelineCard' && state.throughputTimelineChart) state.throughputTimelineChart.resize();
   if (cardId === 'timelineLinearCard'    && state.timelineLinearChart)    state.timelineLinearChart.resize();
@@ -338,13 +339,11 @@ export function applyCustomLayout() {
 
   // Re-apply saved sizes after DOM rebuild so heights/widths persist
   restoreSizes();
-
-  document.getElementById('settingsDropdown').classList.remove('open');
   setTimeout(() => {
     resizeBubbleCanvas();
+    resizeTopWordsPanel();
     for (const c of allCharts()) {
       c.resize();
-      if (c === state.radarChart) c.update('none');
     }
     isRestoringLayout = false; // release guard after layout is stable
   }, 50);
@@ -356,7 +355,7 @@ export function restoreDefaultDOM() {
   const chartsTop = document.querySelector('.charts-top');
 
   // Collect all card elements by ID (safe references survive DOM moves)
-  const allCardIds = ['pieCard', 'radarCard', 'bubbleCard', 'approvalCard', 'approvalTimelineCard', 'throughputTimelineCard', 'timelineLinearCard', 'timelineLogCard', 'feedCard', 'filteredFeedCard', 'outlierCard', 'chatInputCard'];
+  const allCardIds = ['pieCard', 'topWordsCard', 'bubbleCard', 'approvalCard', 'approvalTimelineCard', 'throughputTimelineCard', 'timelineLinearCard', 'timelineLogCard', 'feedCard', 'filteredFeedCard', 'outlierCard', 'chatInputCard'];
   const cards = {};
   for (const id of allCardIds) {
     const el = document.getElementById(id);
@@ -379,11 +378,11 @@ export function restoreDefaultDOM() {
     dividers.push(d);
   }
 
-  // Restore pie + radar into charts-top grid
+  // Restore pie + top-words into charts-top grid
   if (chartsTop) {
     while (chartsTop.firstChild) chartsTop.removeChild(chartsTop.firstChild);
     if (cards.pieCard) chartsTop.appendChild(cards.pieCard);
-    if (cards.radarCard) chartsTop.appendChild(cards.radarCard);
+    if (cards.topWordsCard) chartsTop.appendChild(cards.topWordsCard);
   }
 
   // Insert remaining cards in default order before customLayoutContainer
@@ -438,13 +437,15 @@ export function setLayoutJustify(val) {
 
 export function updateHalfLife(v) {
   state.HALF_LIFE_MS = parseInt(v) * 1000;
-  document.getElementById('hlVal').textContent = v + 's';
+  const el = document.getElementById('hlVal');
+  if (el) el.textContent = v + 's';
   try { localStorage.setItem(HALFLIFE_KEY, v); } catch { }
 }
 
 export function updateLabelScale(v) {
   state.labelScale = Math.min(2.5, Math.max(0.4, parseFloat(v)));
-  document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
+  const el = document.getElementById('labelScaleVal');
+  if (el) el.textContent = state.labelScale.toFixed(1) + 'x';
   try { localStorage.setItem(LABEL_SCALE_KEY, state.labelScale); } catch { }
   // Pie redraws on next update cycle; bubble redraws on next animation frame
   if (state.pieChart) state.pieChart.update('none');
@@ -452,6 +453,7 @@ export function updateLabelScale(v) {
 
 export function updateBubbleScale(v) {
   state.bubbleScale = Math.min(1.5, Math.max(0.3, parseFloat(v)));
-  document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
+  const el = document.getElementById('bubbleScaleVal');
+  if (el) el.textContent = state.bubbleScale.toFixed(2) + 'x';
   try { localStorage.setItem(BUBBLE_SCALE_KEY, state.bubbleScale); } catch { }
 }

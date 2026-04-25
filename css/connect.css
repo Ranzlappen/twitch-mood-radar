@@ -180,12 +180,54 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   user-select: none;
   cursor: grabbing;
 }
-.user-history-modal h3 {
+.user-history-modal h3,
+.user-history-modal .user-history-header {
   cursor: grab;
   user-select: none;
 }
-.user-history-modal.dragging h3 {
+.user-history-modal.dragging h3,
+.user-history-modal.dragging .user-history-header {
   cursor: grabbing;
+}
+.user-history-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-right: 28px; /* leave room for the × close button */
+}
+.user-history-header #userHistSearchInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .9em;
+  padding: 6px 10px;
+  outline: none;
+  cursor: text;
+}
+.user-history-header #userHistSearchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0,255,229,.15);
+}
+.user-history-header #userHistSearchBtn {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7em;
+  letter-spacing: .12em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.user-history-header #userHistSearchBtn:hover {
+  border-color: var(--accent);
 }
 .user-history-stats {
   font-size: .72em;
@@ -362,6 +404,151 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 @keyframes userHistRowFlash {
   from { background: rgba(0,255,229,.18); }
   to   { background: transparent; }
+}
+
+/* ---------- Justlog "Global" scope ---------- */
+.uh-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: .72em;
+  color: #9898c8;
+}
+.uh-sources[hidden] { display: none; }
+.uh-sources-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.uh-sources-label {
+  color: var(--muted);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .85em;
+  padding-right: 4px;
+}
+.uh-sources-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.uh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(0,255,229,.06);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1em;
+  line-height: 1.4;
+}
+.uh-chip-label { word-break: break-all; }
+.uh-chip-x {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.1em;
+  line-height: 1;
+  padding: 0 2px;
+}
+.uh-chip-x:hover { color: var(--accent2); }
+.uh-chip-suggest {
+  background: transparent;
+  cursor: pointer;
+  color: var(--muted);
+}
+.uh-chip-suggest:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.uh-sources-add {
+  flex: 1 1 120px;
+  min-width: 120px;
+  max-width: 220px;
+  background: #0f1020;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1em;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.uh-sources-add:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.uh-sources-search {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1em;
+  padding: 3px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: .04em;
+  margin-left: auto;
+}
+.uh-sources-search:hover:not([disabled]) {
+  background: rgba(0,255,229,.08);
+}
+.uh-sources-search[disabled] {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.uh-sources-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.uh-sources-suggest[hidden] { display: none; }
+.uh-sources-suggest-label {
+  color: var(--muted);
+  font-size: .85em;
+  padding-right: 4px;
+}
+.uh-sources-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .9em;
+  color: var(--muted);
+}
+.uh-sources-status[hidden] { display: none; }
+.uh-status-chan { white-space: nowrap; }
+.uh-status-loading  { color: var(--accent); }
+.uh-status-ok       { color: #7fffa0; }
+.uh-status-not_logged { color: var(--muted); text-decoration: line-through; }
+.uh-status-opted_out { color: #ff7a7a; }
+.uh-status-not_found { color: var(--muted); }
+.uh-status-error    { color: var(--accent2); }
+.uh-status-aborted  { color: var(--muted); }
+.uh-sources-note {
+  font-size: .9em;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.uh-sources-note a { color: var(--accent); }
+.user-history-source-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .85em;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+  letter-spacing: .04em;
+  opacity: .7;
 }
 
 /* Disconnected pulsing red inlaid border — applied when logging was active but connection was lost */

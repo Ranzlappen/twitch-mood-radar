@@ -7,6 +7,7 @@
 
 import { state, initState } from './state.js';
 import * as config from './config.js';
+import * as settings from './utils/settings.js';
 import { ConnectionManager } from './platform/ConnectionManager.js';
 import { enqueue, processingLoop, flushChatterData } from './processing.js';
 import { initCharts, updateTimelinePoints, updateTimelineInterval, renderMoodLegend } from './ui/charts.js';
@@ -18,10 +19,13 @@ import {
   openFilterModal, closeFilterModal, onFilterModalInput,
   applyFilterModal, clearFilterModal, setFilterTab,
   selectFilterHistoryItem, deleteFilterHistoryItem,
-  updateFilterTriggerButton, refreshUserDatalist
+  updateFilterTriggerButton, refreshUserDatalist,
+  registerFeedInfoDrawers, attachFeedInfoButtons,
 } from './ui/feeds.js';
+import { registerModuleInfoDrawers, attachModuleInfoButtons } from './ui/moduleDrawers.js';
 import {
   loadOptions, saveOptions, toggleOptionsDrawer, applyAllOptions, resetAllOptions, refreshStorageUsage,
+  refreshAppAssets,
   loadRumbleProxyUrl, saveRumbleProxyUrl,
   loadYouTubeApiKey, saveYouTubeApiKey, setYouTubeDailyBudget, setYoutubeMinPollMs,
   resetYoutubeQuotaCounter, refreshYoutubeQuotaDisplay,
@@ -29,6 +33,7 @@ import {
 import { savePreset, toggleSettings, applyPreset } from './ui/settings.js';
 import { restoreSizes, notifyChartResize, setupResizeObserver, loadLayout, renderLayoutManager, applyCustomLayout, restoreDefaultDOM, toggleLayoutInline, setLayoutAlign, setLayoutJustify, updateHalfLife, updateLabelScale, updateBubbleScale } from './ui/layout.js';
 import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
+import { loadStopwordOverrides, registerTopWordsInfoDrawer, attachTopWordsInfoButton } from './ui/stopwordsModal.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
 import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
@@ -43,7 +48,7 @@ import {
   setOptShowSubtitle, setOptShowLegend, setOptShowDividers, setOptCompactStats,
   setOptRenderTextEmoji,
   setOptBubbleCount, setOptBubbleSpeed, setOptBubbleOpacity, setOptBubbleHeight,
-  setOptPieLabels, setOptPieAnimation, setOptRadarAnimation, setOptRadarGrid,
+  setOptPieLabels, setOptPieAnimation,
   setOptTimelineHeight, setOptTlGrid, setOptTlSmooth,
   setOptApprovalMini, setOptApprovalVerdict, setOptCardVisibility,
   setOptWakeLock
@@ -155,14 +160,14 @@ window.handleChannelKey = (slotId, e) => connMgr.handleChannelKey(slotId, e);
 window.toggleSettings = toggleSettings;
 window.applyPreset = (preset) => {
   if (preset === 'custom') {
-    document.getElementById('layoutManagerSection').style.display = 'block';
+    document.getElementById('optCustomLayoutSection').style.display = 'block';
     renderLayoutManager();
     applyCustomLayout();
     savePreset('custom');
     return;
   }
   state.isRestoringLayout = true;
-  document.getElementById('layoutManagerSection').style.display = 'none';
+  document.getElementById('optCustomLayoutSection').style.display = 'none';
   document.body.classList.remove('preset-custom');
   restoreDefaultDOM();
   applyPreset(preset);
@@ -198,8 +203,6 @@ window.setOptBubbleOpacity = setOptBubbleOpacity;
 window.setOptBubbleHeight = setOptBubbleHeight;
 window.setOptPieLabels = setOptPieLabels;
 window.setOptPieAnimation = setOptPieAnimation;
-window.setOptRadarAnimation = setOptRadarAnimation;
-window.setOptRadarGrid = setOptRadarGrid;
 window.setOptTimelineHeight = setOptTimelineHeight;
 window.setOptTlGrid = setOptTlGrid;
 window.setOptTlSmooth = setOptTlSmooth;
@@ -208,6 +211,7 @@ window.setOptApprovalVerdict = setOptApprovalVerdict;
 window.setOptCardVisibility = setOptCardVisibility;
 window.setOptWakeLock = setOptWakeLock;
 window.resetAllOptions = resetAllOptions;
+window.refreshAppAssets = refreshAppAssets;
 window.saveRumbleProxyUrl = saveRumbleProxyUrl;
 window.saveYouTubeApiKey = saveYouTubeApiKey;
 window.setYouTubeDailyBudget = setYouTubeDailyBudget;
@@ -310,32 +314,38 @@ window.esc = esc;
 //  Initialization
 // =============================================================
 window.onload = function () {
+  // One-shot: migrate scattered v1 localStorage keys into the v2 blob.
+  // Safe to run every load — it only touches fields still at their defaults.
+  try { settings.migrate(); } catch {}
+
   // Initialize state from localStorage
   initState();
 
   // Render initial slot UI
   connMgr.renderAllSlots();
 
-  // Init label scale slider
+  // Init label scale slider (lives in the Options Drawer — DOM exists)
   const slider = document.getElementById('labelScaleSlider');
   if (slider) slider.value = state.labelScale;
-  document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
+  const labelScaleValEl = document.getElementById('labelScaleVal');
+  if (labelScaleValEl) labelScaleValEl.textContent = state.labelScale.toFixed(1) + 'x';
 
-  // Init bubble scale slider
-  const bsSlider = document.getElementById('bubbleScaleSlider');
-  if (bsSlider) bsSlider.value = state.bubbleScale;
-  document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
+  // Bubble scale lives inside bubbleCard info drawer now; display sync
+  // happens when the drawer is opened.
 
-  // Init feed font size slider
-  const feedSlider = document.getElementById('feedFontSlider');
-  if (feedSlider) feedSlider.value = state.feedFontSize;
-  document.getElementById('feedFontVal').textContent = state.feedFontSize.toFixed(2);
+  // Per-module info drawers: register settings builders + attach the "ⓘ"
+  // button on each card title row.
+  registerFeedInfoDrawers();
+  attachFeedInfoButtons();
+  registerModuleInfoDrawers();
+  attachModuleInfoButtons();
+
+  // Init feed font size — slider lives inside the feedCard info drawer
+  // (rebuilt each time the drawer opens), so the DOM elements may not
+  // exist yet at load time. Only applyFeedFontSize() affects the rendered list.
   applyFeedFontSize();
 
-  // Init filtered feed font size slider
-  const filteredFeedSlider = document.getElementById('filteredFeedFontSlider');
-  if (filteredFeedSlider) filteredFeedSlider.value = state.filteredFeedFontSize;
-  document.getElementById('filteredFeedFontVal').textContent = state.filteredFeedFontSize.toFixed(2);
+  // Init filtered feed font size (slider in filteredFeedCard info drawer)
   applyFilteredFeedFontSize();
 
   // Init filtered-feed filter from storage (regex + username substring)
@@ -346,10 +356,7 @@ window.onload = function () {
   refreshUserDatalist();
   updateFilterTriggerButton();
 
-  // Init outlier font size slider
-  const outlierSlider = document.getElementById('outlierFontSlider');
-  if (outlierSlider) outlierSlider.value = state.outlierFontSize;
-  document.getElementById('outlierFontVal').textContent = state.outlierFontSize.toFixed(2);
+  // Init outlier font size (slider in outlierCard info drawer)
   applyOutlierFontSize();
 
   // Init timeline settings sliders
@@ -385,22 +392,29 @@ window.onload = function () {
     state.drawerOptions.density = 'dense';
     state.drawerOptions.timelineHeight = 220;
 
-    // Update sliders to reflect new values
-    const lsSlider = document.getElementById('labelScaleSlider');
-    if (lsSlider) lsSlider.value = state.labelScale;
-    document.getElementById('labelScaleVal').textContent = state.labelScale.toFixed(1) + 'x';
-    if (bsSlider) bsSlider.value = state.bubbleScale;
-    document.getElementById('bubbleScaleVal').textContent = state.bubbleScale.toFixed(2) + 'x';
-    if (tlPtsSlider) tlPtsSlider.value = state.TIMELINE_POINTS;
-    document.getElementById('tlPointsVal').textContent = state.TIMELINE_POINTS;
-    if (tlIntSlider) tlIntSlider.value = state.TIMELINE_INTERVAL;
-    document.getElementById('tlIntervalVal').textContent = state.TIMELINE_INTERVAL + 'ms';
+    // Update sliders to reflect new values. Some of these elements live
+    // inside module info drawers that aren't in the DOM until opened, so
+    // every lookup is null-safe.
+    const syncSlider = (id, val) => {
+      const el = document.getElementById(id); if (el) el.value = val;
+    };
+    const syncText = (id, val) => {
+      const el = document.getElementById(id); if (el) el.textContent = val;
+    };
+    syncSlider('labelScaleSlider', state.labelScale);
+    syncText('labelScaleVal', state.labelScale.toFixed(1) + 'x');
+    syncSlider('bubbleScaleSlider', state.bubbleScale);
+    syncText('bubbleScaleVal', state.bubbleScale.toFixed(2) + 'x');
+    syncSlider('tlPointsSlider', state.TIMELINE_POINTS);
+    syncText('tlPointsVal', String(state.TIMELINE_POINTS));
+    syncSlider('tlIntervalSlider', state.TIMELINE_INTERVAL);
+    syncText('tlIntervalVal', state.TIMELINE_INTERVAL + 'ms');
 
     // Seed localStorage so loadLayout() and restoreSizes() pick up the defaults
     const tabletLayout = {
       order: config.LAYOUT_SECTIONS.map(s => s.id),
       inline: {
-        pieCard: true, radarCard: true, bubbleCard: true,
+        pieCard: true, topWordsCard: true, bubbleCard: true,
         approvalTimelineCard: true, throughputTimelineCard: true, timelineLinearCard: true,
       },
       alignItems: 'start',
@@ -409,7 +423,7 @@ window.onload = function () {
     try {
       localStorage.setItem(config.LAYOUT_STORAGE_KEY, JSON.stringify(tabletLayout));
       localStorage.setItem(config.RESIZE_STORAGE_KEY, JSON.stringify({
-        pieCard: { h: 200 }, radarCard: { h: 200 },
+        pieCard: { h: 200 }, topWordsCard: { h: 200 },
         bubbleCard: { h: 200 }, approvalCard: { h: 200 },
         approvalTimelineCard: { h: 220 }, throughputTimelineCard: { h: 220 },
         timelineLinearCard: { h: 220 }, timelineLogCard: { h: 220 },
@@ -433,6 +447,11 @@ window.onload = function () {
 
   // Initialize help keyboard shortcuts
   initHelpKeys();
+
+  // Load persisted stopword overrides and register the topWords info drawer.
+  loadStopwordOverrides();
+  registerTopWordsInfoDrawer();
+  attachTopWordsInfoButton();
 
   // Request persistent storage so the browser doesn't evict chat history
   // under disk pressure. On Chromium this also raises the per-origin quota

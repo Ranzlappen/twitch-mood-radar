@@ -188,3 +188,24 @@
   .options-drawer.open { transform:translateY(0) }
 }
 
+/* Preset buttons inside the Options Drawer (absorbed from Settings Dropdown) */
+.opt-preset-row {
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:6px;
+  margin-bottom:6px;
+}
+.opt-preset-row .preset-btn {
+  justify-content:center;
+  padding:8px 6px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  width:auto;
+  text-align:center;
+}
+.opt-preset-row .preset-btn.active {
+  border-color:var(--accent);
+  background:rgba(0,255,229,.06);
+}
+.opt-preset-row .preset-btn .preset-icon { display:none; }
+

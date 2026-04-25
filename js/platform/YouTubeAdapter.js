@@ -216,12 +216,21 @@ export class YouTubeAdapter extends PlatformAdapter {
       reportProgress('Looking for live stream...');
       videoId = await _resolveChannelToLive(raw);
       if (!videoId) {
-        reportError('No live stream found (channel offline, handle wrong, or CORS proxies blocked).');
+        reportError('No live stream found (channel offline, handle wrong, or paste a video URL).');
         return;
       }
     }
     this._videoId = videoId;
 
+    // Fast path — if a YouTube Data API key is saved, use it directly.
+    // Skips the dead CORS-proxy chains entirely (~3 min of wasted timeouts).
+    const apiKey = getYoutubeApiKey();
+    if (apiKey) {
+      await this._connectViaApiKey(videoId, apiKey, btn, reportError, reportProgress);
+      return;
+    }
+
+    // Legacy/free path — only tried when no API key is configured.
     // Approach 1: innertube 'next' API
     reportProgress('Connecting to chat (innertube)...');
     let continuation = null;
@@ -245,14 +254,11 @@ export class YouTubeAdapter extends PlatformAdapter {
       return;
     }
 
-    // Approach 3: API key fallback (only if pre-saved)
-    const apiKey = getYoutubeApiKey();
-    if (!apiKey) {
-      reportError('Could not reach YouTube chat. Set a free YouTube Data API key in the options drawer.');
-      console.warn('[MoodRadar][YouTube] No saved API key. Open the options drawer → "YouTube API Key" and click the "i" icon for setup instructions.');
-      return;
-    }
+    reportError('Could not reach YouTube chat. Set a free YouTube Data API key in the options drawer.');
+    console.warn('[MoodRadar][YouTube] No saved API key and CORS proxies all failed. Open the options drawer → "YouTube API Key" and click the "i" icon for setup instructions.');
+  }
 
+  async _connectViaApiKey(videoId, apiKey, btn, reportError, reportProgress) {
     // Pre-flight: budget must cover at least the 1-unit videos.list call
     // plus one 5-unit poll, or don't even attempt the connect.
     if (isYoutubeBudgetExceeded(6)) {
@@ -260,14 +266,13 @@ export class YouTubeAdapter extends PlatformAdapter {
       return;
     }
 
-    reportProgress('Resolving via API key...');
+    reportProgress('Resolving live chat via API key...');
     try {
       const res = await fetch(
         'https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=' + videoId + '&key=' + apiKey
       );
       addYoutubeQuotaUsage(1);
       if (res.status === 403) {
-        // Could be quotaExceeded or key misconfigured — parse to differentiate
         let reason = '';
         try { const j = await res.json(); reason = j.error?.errors?.[0]?.reason || ''; } catch { /* non-JSON */ }
         if (reason === 'quotaExceeded' || reason === 'dailyLimitExceeded') {
@@ -281,7 +286,7 @@ export class YouTubeAdapter extends PlatformAdapter {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const liveChatId = data.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
-      if (!liveChatId) { reportError('No active live chat found.'); return; }
+      if (!liveChatId) { reportError('No active live chat found for this video.'); return; }
 
       // Poll via Data API
       this._polling = true;

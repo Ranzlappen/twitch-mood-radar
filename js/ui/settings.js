@@ -1,5 +1,6 @@
 /**
- * Settings — preset management and settings dropdown.
+ * Preset management. The former standalone Settings Dropdown has been
+ * retired — preset buttons now live at the top of the Options Drawer.
  */
 import { state } from '../state.js';
 import { PRESET_STORAGE_KEY } from '../config.js';
@@ -7,29 +8,24 @@ import { saveRaw } from '../utils/storage.js';
 import { resizeBubbleCanvas } from './bubbles.js';
 import { saveOptions } from './options.js';
 
-/* ── helpers ─────────────────────────────────────────── */
-
 function allCharts() {
   return [
-    state.pieChart, state.radarChart,
+    state.pieChart,
     state.approvalTimelineChart, state.throughputTimelineChart,
     state.timelineLinearChart, state.timelineLogChart
   ].filter(Boolean);
 }
 
-/* ── persistence ─────────────────────────────────────── */
-
 export function savePreset(preset) {
   saveRaw(PRESET_STORAGE_KEY, preset);
 }
 
-/* ── dropdown toggle ─────────────────────────────────── */
-
-export function toggleSettings() {
-  document.getElementById('settingsDropdown').classList.toggle('open');
-}
-
-/* ── apply preset ────────────────────────────────────── */
+/**
+ * No-op stub kept for back-compat with any inline onclick that may still
+ * reference toggleSettings(). The dropdown no longer exists; opening the
+ * Options Drawer is the user-facing flow now.
+ */
+export function toggleSettings() { /* retired */ }
 
 export function applyPreset(preset) {
   state.currentPreset = preset;
@@ -39,31 +35,16 @@ export function applyPreset(preset) {
     document.body.classList.add('preset-list');
   } else if (preset === 'dense') {
     document.body.classList.add('preset-dense');
-    // Also sync drawer density option
     state.drawerOptions.density = 'dense';
     const densityEl = document.getElementById('optDensity');
     if (densityEl) densityEl.value = 'dense';
     saveOptions();
   }
-  // Update active state on buttons
+  // Update active state on preset buttons in the Options Drawer.
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === preset);
   });
-  document.getElementById('settingsDropdown').classList.remove('open');
 
-  // Resize bubble canvas after layout reflows
   setTimeout(resizeBubbleCanvas, 50);
-  // Resize charts
-  for (const c of allCharts()) {
-    c.resize();
-    if (c === state.radarChart) c.update('none');
-  }
+  for (const c of allCharts()) c.resize();
 }
-
-/* ── close settings dropdown when clicking outside ───── */
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.settings-wrap')) {
-    document.getElementById('settingsDropdown').classList.remove('open');
-  }
-});

@@ -231,6 +231,40 @@ export async function queryByUser(userKey, opts = {}) {
 }
 
 /**
+ * Return the distinct channels this user has been seen in locally.
+ * Used to suggest justlog source chips in the user-history modal.
+ */
+export async function listChannelsForUser(userKey) {
+  const db = await _open();
+  if (!db) return [];
+  return new Promise((resolve) => {
+    const tx = db.transaction(HISTORY_DB_STORE, 'readonly');
+    const idx = tx.objectStore(HISTORY_DB_STORE).index(IDX_USER);
+    const cursorReq = idx.openCursor(IDBKeyRange.only(userKey));
+    const seen = new Map(); // channel → { platform, count }
+    cursorReq.onsuccess = (e) => {
+      const c = e.target.result;
+      if (!c) {
+        const out = [];
+        for (const [channel, meta] of seen) out.push({ channel, platform: meta.platform, count: meta.count });
+        out.sort((a, b) => b.count - a.count);
+        resolve(out);
+        return;
+      }
+      const r = c.value;
+      const ch = r.channel || '';
+      if (ch) {
+        const prev = seen.get(ch);
+        if (prev) prev.count++;
+        else seen.set(ch, { platform: r.platform || '', count: 1 });
+      }
+      c.continue();
+    };
+    cursorReq.onerror = () => resolve([]);
+  });
+}
+
+/**
  * Aggregate stats for a user (optionally scoped to channel+platform).
  */
 export async function userStats(userKey, opts = {}) {
