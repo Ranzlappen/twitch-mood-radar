@@ -53,6 +53,8 @@ export class ConnectionManager {
     this._slotIdCounter = 0;
     /** @type {((msg: {user:string, msg:string, ts:number, platform:string}) => void)|null} */
     this._onMessageCallback = null;
+    /** @type {((p: {inner:object, channelId:string, channelLogin:string}) => void)|null} */
+    this._onPollCallback = null;
     /** @type {(() => void)|null} */
     this._onFirstConnect = null;
     /** @type {(() => void)|null} */
@@ -66,6 +68,9 @@ export class ConnectionManager {
 
   /** Register callback for incoming messages from any slot */
   onMessage(cb) { this._onMessageCallback = cb; }
+
+  /** Register callback for Twitch poll events from any slot */
+  onPoll(cb) { this._onPollCallback = cb; }
 
   /** Register callback for when first slot goes live (start processing loop) */
   onFirstConnect(cb) { this._onFirstConnect = cb; }
@@ -302,6 +307,14 @@ export class ConnectionManager {
         this._onMessageCallback({ ...msg, channel: msg.channel || slot.channelName });
       }
     });
+
+    // Twitch-only: forward poll events from the adapter to the manager-level
+    // callback. Other adapters don't expose onPoll, so this is a no-op there.
+    if (typeof slot.adapter.onPoll === 'function') {
+      slot.adapter.onPoll((evt) => {
+        if (this._onPollCallback) this._onPollCallback(evt);
+      });
+    }
 
     // Wire adapter's onStatus to update slot status
     slot.adapter.onStatus((statusInfo) => {

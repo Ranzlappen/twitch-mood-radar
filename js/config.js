@@ -50,6 +50,13 @@ export const CHANNEL_HISTORY_MAX = 20;
 export const USER_PROFILE_WINDOW = 60_000;
 export const RESIZE_DEBOUNCE_MS = 180;
 
+// --- Twitch PubSub (unofficial — used to read live channel polls) ---
+export const TWITCH_PUBSUB_URL = 'wss://pubsub-edge.twitch.tv/v1';
+// Twitch requires a PING at least every 5 minutes; we do every 4 to be safe.
+export const PUBSUB_PING_INTERVAL_MS = 4 * 60 * 1000;
+// How long an ended poll stays on screen before it is removed.
+export const POLL_END_LINGER_MS = 10_000;
+
 // --- Mood System ---
 export const MOODS = ['hype','funny','love','toxic','sad','calm','angry','excited','cringe','wholesome','confused','neutral'];
 export const MOOD_COLORS = {hype:'#00ffe5',funny:'#ffe600',love:'#ff2d78',toxic:'#ff4800',sad:'#9b6ef3',calm:'#4fc3f7',angry:'#ff1744',excited:'#76ff03',cringe:'#e040fb',wholesome:'#ffab40',confused:'#78909c',neutral:'#2e3d5e'};
@@ -69,7 +76,7 @@ export const DEFAULT_OPTIONS = {
 };
 
 // --- Resizable Card IDs ---
-export const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','chatInputCard'];
+export const RESIZABLE_IDS = ['pieCard','radarCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','pollCard','chatInputCard'];
 
 // --- Layout Sections ---
 export const LAYOUT_SECTIONS = [
@@ -84,6 +91,7 @@ export const LAYOUT_SECTIONS = [
   { id:'feedCard',            label:'Live Feed' },
   { id:'filteredFeedCard',    label:'Filtered Feed' },
   { id:'outlierCard',         label:'Standout Messages' },
+  { id:'pollCard',            label:'Channel Polls' },
   { id:'chatInputCard',       label:'Chat Input' },
 ];
 
@@ -382,6 +390,18 @@ export const HELP_CONTENT = {
   <li>Treat your token like a password. Never share it publicly.</li>
   <li>Tokens expire — if sending fails, generate a new one.</li>
 </ul>`
+  },
+  channelPolls: {
+    title: 'CHANNEL POLLS',
+    body: `<p>Shows live polls created by the streamer on any connected Twitch channel — the same popups that viewers see on twitch.tv. Each choice has a vote bar; channel-point–boosted votes are shown with a ★ badge.</p>
+<ul>
+  <li>Polls appear automatically when the streamer starts one. No login or OAuth scope is needed.</li>
+  <li>If you connect <em>after</em> a poll has already started, it will show up as soon as the next vote update arrives (usually within a few seconds on an active stream).</li>
+  <li>Multiple connected channels can each have their own poll — they stack in this card with the channel name on top.</li>
+  <li>Ended polls linger for ~10s so the result stays visible, then disappear.</li>
+</ul>
+<h4 style="margin:12px 0 6px;color:#ff4800">A NOTE ON RELIABILITY</h4>
+<p>Twitch has no public API for viewers to read polls — the official one requires the streamer's authorization. This card uses Twitch's internal PubSub system, the same one twitch.tv uses to deliver poll popups to logged-out viewers. It works today and is widely used by third-party tools, but Twitch can change it without notice. If polls ever stop appearing, that is the most likely cause.</p>`
   },
   youtubeApiKey: {
     title: 'YOUTUBE API KEY — FREE SETUP',

@@ -35,6 +35,7 @@ import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistor
 import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
 import { initEmoteModal } from './ui/emoteModal.js';
 import { initLinkModal } from './ui/linkModal.js';
+import { initPollUI, normalizePollFrame, renderPolls, POLL_LINGER_MS } from './ui/polls.js';
 
 // --- Import all setOpt* functions from options ---
 import {
@@ -59,6 +60,50 @@ window.__connMgr = connMgr;
 // Wire incoming messages to the processing pipeline
 connMgr.onMessage(({ user, msg, ts, platform, channel, badges }) => {
   enqueue(user, msg, ts, platform, channel, badges);
+});
+
+// Wire Twitch poll events into state.polls and re-render the poll card.
+// Ended polls linger briefly so the result stays visible, then are removed.
+const _pollEndTimers = new Map();
+connMgr.onPoll(({ inner, channelId, channelLogin }) => {
+  const norm = normalizePollFrame(inner);
+  if (!norm || !channelId) return;
+
+  const existing = state.polls.get(channelId);
+  const startedAtMs = norm.startedAt ? Date.parse(norm.startedAt) : (existing?.startedAtMs || Date.now());
+  const endsAt = Number.isFinite(startedAtMs) && norm.durationSeconds
+    ? startedAtMs + norm.durationSeconds * 1000
+    : (norm.remainingMs ? Date.now() + norm.remainingMs : (existing?.endsAt || 0));
+
+  state.polls.set(channelId, {
+    id: norm.id || existing?.id || '',
+    channelId,
+    channelLogin: channelLogin || existing?.channelLogin || '',
+    title: norm.title || existing?.title || '',
+    status: norm.status || existing?.status || 'ACTIVE',
+    startedAtMs,
+    endsAt,
+    totalVotes: norm.totalVotes,
+    choices: norm.choices && norm.choices.length ? norm.choices : (existing?.choices || []),
+    lastUpdate: Date.now(),
+  });
+
+  // If the poll has ended, schedule its removal so the result stays on
+  // screen briefly before disappearing. Cancel any prior timer for this
+  // channel so an updated poll doesn't disappear early.
+  const isEnded = norm.status && norm.status !== 'ACTIVE';
+  const prev = _pollEndTimers.get(channelId);
+  if (prev) { clearTimeout(prev); _pollEndTimers.delete(channelId); }
+  if (isEnded) {
+    const t = setTimeout(() => {
+      state.polls.delete(channelId);
+      _pollEndTimers.delete(channelId);
+      renderPolls();
+    }, POLL_LINGER_MS);
+    _pollEndTimers.set(channelId, t);
+  }
+
+  renderPolls();
 });
 
 // Start the processing loop when first slot connects
@@ -403,6 +448,7 @@ window.onload = function () {
   initUserHistoryModal();
   initEmoteModal();
   initLinkModal();
+  initPollUI();
   refreshStorageUsage();
 
   // Sync history settings UI to stored values
