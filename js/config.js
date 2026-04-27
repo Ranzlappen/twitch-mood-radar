@@ -36,8 +36,13 @@ export const JUSTLOG_PAGE_LIMIT = 200;
 
 // User-message history (IndexedDB)
 export const HISTORY_DB_NAME = 'moodradar_history_v1';
-export const HISTORY_DB_VERSION = 1;
+export const HISTORY_DB_VERSION = 2;
 export const HISTORY_DB_STORE = 'messages';
+// v2: polls and predictions stores added alongside the messages store. Both
+// keyed by the Twitch event UUID; rows updated in place via put() as the
+// event progresses (CREATE → UPDATE → COMPLETE / RESOLVE / etc).
+export const HISTORY_POLLS_STORE = 'polls';
+export const HISTORY_PREDICTIONS_STORE = 'predictions';
 export const HISTORY_RETENTION_DAYS_KEY = 'moodradar_histdays_v1';
 export const HISTORY_MAX_ROWS_KEY = 'moodradar_histrows_v1';
 export const HISTORY_ENABLED_KEY = 'moodradar_histenabled_v1';
@@ -83,7 +88,7 @@ export const DEFAULT_OPTIONS = {
 };
 
 // --- Resizable Card IDs ---
-export const RESIZABLE_IDS = ['pieCard','topWordsCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','pollCard','chatInputCard'];
+export const RESIZABLE_IDS = ['pieCard','topWordsCard','bubbleCard','approvalCard','approvalTimelineCard','throughputTimelineCard','timelineLinearCard','timelineLogCard','feedCard','filteredFeedCard','outlierCard','pollCard','predictionsCard','chatInputCard'];
 
 // --- Layout Sections ---
 export const LAYOUT_SECTIONS = [
@@ -99,6 +104,7 @@ export const LAYOUT_SECTIONS = [
   { id:'filteredFeedCard',    label:'Filtered Feed' },
   { id:'outlierCard',         label:'Standout Messages' },
   { id:'pollCard',            label:'Channel Polls' },
+  { id:'predictionsCard',     label:'Channel Predictions' },
   { id:'chatInputCard',       label:'Chat Input' },
 ];
 
@@ -405,11 +411,23 @@ export const HELP_CONTENT = {
 <ul>
   <li>Polls appear automatically when the streamer starts one. No login or OAuth scope is needed.</li>
   <li>If you connect <em>after</em> a poll has already started, it will show up as soon as the next vote update arrives (usually within a few seconds on an active stream).</li>
-  <li>Multiple connected channels can each have their own poll — they stack in this card with the channel name on top.</li>
-  <li>Ended polls linger for ~10s so the result stays visible, then disappear.</li>
+  <li>Multiple connected channels can each have their own poll — they stack at the top of the card.</li>
+  <li>Once a poll ends, it drops into the <strong>history feed</strong> below, persisted to your local database and survives reloads. Pruned alongside chat history (default 14 days).</li>
 </ul>
 <h4 style="margin:12px 0 6px;color:#ff4800">A NOTE ON RELIABILITY</h4>
 <p>Twitch has no public API for viewers to read polls — the official one requires the streamer's authorization. This card uses Twitch's internal PubSub system, the same one twitch.tv uses to deliver poll popups to logged-out viewers. It works today and is widely used by third-party tools, but Twitch can change it without notice. If polls ever stop appearing, that is the most likely cause.</p>`
+  },
+  channelPredictions: {
+    title: 'CHANNEL PREDICTIONS',
+    body: `<p>Shows live predictions on any connected Twitch channel — the channel-point bets viewers place when the streamer asks the chat to predict an outcome.</p>
+<ul>
+  <li>Outcomes use Twitch's standard <span style="color:#387aff">BLUE</span> / <span style="color:#ff6dc6">PINK</span> color coding. Each row shows the total channel points wagered and the share of the pot.</li>
+  <li>While betting is open, a countdown ticks down to the lock time. Once locked, no further bets are accepted and a <strong>LOCKED</strong> pill appears.</li>
+  <li>When the streamer resolves the prediction, the winning outcome is highlighted; cancellations show a <strong>REFUNDED</strong> pill.</li>
+  <li>Resolved and canceled predictions drop into the <strong>history feed</strong> below, persisted locally and surviving reloads. Pruned with the same retention as chat history.</li>
+</ul>
+<h4 style="margin:12px 0 6px;color:#ff4800">A NOTE ON RELIABILITY</h4>
+<p>Same caveat as polls: predictions are read through Twitch's internal PubSub system. There is no public viewer-facing API. Works today, but may change without notice.</p>`
   },
   youtubeApiKey: {
     title: 'YOUTUBE API KEY — FREE SETUP',

@@ -1,16 +1,16 @@
 /**
  * TwitchPubSub — singleton WebSocket manager for Twitch's private PubSub API.
  *
- * Used to subscribe to live poll events on any connected Twitch channel
- * (topic `polls.<channel_id>`). Anonymous LISTENs work for the polls topic,
- * which is how twitch.tv shows poll popups to logged-out viewers.
+ * Topic-agnostic: callers pass a full topic string like `polls.<channel_id>`
+ * or `predictions-channel-v1.<channel_id>`. Anonymous LISTENs work for both,
+ * which is how twitch.tv shows poll/prediction popups to logged-out viewers.
  *
  * This is an UNOFFICIAL API. Twitch may change the protocol or schema at any
  * time without notice. All parsing is defensive and failures are logged but
  * never crash the renderer.
  *
- * One socket is shared across all Twitch slots; it carries one LISTEN per
- * subscribed channel. The socket is closed when the last subscriber leaves.
+ * One socket is shared across all subscribers; LISTEN frames carry every
+ * subscribed topic. The socket is closed when the last subscriber leaves.
  */
 import {
   TWITCH_PUBSUB_URL,
@@ -22,7 +22,7 @@ class TwitchPubSubManager {
   constructor() {
     this._ws = null;
     this._connecting = false;
-    /** @type {Map<string, Set<Function>>} channelId -> set of callbacks */
+    /** @type {Map<string, Set<Function>>} topic -> set of callbacks */
     this._subs = new Map();
     this._pingTimer = null;
     this._reconnectTimer = null;
@@ -30,35 +30,35 @@ class TwitchPubSubManager {
     this._lastError = '';
   }
 
-  /** Subscribe a callback to poll events for a specific channel id. */
-  subscribe(channelId, cb) {
-    if (!channelId || typeof cb !== 'function') return;
-    let set = this._subs.get(channelId);
+  /** Subscribe a callback to a Twitch PubSub topic (e.g. `polls.123`). */
+  subscribe(topic, cb) {
+    if (!topic || typeof cb !== 'function') return;
+    let set = this._subs.get(topic);
     if (!set) {
       set = new Set();
-      this._subs.set(channelId, set);
+      this._subs.set(topic, set);
     }
     const wasEmpty = set.size === 0;
     set.add(cb);
     this._ensureConnected();
     if (wasEmpty && this._ws && this._ws.readyState === WebSocket.OPEN) {
-      this._sendListen(channelId);
+      this._sendListen(topic);
     }
   }
 
   /** Unsubscribe a callback. Closes the socket when no subscribers remain. */
-  unsubscribe(channelId, cb) {
-    const set = this._subs.get(channelId);
+  unsubscribe(topic, cb) {
+    const set = this._subs.get(topic);
     if (!set) return;
     set.delete(cb);
     if (set.size === 0) {
-      this._subs.delete(channelId);
+      this._subs.delete(topic);
       if (this._ws && this._ws.readyState === WebSocket.OPEN) {
         try {
           this._ws.send(JSON.stringify({
             type: 'UNLISTEN',
             nonce: this._nonce(),
-            data: { topics: ['polls.' + channelId] }
+            data: { topics: [topic] }
           }));
         } catch { /* socket may be closing */ }
       }
@@ -90,7 +90,7 @@ class TwitchPubSubManager {
       this._connecting = false;
       this._reconnectAttempt = 0;
       // Re-LISTEN every active topic on (re)connect.
-      for (const channelId of this._subs.keys()) this._sendListen(channelId);
+      for (const topic of this._subs.keys()) this._sendListen(topic);
       // Client must ping at least every 5 minutes; we ping every 4.
       clearInterval(this._pingTimer);
       this._pingTimer = setInterval(() => this._sendPing(), PUBSUB_PING_INTERVAL_MS);
@@ -112,13 +112,13 @@ class TwitchPubSubManager {
     };
   }
 
-  _sendListen(channelId) {
+  _sendListen(topic) {
     if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return;
     try {
       this._ws.send(JSON.stringify({
         type: 'LISTEN',
         nonce: this._nonce(),
-        data: { topics: ['polls.' + channelId] }
+        data: { topics: [topic] }
       }));
     } catch (e) {
       this._lastError = 'PubSub LISTEN failed: ' + (e && e.message);
@@ -153,15 +153,14 @@ class TwitchPubSubManager {
     if (frame.type !== 'MESSAGE' || !frame.data) return;
 
     const topic = frame.data.topic || '';
-    if (!topic.startsWith('polls.')) return;
-    const channelId = topic.slice('polls.'.length);
+    if (!topic) return;
 
     let inner;
     try { inner = JSON.parse(frame.data.message); } catch {
       console.warn('[MoodRadar] Twitch PubSub: malformed inner message');
       return;
     }
-    const cbs = this._subs.get(channelId);
+    const cbs = this._subs.get(topic);
     if (!cbs || cbs.size === 0) return;
     for (const cb of cbs) {
       try { cb(inner); } catch (e) {

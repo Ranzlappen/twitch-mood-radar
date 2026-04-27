@@ -55,6 +55,8 @@ export class ConnectionManager {
     this._onMessageCallback = null;
     /** @type {((p: {inner:object, channelId:string, channelLogin:string}) => void)|null} */
     this._onPollCallback = null;
+    /** @type {((p: {inner:object, channelId:string, channelLogin:string}) => void)|null} */
+    this._onPredictionCallback = null;
     /** @type {(() => void)|null} */
     this._onFirstConnect = null;
     /** @type {(() => void)|null} */
@@ -71,6 +73,9 @@ export class ConnectionManager {
 
   /** Register callback for Twitch poll events from any slot */
   onPoll(cb) { this._onPollCallback = cb; }
+
+  /** Register callback for Twitch prediction events from any slot */
+  onPrediction(cb) { this._onPredictionCallback = cb; }
 
   /** Register callback for when first slot goes live (start processing loop) */
   onFirstConnect(cb) { this._onFirstConnect = cb; }
@@ -313,6 +318,11 @@ export class ConnectionManager {
     if (typeof slot.adapter.onPoll === 'function') {
       slot.adapter.onPoll((evt) => {
         if (this._onPollCallback) this._onPollCallback(evt);
+      });
+    }
+    if (typeof slot.adapter.onPrediction === 'function') {
+      slot.adapter.onPrediction((evt) => {
+        if (this._onPredictionCallback) this._onPredictionCallback(evt);
       });
     }
 
