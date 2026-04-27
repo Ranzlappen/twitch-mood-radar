@@ -489,9 +489,23 @@ function unlockApp() {
     <button class="help-btn" onclick="showHelp('channelPolls')" title="About channel polls">?</button>
   </div>
   <div class="collapsible-body" id="pollCard-body">
-    <div id="pollList" class="poll-list">
+    <div id="pollActiveList" class="poll-list">
       <div class="poll-empty">No active polls</div>
     </div>
+    <div id="pollHistoryList" class="event-history-list"></div>
+  </div>
+</div>
+
+<div class="prediction-card resizable" id="predictionsCard">
+  <div class="card-title">
+    CHANNEL PREDICTIONS
+    <button class="help-btn" onclick="showHelp('channelPredictions')" title="About channel predictions">?</button>
+  </div>
+  <div class="collapsible-body" id="predictionsCard-body">
+    <div id="predictionsActiveList" class="poll-list">
+      <div class="poll-empty">No active predictions</div>
+    </div>
+    <div id="predictionsHistoryList" class="event-history-list"></div>
   </div>
 </div>
 
@@ -792,6 +806,7 @@ function unlockApp() {
         <label class="opt-toggle"><input type="checkbox" id="optShowFilteredFeed" checked onchange="setOptCardVisibility('filteredFeedCard',this.checked)"><span class="opt-label">Filtered Feed</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowOutlier" checked onchange="setOptCardVisibility('outlierCard',this.checked)"><span class="opt-label">Standout Messages</span></label>
         <label class="opt-toggle"><input type="checkbox" id="optShowPoll" checked onchange="setOptCardVisibility('pollCard',this.checked)"><span class="opt-label">Channel Polls</span></label>
+        <label class="opt-toggle"><input type="checkbox" id="optShowPredictions" checked onchange="setOptCardVisibility('predictionsCard',this.checked)"><span class="opt-label">Channel Predictions</span></label>
       </div>
     </details>
 

@@ -36,11 +36,12 @@ import { showHelp, closeHelp, initHelpKeys } from './ui/help.js';
 import { loadStopwordOverrides, registerTopWordsInfoDrawer, attachTopWordsInfoButton } from './ui/stopwordsModal.js';
 import { requestWakeLock } from './ui/wake-lock.js';
 import { sanitize, esc } from './utils/dom.js';
-import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows } from './history/historyDb.js';
+import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistoryEnabled, setRetentionDays, getRetentionDays, setMaxRows, getMaxRows, enqueuePoll, enqueuePrediction, loadRecentPolls, loadRecentPredictions } from './history/historyDb.js';
 import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
 import { initEmoteModal } from './ui/emoteModal.js';
 import { initLinkModal } from './ui/linkModal.js';
-import { initPollUI, normalizePollFrame, renderPolls, POLL_LINGER_MS } from './ui/polls.js';
+import { initPollUI, normalizePollFrame, renderPolls, summarizePollForHistory, isPollTerminal, POLL_LINGER_MS } from './ui/polls.js';
+import { initPredictionsUI, normalizePredictionFrame, renderPredictions, summarizePredictionForHistory, isPredictionTerminal, PREDICTION_LINGER_MS } from './ui/predictions.js';
 
 // --- Import all setOpt* functions from options ---
 import {
@@ -67,41 +68,56 @@ connMgr.onMessage(({ user, msg, ts, platform, channel, badges }) => {
   enqueue(user, msg, ts, platform, channel, badges);
 });
 
-// Wire Twitch poll events into state.polls and re-render the poll card.
-// Ended polls linger briefly so the result stays visible, then are removed.
+// Wire Twitch poll events into state.activePolls and re-render the poll card.
+// On terminal status, also persist a summary row to IndexedDB and prepend it
+// to the in-memory history feed so it shows up immediately.
 const _pollEndTimers = new Map();
+const POLL_HISTORY_CACHE = 50;
 connMgr.onPoll(({ inner, channelId, channelLogin }) => {
   const norm = normalizePollFrame(inner);
   if (!norm || !channelId) return;
 
-  const existing = state.polls.get(channelId);
+  const existing = state.activePolls.get(channelId);
   const startedAtMs = norm.startedAt ? Date.parse(norm.startedAt) : (existing?.startedAtMs || Date.now());
+  const endedAtMs = norm.endedAt ? Date.parse(norm.endedAt) : (existing?.endedAtMs || 0);
   const endsAt = Number.isFinite(startedAtMs) && norm.durationSeconds
     ? startedAtMs + norm.durationSeconds * 1000
     : (norm.remainingMs ? Date.now() + norm.remainingMs : (existing?.endsAt || 0));
 
-  state.polls.set(channelId, {
+  const live = {
     id: norm.id || existing?.id || '',
     channelId,
     channelLogin: channelLogin || existing?.channelLogin || '',
     title: norm.title || existing?.title || '',
     status: norm.status || existing?.status || 'ACTIVE',
     startedAtMs,
+    endedAtMs: endedAtMs || (isPollTerminal(norm.status) ? Date.now() : 0),
     endsAt,
+    durationSeconds: norm.durationSeconds || existing?.durationSeconds || 0,
     totalVotes: norm.totalVotes,
     choices: norm.choices && norm.choices.length ? norm.choices : (existing?.choices || []),
     lastUpdate: Date.now(),
-  });
+  };
+  state.activePolls.set(channelId, live);
 
-  // If the poll has ended, schedule its removal so the result stays on
-  // screen briefly before disappearing. Cancel any prior timer for this
-  // channel so an updated poll doesn't disappear early.
-  const isEnded = norm.status && norm.status !== 'ACTIVE';
+  // Persist + cache the moment we know the poll is terminal. Doing it here
+  // (rather than after the linger timer) means the history row survives even
+  // if the user reloads during the linger window.
+  if (isPollTerminal(live.status) && live.id) {
+    const summary = summarizePollForHistory(live);
+    enqueuePoll(summary);
+    // Dedupe by id in case the same poll fires multiple terminal events.
+    state.pollHistory = [summary, ...state.pollHistory.filter(r => r.id !== summary.id)]
+      .slice(0, POLL_HISTORY_CACHE);
+  }
+
+  // Schedule removal from the active list after a brief linger so the result
+  // stays on screen, then re-render so the active section clears.
   const prev = _pollEndTimers.get(channelId);
   if (prev) { clearTimeout(prev); _pollEndTimers.delete(channelId); }
-  if (isEnded) {
+  if (isPollTerminal(live.status)) {
     const t = setTimeout(() => {
-      state.polls.delete(channelId);
+      state.activePolls.delete(channelId);
       _pollEndTimers.delete(channelId);
       renderPolls();
     }, POLL_LINGER_MS);
@@ -109,6 +125,59 @@ connMgr.onPoll(({ inner, channelId, channelLogin }) => {
   }
 
   renderPolls();
+});
+
+// Wire Twitch prediction events. Same structure as polls; lifecycle is
+// ACTIVE → LOCKED → RESOLVED / CANCELED. Persistence + linger fire on RESOLVED
+// or CANCELED only.
+const _predictionEndTimers = new Map();
+const PREDICTION_HISTORY_CACHE = 50;
+connMgr.onPrediction(({ inner, channelId, channelLogin }) => {
+  const norm = normalizePredictionFrame(inner);
+  if (!norm || !channelId) return;
+
+  const existing = state.activePredictions.get(channelId);
+  const startedAtMs = norm.startedAt ? Date.parse(norm.startedAt) : (existing?.startedAtMs || Date.now());
+  const lockedAtMs = norm.lockedAt ? Date.parse(norm.lockedAt) : (existing?.lockedAtMs || 0);
+  const endedAtMs = norm.endedAt ? Date.parse(norm.endedAt) : (existing?.endedAtMs || 0);
+
+  const live = {
+    id: norm.id || existing?.id || '',
+    channelId,
+    channelLogin: channelLogin || existing?.channelLogin || '',
+    title: norm.title || existing?.title || '',
+    status: norm.status || existing?.status || 'ACTIVE',
+    startedAtMs,
+    lockedAtMs,
+    endedAtMs: endedAtMs || (isPredictionTerminal(norm.status) ? Date.now() : 0),
+    predictionWindowSeconds: norm.predictionWindowSeconds || existing?.predictionWindowSeconds || 0,
+    winningOutcomeId: norm.winningOutcomeId || existing?.winningOutcomeId || '',
+    totalPoints: norm.totalPoints,
+    totalUsers: norm.totalUsers,
+    outcomes: norm.outcomes && norm.outcomes.length ? norm.outcomes : (existing?.outcomes || []),
+    lastUpdate: Date.now(),
+  };
+  state.activePredictions.set(channelId, live);
+
+  if (isPredictionTerminal(live.status) && live.id) {
+    const summary = summarizePredictionForHistory(live);
+    enqueuePrediction(summary);
+    state.predictionHistory = [summary, ...state.predictionHistory.filter(r => r.id !== summary.id)]
+      .slice(0, PREDICTION_HISTORY_CACHE);
+  }
+
+  const prev = _predictionEndTimers.get(channelId);
+  if (prev) { clearTimeout(prev); _predictionEndTimers.delete(channelId); }
+  if (isPredictionTerminal(live.status)) {
+    const t = setTimeout(() => {
+      state.activePredictions.delete(channelId);
+      _predictionEndTimers.delete(channelId);
+      renderPredictions();
+    }, PREDICTION_LINGER_MS);
+    _predictionEndTimers.set(channelId, t);
+  }
+
+  renderPredictions();
 });
 
 // Start the processing loop when first slot connects
@@ -468,6 +537,16 @@ window.onload = function () {
   initEmoteModal();
   initLinkModal();
   initPollUI();
+  initPredictionsUI();
+  // Hydrate the poll/prediction history feeds from IndexedDB. Best-effort:
+  // if the DB hasn't opened yet, we just render with empty arrays until the
+  // first event arrives.
+  Promise.all([loadRecentPolls(50), loadRecentPredictions(50)]).then(([polls, preds]) => {
+    state.pollHistory = Array.isArray(polls) ? polls : [];
+    state.predictionHistory = Array.isArray(preds) ? preds : [];
+    renderPolls();
+    renderPredictions();
+  }).catch(() => { /* leave history empty */ });
   refreshStorageUsage();
 
   // Sync history settings UI to stored values

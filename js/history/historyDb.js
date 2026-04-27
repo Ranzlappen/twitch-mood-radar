@@ -9,6 +9,7 @@
  */
 import {
   HISTORY_DB_NAME, HISTORY_DB_VERSION, HISTORY_DB_STORE,
+  HISTORY_POLLS_STORE, HISTORY_PREDICTIONS_STORE,
   HISTORY_FLUSH_MS, HISTORY_FLUSH_BATCH,
   HISTORY_PRUNE_INTERVAL_MS, HISTORY_QUOTA_TRIM_FRACTION,
   HISTORY_RETENTION_DAYS_KEY, HISTORY_MAX_ROWS_KEY, HISTORY_ENABLED_KEY,
@@ -20,12 +21,27 @@ const IDX_USER = 'userKey';
 const IDX_TS = 'ts';
 const IDX_USER_CHANNEL_TS = 'user_channel_ts';
 
+// Polls / predictions stores share the same indexing scheme:
+// primary key = Twitch event id (UUID), endedAt for chronological browsing.
+const IDX_ENDED_AT = 'endedAt';
+const IDX_CHANNEL_ID = 'channelId';
+
 let _db = null;
 let _opening = null;
 const _queue = [];
 let _flushTimer = null;
 let _flushing = false;
 let _pruneTimer = null;
+
+// Separate batched-write queues for polls + predictions. Same flush cadence.
+const _eventQueues = {
+  [HISTORY_POLLS_STORE]: [],
+  [HISTORY_PREDICTIONS_STORE]: [],
+};
+const _eventFlushTimers = {
+  [HISTORY_POLLS_STORE]: null,
+  [HISTORY_PREDICTIONS_STORE]: null,
+};
 
 export function isHistoryEnabled() {
   const v = load(HISTORY_ENABLED_KEY, true);
@@ -76,6 +92,18 @@ function _open() {
         store.createIndex(IDX_USER, 'userKey', { unique: false });
         store.createIndex(IDX_TS, 'ts', { unique: false });
         store.createIndex(IDX_USER_CHANNEL_TS, ['userKey', 'channel', 'platform', 'ts'], { unique: false });
+      }
+      if (oldVersion < 2) {
+        // Polls — keyed by Twitch poll UUID (no autoIncrement). put() upserts
+        // so a poll that arrives multiple times (CREATE → UPDATE → COMPLETE)
+        // collapses to the last-known state.
+        const polls = db.createObjectStore(HISTORY_POLLS_STORE, { keyPath: 'id' });
+        polls.createIndex(IDX_ENDED_AT, 'endedAt', { unique: false });
+        polls.createIndex(IDX_CHANNEL_ID, 'channelId', { unique: false });
+        // Predictions — same shape, separate store.
+        const preds = db.createObjectStore(HISTORY_PREDICTIONS_STORE, { keyPath: 'id' });
+        preds.createIndex(IDX_ENDED_AT, 'endedAt', { unique: false });
+        preds.createIndex(IDX_CHANNEL_ID, 'channelId', { unique: false });
       }
     };
     req.onsuccess = () => { _db = req.result; resolve(_db); };
@@ -346,8 +374,13 @@ export async function clearAll() {
   const db = await _open();
   if (!db) return false;
   return new Promise((resolve) => {
-    const tx = db.transaction(HISTORY_DB_STORE, 'readwrite');
+    const tx = db.transaction(
+      [HISTORY_DB_STORE, HISTORY_POLLS_STORE, HISTORY_PREDICTIONS_STORE],
+      'readwrite'
+    );
     tx.objectStore(HISTORY_DB_STORE).clear();
+    tx.objectStore(HISTORY_POLLS_STORE).clear();
+    tx.objectStore(HISTORY_PREDICTIONS_STORE).clear();
     tx.oncomplete = () => resolve(true);
     tx.onerror = () => resolve(false);
   });
@@ -370,6 +403,10 @@ export async function prune(opts = {}) {
     const total = await _count(db);
     const dropN = Math.max(1, Math.floor(total * trimFraction));
     await _deleteOldestN(db, dropN);
+    // Apply the same fractional trim to the event stores so quota-recovery
+    // reclaims space across all three.
+    await _pruneEventStoreByFraction(db, HISTORY_POLLS_STORE, trimFraction);
+    await _pruneEventStoreByFraction(db, HISTORY_PREDICTIONS_STORE, trimFraction);
     return;
   }
 
@@ -379,6 +416,13 @@ export async function prune(opts = {}) {
   const total = await _count(db);
   const max = getMaxRows();
   if (total > max) await _deleteOldestN(db, total - max);
+
+  // Polls / predictions: same retention rules. Day-based dominates for these
+  // since they're sparse (a stream produces a handful per session).
+  await _pruneEventStoreByDate(db, HISTORY_POLLS_STORE, cutoff);
+  await _pruneEventStoreByDate(db, HISTORY_PREDICTIONS_STORE, cutoff);
+  await _pruneEventStoreByMaxRows(db, HISTORY_POLLS_STORE, max);
+  await _pruneEventStoreByMaxRows(db, HISTORY_PREDICTIONS_STORE, max);
 }
 
 function _count(db) {
@@ -420,6 +464,163 @@ function _deleteOldestN(db, n) {
       c.delete();
       remaining--;
       c.continue();
+    };
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+// ============================================================================
+//  Twitch event stores — polls + predictions
+// ============================================================================
+
+/**
+ * Queue a poll record for write. Same batched-flush pattern as enqueueHistory.
+ * `rec` must have `id` (Twitch poll UUID) and `endedAt` (ms timestamp).
+ */
+export function enqueuePoll(rec) {
+  _enqueueEvent(HISTORY_POLLS_STORE, rec);
+}
+
+/** Same as enqueuePoll but for predictions. */
+export function enqueuePrediction(rec) {
+  _enqueueEvent(HISTORY_PREDICTIONS_STORE, rec);
+}
+
+function _enqueueEvent(storeName, rec) {
+  if (!isHistoryEnabled()) return;
+  if (!rec || !rec.id) return;
+  _eventQueues[storeName].push(rec);
+  if (_eventQueues[storeName].length >= HISTORY_FLUSH_BATCH) {
+    _flushEventQueue(storeName).catch(() => {});
+    return;
+  }
+  if (!_eventFlushTimers[storeName]) {
+    _eventFlushTimers[storeName] = setTimeout(() => {
+      _eventFlushTimers[storeName] = null;
+      _flushEventQueue(storeName).catch(() => {});
+    }, HISTORY_FLUSH_MS);
+  }
+}
+
+async function _flushEventQueue(storeName) {
+  if (_eventQueues[storeName].length === 0) return;
+  const db = await _open();
+  if (!db) { _eventQueues[storeName].length = 0; return; }
+
+  const batch = _eventQueues[storeName].splice(0, _eventQueues[storeName].length);
+  try {
+    await _writeEventBatch(db, storeName, batch);
+  } catch (err) {
+    if (err && (err.name === 'QuotaExceededError' || err.code === 22)) {
+      try {
+        await prune({ trimFraction: HISTORY_QUOTA_TRIM_FRACTION });
+        await _writeEventBatch(db, storeName, batch);
+      } catch { /* give up */ }
+    }
+  }
+}
+
+function _writeEventBatch(db, storeName, batch) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    for (const rec of batch) store.put(rec);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+/** Load the most recent N polls (newest by endedAt). */
+export async function loadRecentPolls(limit = 50) {
+  return _loadRecentEvents(HISTORY_POLLS_STORE, limit);
+}
+
+/** Load the most recent N predictions (newest by endedAt). */
+export async function loadRecentPredictions(limit = 50) {
+  return _loadRecentEvents(HISTORY_PREDICTIONS_STORE, limit);
+}
+
+function _loadRecentEvents(storeName, limit) {
+  return _open().then((db) => {
+    if (!db) return [];
+    return new Promise((resolve) => {
+      const tx = db.transaction(storeName, 'readonly');
+      const idx = tx.objectStore(storeName).index(IDX_ENDED_AT);
+      const cursorReq = idx.openCursor(null, 'prev');
+      const rows = [];
+      cursorReq.onsuccess = (e) => {
+        const c = e.target.result;
+        if (!c || rows.length >= limit) { resolve(rows); return; }
+        rows.push(c.value);
+        c.continue();
+      };
+      cursorReq.onerror = () => resolve(rows);
+    });
+  });
+}
+
+function _pruneEventStoreByDate(db, storeName, cutoffMs) {
+  return new Promise((resolve) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const idx = tx.objectStore(storeName).index(IDX_ENDED_AT);
+    const range = IDBKeyRange.upperBound(cutoffMs, false);
+    const cursorReq = idx.openCursor(range);
+    cursorReq.onsuccess = (e) => {
+      const c = e.target.result;
+      if (!c) return;
+      c.delete();
+      c.continue();
+    };
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+function _pruneEventStoreByMaxRows(db, storeName, maxRows) {
+  return new Promise((resolve) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const countReq = store.count();
+    countReq.onsuccess = () => {
+      const total = countReq.result || 0;
+      const drop = total - maxRows;
+      if (drop <= 0) { resolve(); return; }
+      let remaining = drop;
+      const idx = store.index(IDX_ENDED_AT);
+      const cursorReq = idx.openCursor(null, 'next');
+      cursorReq.onsuccess = (e) => {
+        const c = e.target.result;
+        if (!c || remaining <= 0) return;
+        c.delete();
+        remaining--;
+        c.continue();
+      };
+    };
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+function _pruneEventStoreByFraction(db, storeName, fraction) {
+  return new Promise((resolve) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const countReq = store.count();
+    countReq.onsuccess = () => {
+      const total = countReq.result || 0;
+      const dropN = Math.max(1, Math.floor(total * fraction));
+      let remaining = dropN;
+      const idx = store.index(IDX_ENDED_AT);
+      const cursorReq = idx.openCursor(null, 'next');
+      cursorReq.onsuccess = (e) => {
+        const c = e.target.result;
+        if (!c || remaining <= 0) return;
+        c.delete();
+        remaining--;
+        c.continue();
+      };
     };
     tx.oncomplete = () => resolve();
     tx.onerror = () => resolve();

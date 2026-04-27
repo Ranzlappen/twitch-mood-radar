@@ -49,6 +49,11 @@ export class TwitchAdapter extends PlatformAdapter {
     this._pollSubscribed = false;
     this._pollHandler = (inner) => this._handlePollFrame(inner);
 
+    // Predictions — same pattern as polls.
+    this._onPredictionCallback = null;
+    this._predictionSubscribed = false;
+    this._predictionHandler = (inner) => this._handlePredictionFrame(inner);
+
     // Restore saved OAuth token on construction
     this._restoreOAuth();
   }
@@ -120,6 +125,7 @@ export class TwitchAdapter extends PlatformAdapter {
             this._currentChannelName = ch.replace('#', '');
             this.loadEmotes(this._currentRoomId, this._currentChannelName);
             this._subscribePolls();
+            this._subscribePredictions();
           }
         }
 
@@ -182,6 +188,7 @@ export class TwitchAdapter extends PlatformAdapter {
     clearTimeout(this._reconnectTimer);
     this._reconnectAttempt = 0;
     this._unsubscribePolls();
+    this._unsubscribePredictions();
     this._currentRoomId = null;              // reset so emotes reload for next channel
     document.body.classList.remove('disconnected');
     if (this._ws) { this._ws.close(); this._ws = null; }
@@ -210,22 +217,37 @@ export class TwitchAdapter extends PlatformAdapter {
   }
 
   // ------------------------------------------------------------------
-  //  Polls — Twitch PubSub bridge (unofficial)
+  //  Polls & predictions — Twitch PubSub bridge (unofficial)
   // ------------------------------------------------------------------
 
   /** Register a callback for poll events on this adapter's channel. */
   onPoll(cb) { this._onPollCallback = cb; }
 
+  /** Register a callback for prediction events on this adapter's channel. */
+  onPrediction(cb) { this._onPredictionCallback = cb; }
+
   _subscribePolls() {
     if (this._pollSubscribed || !this._currentRoomId) return;
-    twitchPubSub.subscribe(this._currentRoomId, this._pollHandler);
+    twitchPubSub.subscribe('polls.' + this._currentRoomId, this._pollHandler);
     this._pollSubscribed = true;
   }
 
   _unsubscribePolls() {
     if (!this._pollSubscribed || !this._currentRoomId) return;
-    twitchPubSub.unsubscribe(this._currentRoomId, this._pollHandler);
+    twitchPubSub.unsubscribe('polls.' + this._currentRoomId, this._pollHandler);
     this._pollSubscribed = false;
+  }
+
+  _subscribePredictions() {
+    if (this._predictionSubscribed || !this._currentRoomId) return;
+    twitchPubSub.subscribe('predictions-channel-v1.' + this._currentRoomId, this._predictionHandler);
+    this._predictionSubscribed = true;
+  }
+
+  _unsubscribePredictions() {
+    if (!this._predictionSubscribed || !this._currentRoomId) return;
+    twitchPubSub.unsubscribe('predictions-channel-v1.' + this._currentRoomId, this._predictionHandler);
+    this._predictionSubscribed = false;
   }
 
   /**
@@ -243,6 +265,20 @@ export class TwitchAdapter extends PlatformAdapter {
       });
     } catch (e) {
       console.warn('[MoodRadar] Poll callback threw:', e && e.message);
+    }
+  }
+
+  /** Same as _handlePollFrame but for predictions. */
+  _handlePredictionFrame(inner) {
+    if (!this._onPredictionCallback) return;
+    try {
+      this._onPredictionCallback({
+        inner,
+        channelId: this._currentRoomId,
+        channelLogin: this._currentChannelName,
+      });
+    } catch (e) {
+      console.warn('[MoodRadar] Prediction callback threw:', e && e.message);
     }
   }
 
