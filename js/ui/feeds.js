@@ -146,6 +146,7 @@ export class FeedRenderer {
     this._unread = 0;
     this._pillEl = null;
     this._scrollBound = false;
+    this._programmaticScroll = false;
   }
 
   /**
@@ -191,10 +192,16 @@ export class FeedRenderer {
     while (list.children.length > this._maxItems) list.removeChild(list.firstChild);
 
     if (wasStuck) {
+      this._programmaticScroll = true;
       list.scrollTop = list.scrollHeight;
+      requestAnimationFrame(() => { this._programmaticScroll = false; });
     } else if (appended > 0) {
       this._unread += appended;
       this._updatePill();
+    }
+
+    if (this._pending.length > 0 && !this._rafId) {
+      this._rafId = requestAnimationFrame(() => this.flush());
     }
   }
 
@@ -225,11 +232,26 @@ export class FeedRenderer {
     this._pillEl = pill;
 
     list.addEventListener('scroll', () => this._onScroll(list), { passive: true });
+
+    // Lazy emote/badge images load AFTER flush() set scrollTop = scrollHeight.
+    // When their layout arrives (text re-wraps, item grows), scrollHeight changes
+    // and we drift off the bottom. Re-pin on every image load while stuck.
+    // Capture phase because `load` doesn't bubble.
+    list.addEventListener('load', (e) => {
+      if (!this._stuckToBottom) return;
+      if (!(e.target instanceof HTMLImageElement)) return;
+      this._programmaticScroll = true;
+      list.scrollTop = list.scrollHeight;
+      requestAnimationFrame(() => { this._programmaticScroll = false; });
+    }, { capture: true, passive: true });
   }
 
   _onScroll(list) {
+    if (this._programmaticScroll) return;
+    const lh = parseFloat(getComputedStyle(list).lineHeight) || 0;
+    const threshold = Math.max(SCROLL_STICKY_PX, lh * 2);
     const distance = list.scrollHeight - list.scrollTop - list.clientHeight;
-    const nearBottom = distance < SCROLL_STICKY_PX;
+    const nearBottom = distance < threshold;
     if (nearBottom) {
       if (!this._stuckToBottom || this._unread !== 0) {
         this._stuckToBottom = true;
