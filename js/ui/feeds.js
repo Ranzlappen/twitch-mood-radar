@@ -146,7 +146,6 @@ export class FeedRenderer {
     this._unread = 0;
     this._pillEl = null;
     this._scrollBound = false;
-    this._programmaticScroll = false;
   }
 
   /**
@@ -192,9 +191,7 @@ export class FeedRenderer {
     while (list.children.length > this._maxItems) list.removeChild(list.firstChild);
 
     if (wasStuck) {
-      this._programmaticScroll = true;
       list.scrollTop = list.scrollHeight;
-      requestAnimationFrame(() => { this._programmaticScroll = false; });
     } else if (appended > 0) {
       this._unread += appended;
       this._updatePill();
@@ -240,14 +237,11 @@ export class FeedRenderer {
     list.addEventListener('load', (e) => {
       if (!this._stuckToBottom) return;
       if (!(e.target instanceof HTMLImageElement)) return;
-      this._programmaticScroll = true;
       list.scrollTop = list.scrollHeight;
-      requestAnimationFrame(() => { this._programmaticScroll = false; });
     }, { capture: true, passive: true });
   }
 
   _onScroll(list) {
-    if (this._programmaticScroll) return;
     const lh = parseFloat(getComputedStyle(list).lineHeight) || 0;
     const threshold = Math.max(SCROLL_STICKY_PX, lh * 2);
     const distance = list.scrollHeight - list.scrollTop - list.clientHeight;
