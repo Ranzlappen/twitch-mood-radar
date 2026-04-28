@@ -127,7 +127,6 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overflow-anchor: none;
 }
 .feed-pause-pill {
   position: absolute;
