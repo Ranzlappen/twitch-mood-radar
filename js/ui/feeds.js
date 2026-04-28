@@ -172,6 +172,20 @@ export class FeedRenderer {
   }
 
   /**
+   * Live measurement: is the user currently within the "stick to bottom"
+   * threshold? Always read directly from layout — never trust the cached
+   * _stuckToBottom flag, which can be stale (scroll events fire async, but
+   * load events and our own flush callbacks can run between a user's scroll
+   * and the corresponding _onScroll dispatch).
+   */
+  _isAtBottom(list) {
+    const lh = parseFloat(getComputedStyle(list).lineHeight) || 0;
+    const threshold = Math.max(SCROLL_STICKY_PX, lh * 2);
+    const distance = list.scrollHeight - list.scrollTop - list.clientHeight;
+    return distance < threshold;
+  }
+
+  /**
    * Flush pending items into the DOM.
    */
   flush() {
@@ -180,7 +194,10 @@ export class FeedRenderer {
     if (!list) return;
     this._ensurePill(list);
 
-    const wasStuck = this._stuckToBottom;
+    // Measure BEFORE appending so a scroll-up that happened in the same frame
+    // (whose async scroll event hasn't dispatched yet) is honored instead of
+    // being overwritten by scrollTop = scrollHeight below.
+    const wasStuck = this._isAtBottom(list);
     const frag = document.createDocumentFragment();
     let appended = 0;
     for (const item of this._pending.splice(0, 25)) {
@@ -190,12 +207,14 @@ export class FeedRenderer {
     list.appendChild(frag);
     while (list.children.length > this._maxItems) list.removeChild(list.firstChild);
 
+    this._stuckToBottom = wasStuck;
     if (wasStuck) {
       list.scrollTop = list.scrollHeight;
+      this._unread = 0;
     } else if (appended > 0) {
       this._unread += appended;
-      this._updatePill();
     }
+    this._updatePill();
 
     if (this._pending.length > 0 && !this._rafId) {
       this._rafId = requestAnimationFrame(() => this.flush());
@@ -234,18 +253,21 @@ export class FeedRenderer {
     // When their layout arrives (text re-wraps, item grows), scrollHeight changes
     // and we drift off the bottom. Re-pin on every image load while stuck.
     // Capture phase because `load` doesn't bubble.
+    // Live measurement here is critical: load events fire OUTSIDE the
+    // "scroll steps" rendering phase, so they can run between a user's
+    // scroll-up and the corresponding scroll event dispatch. Trusting the
+    // cached _stuckToBottom flag would re-pin the user to the bottom and
+    // make manual scroll-up impossible on emote-heavy streams.
     list.addEventListener('load', (e) => {
-      if (!this._stuckToBottom) return;
       if (!(e.target instanceof HTMLImageElement)) return;
-      list.scrollTop = list.scrollHeight;
+      if (this._isAtBottom(list)) {
+        list.scrollTop = list.scrollHeight;
+      }
     }, { capture: true, passive: true });
   }
 
   _onScroll(list) {
-    const lh = parseFloat(getComputedStyle(list).lineHeight) || 0;
-    const threshold = Math.max(SCROLL_STICKY_PX, lh * 2);
-    const distance = list.scrollHeight - list.scrollTop - list.clientHeight;
-    const nearBottom = distance < threshold;
+    const nearBottom = this._isAtBottom(list);
     if (nearBottom) {
       if (!this._stuckToBottom || this._unread !== 0) {
         this._stuckToBottom = true;
