@@ -34,6 +34,14 @@ export class TwitchAdapter extends PlatformAdapter {
     this._seventvEmotes = new Map();
     this._ffzEmotes = new Map();
 
+    // Twitch badge cache — globals load once and persist across channel
+    // switches; channel-specific tier art is swapped on each room join.
+    // state.twitchBadges is the publish surface used by _resolveBadges().
+    this._globalTwitchBadges = null;
+    this._channelTwitchBadges = null;
+    this._globalBadgesLoaded = false;
+    this._globalBadgesPromise = null;
+
     // OAuth
     this._oauthToken = '';
     this._clientId = '';
@@ -105,6 +113,11 @@ export class TwitchAdapter extends PlatformAdapter {
       this._ws.send('PASS SCHMOOPIIE');
       this._ws.send('NICK justinfan' + (Math.random() * 80000 + 1000 | 0));
       this._ws.send('JOIN ' + ch);
+      // Race the global badge fetch against the IRC handshake so the cache is
+      // populated before the first PRIVMSG arrives — channel-specific tiers
+      // still load on ROOMSTATE, but generic sub/mod/VIP badges resolve from
+      // the start.
+      this._loadGlobalTwitchBadges();
     };
 
     this._ws.onmessage = (event) => {
@@ -374,7 +387,8 @@ export class TwitchAdapter extends PlatformAdapter {
       this._fetchBTTVEmotes(roomId),
       this._fetch7TVEmotes(roomId),
       this._fetchFFZEmotes(channelName),
-      this._loadTwitchBadges(roomId)
+      this._loadGlobalTwitchBadges(),
+      this._loadChannelTwitchBadges(roomId)
     ]);
     // Merge: FFZ first (lowest priority), then 7TV, then BTTV (highest priority)
     state.thirdPartyEmotes.clear();
@@ -389,35 +403,66 @@ export class TwitchAdapter extends PlatformAdapter {
   }
 
   /**
-   * Fetch global + channel chat badges from the public badges.twitch.tv/v1
-   * endpoint (no auth required). Channel-specific versions overwrite the
-   * global defaults on collision so subscriber-tier badges (e.g. 12-month
-   * loyalty art) take precedence over the generic subscriber/0 entry.
+   * Fetch global chat badges from the public badges.twitch.tv/v1 endpoint
+   * (no auth required). Globals are cached in memory once loaded and reused
+   * across channel switches; state.twitchBadges is rebuilt as
+   * globals + current channel by _publishTwitchBadges().
    */
-  async _loadTwitchBadges(roomId) {
-    state.twitchBadges.clear();
-    const ingest = (data) => {
-      const sets = data && data.badge_sets;
-      if (!sets) return;
-      for (const setName of Object.keys(sets)) {
-        const versions = sets[setName] && sets[setName].versions;
-        if (!versions) continue;
-        for (const ver of Object.keys(versions)) {
-          const v = versions[ver];
-          const url = v.image_url_2x || v.image_url_1x || v.image_url_4x;
-          if (!url) continue;
-          state.twitchBadges.set(setName + '/' + ver, { url, title: v.title || setName });
+  async _loadGlobalTwitchBadges() {
+    if (this._globalBadgesLoaded) { this._publishTwitchBadges(); return; }
+    if (this._globalBadgesPromise) return this._globalBadgesPromise;
+    this._globalBadgesPromise = (async () => {
+      try {
+        const res = await fetch('https://badges.twitch.tv/v1/badges/global/display?language=en');
+        if (res.ok) {
+          this._globalTwitchBadges = this._parseTwitchBadgeSets(await res.json());
+          this._globalBadgesLoaded = true;
+          this._publishTwitchBadges();
         }
-      }
-    };
+      } catch (e) { console.warn('[MoodRadar] Twitch global badge fetch failed:', e.message); }
+      finally { this._globalBadgesPromise = null; }
+    })();
+    return this._globalBadgesPromise;
+  }
+
+  async _loadChannelTwitchBadges(roomId) {
+    if (!roomId) return;
+    // Atomic swap — keep the prior channel's badges visible until the new
+    // ones land so PRIVMSGs arriving during the fetch window still resolve.
+    let next = new Map();
     try {
-      const [globalRes, channelRes] = await Promise.all([
-        fetch('https://badges.twitch.tv/v1/badges/global/display?language=en'),
-        fetch('https://badges.twitch.tv/v1/badges/channels/' + roomId + '/display?language=en')
-      ]);
-      if (globalRes.ok)  ingest(await globalRes.json());
-      if (channelRes.ok) ingest(await channelRes.json());
-    } catch (e) { console.warn('[MoodRadar] Twitch badge fetch failed:', e.message); }
+      const res = await fetch('https://badges.twitch.tv/v1/badges/channels/' + roomId + '/display?language=en');
+      if (res.ok) next = this._parseTwitchBadgeSets(await res.json());
+    } catch (e) { console.warn('[MoodRadar] Twitch channel badge fetch failed:', e.message); }
+    this._channelTwitchBadges = next;
+    this._publishTwitchBadges();
+  }
+
+  _parseTwitchBadgeSets(data) {
+    const out = new Map();
+    const sets = data && data.badge_sets;
+    if (!sets) return out;
+    for (const setName of Object.keys(sets)) {
+      const versions = sets[setName] && sets[setName].versions;
+      if (!versions) continue;
+      for (const ver of Object.keys(versions)) {
+        const v = versions[ver];
+        const url = v.image_url_2x || v.image_url_1x || v.image_url_4x;
+        if (!url) continue;
+        out.set(setName + '/' + ver, { url, title: v.title || setName });
+      }
+    }
+    return out;
+  }
+
+  _publishTwitchBadges() {
+    state.twitchBadges.clear();
+    if (this._globalTwitchBadges) {
+      for (const [k, v] of this._globalTwitchBadges) state.twitchBadges.set(k, v);
+    }
+    if (this._channelTwitchBadges) {
+      for (const [k, v] of this._channelTwitchBadges) state.twitchBadges.set(k, v);
+    }
   }
 
   async _fetchBTTVEmotes(roomId) {
