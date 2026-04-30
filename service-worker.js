@@ -42,7 +42,7 @@ if (workbox) {
     { url: '/js/analysis/topWords.js', revision: '3' },
     // Platform
     { url: '/js/platform/PlatformAdapter.js', revision: '1' },
-    { url: '/js/platform/TwitchAdapter.js', revision: '5' },
+    { url: '/js/platform/TwitchAdapter.js', revision: '6' },
     { url: '/js/platform/TwitchPubSub.js', revision: '2' },
     { url: '/js/platform/KickAdapter.js', revision: '6' },
     { url: '/js/platform/YouTubeAdapter.js', revision: '11' },
