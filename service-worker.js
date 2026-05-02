@@ -4,15 +4,16 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 if (workbox) {
   /* ---------- Precache critical shell ---------- */
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '30' },
-    { url: '/index.html', revision: '30' },
+    { url: '/', revision: '31' },
+    { url: '/index.html', revision: '31' },
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
-    { url: '/css/header.css', revision: '1' },
+    { url: '/css/header.css', revision: '2' },
     { url: '/css/connect.css', revision: '8' },
     { url: '/css/cards.css', revision: '4' },
     { url: '/css/feeds.css', revision: '5' },
+    { url: '/css/modal.css', revision: '2' },
     { url: '/css/filter-modal.css', revision: '3' },
     { url: '/css/layout-mgr.css', revision: '1' },
     { url: '/css/presets.css', revision: '1' },
@@ -22,7 +23,7 @@ if (workbox) {
     { url: '/css/link-modal.css', revision: '1' },
     { url: '/css/top-words.css', revision: '3' },
     // JS modules
-    { url: '/js/app.js', revision: '17' },
+    { url: '/js/app.js', revision: '18' },
     { url: '/js/config.js', revision: '15' },
     { url: '/js/state.js', revision: '8' },
     { url: '/js/processing.js', revision: '8' },
@@ -69,6 +70,7 @@ if (workbox) {
     { url: '/js/ui/chipInput.js', revision: '1' },
     { url: '/js/ui/emoteModal.js', revision: '1' },
     { url: '/js/ui/linkModal.js', revision: '1' },
+    { url: '/js/ui/bugReportModal.js', revision: '1' },
     { url: '/js/ui/topWords.js', revision: '3' },
     { url: '/js/ui/stopwordsModal.js', revision: '2' },
     // Assets
