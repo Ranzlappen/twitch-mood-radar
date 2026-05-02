@@ -40,6 +40,7 @@ import { initHistoryDb, clearAll as clearAllHistory, setHistoryEnabled, isHistor
 import { initUserHistoryModal, openUserHistory, closeUserHistory, clearCurrentUserHistory } from './ui/userHistoryModal.js';
 import { initEmoteModal } from './ui/emoteModal.js';
 import { initLinkModal } from './ui/linkModal.js';
+import { initBugReportModal } from './ui/bugReportModal.js';
 import { initPollUI, normalizePollFrame, renderPolls, summarizePollForHistory, isPollTerminal, POLL_LINGER_MS } from './ui/polls.js';
 import { initPredictionsUI, normalizePredictionFrame, renderPredictions, summarizePredictionForHistory, isPredictionTerminal, PREDICTION_LINGER_MS } from './ui/predictions.js';
 
@@ -536,6 +537,7 @@ window.onload = function () {
   initUserHistoryModal();
   initEmoteModal();
   initLinkModal();
+  initBugReportModal();
   initPollUI();
   initPredictionsUI();
   // Hydrate the poll/prediction history feeds from IndexedDB. Best-effort:

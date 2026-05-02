@@ -37,6 +37,32 @@ header {
 }
 
 /* ============================================================
+   BUG REPORT BUTTON — sits inline with the title and Ko-fi link
+   ============================================================ */
+.bug-report-btn {
+  /* Match the visual height of the Ko-fi badge (36px) so it sits
+     cleanly on the same baseline as the rest of the title row. */
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; padding:0;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  cursor:pointer;
+  vertical-align:middle;
+  transition:color .2s,border-color .2s,background .2s;
+}
+.bug-report-btn:hover {
+  color:var(--accent);
+  border-color:var(--accent);
+  background:rgba(0,255,229,.06);
+}
+.bug-report-btn svg {
+  width:20px; height:20px;
+  fill:currentColor; display:block;
+}
+
+/* ============================================================
    SETTINGS MENU — inline with the title row, icon-only button
    ============================================================ */
 .settings-wrap {
