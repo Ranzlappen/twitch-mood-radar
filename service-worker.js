@@ -9,7 +9,7 @@ if (workbox) {
     { url: '/css/main.css', revision: '3' },
     { url: '/css/tokens.css', revision: '1' },
     { url: '/css/layout.css', revision: '2' },
-    { url: '/css/header.css', revision: '2' },
+    { url: '/css/header.css', revision: '3' },
     { url: '/css/connect.css', revision: '8' },
     { url: '/css/cards.css', revision: '4' },
     { url: '/css/feeds.css', revision: '5' },
@@ -70,7 +70,7 @@ if (workbox) {
     { url: '/js/ui/chipInput.js', revision: '1' },
     { url: '/js/ui/emoteModal.js', revision: '1' },
     { url: '/js/ui/linkModal.js', revision: '1' },
-    { url: '/js/ui/bugReportModal.js', revision: '1' },
+    { url: '/js/ui/bugReportModal.js', revision: '2' },
     { url: '/js/ui/topWords.js', revision: '3' },
     { url: '/js/ui/stopwordsModal.js', revision: '2' },
     // Assets

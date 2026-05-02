@@ -28,6 +28,23 @@ header {
   background-size:300% 100%;
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   animation:titleShift 6s linear infinite;
+  /* Lay out title text + inline icon buttons (Ko-fi, Bug report) on one
+     centered row so they align both horizontally and vertically without
+     baseline gaps from the inline images. */
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  line-height:1;
+}
+.title > a,
+.title > a > img {
+  display:inline-flex;
+  align-items:center;
+  /* Cancel the gradient text-clip on the image — without this the image
+     itself can pick up a transparent fill on some engines. */
+  -webkit-text-fill-color:initial;
 }
 @keyframes titleShift { to { background-position:-300% 0 } }
 

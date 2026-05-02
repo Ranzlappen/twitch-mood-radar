@@ -16,10 +16,7 @@
 
 import { createModal } from './modal.js';
 
-// Empty `to` opens the user's mail client with a blank recipient field.
-// Set this to a maintainer address if you want bug reports to land in a
-// known inbox by default.
-const BUG_REPORT_TO = '';
+const BUG_REPORT_TO = 'info@ranzlappen.com';
 const BUG_REPORT_SUBJECT = '[Mood Radar] Bug report';
 
 let _modalController = null;
