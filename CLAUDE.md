@@ -13,7 +13,7 @@
 3. Keep `start_url` in `manifest.json` set to `"/"`.
 4. The service worker scope must remain `"/"`.
 5. Do not delete or rename `install-prompt.js` — it handles the automatic native install prompt.
-6. Icon files in `/icons/` are placeholders. Replace with real branded icons but keep the filenames and sizes.
+6. Icon files in `/icons/` use the shared icon-universe naming: `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`. Keep these filenames + sizes; both `manifest.json` and the `service-worker.js` precache reference them.
 7. All paths in `manifest.json` and `service-worker.js` must be root-relative (`/`).
 
 ## Settings Architecture
