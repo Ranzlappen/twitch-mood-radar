@@ -78,11 +78,11 @@ if (workbox) {
     { url: '/icons/favicon.ico', revision: '5' },
     { url: '/icons/favicon-16x16.png', revision: '5' },
     { url: '/icons/favicon-32x32.png', revision: '5' },
-    { url: '/icons/apple-touch-icon.png', revision: '5' },
+    { url: '/icons/apple-touch-icon.png', revision: '6' },
     { url: '/icons/icon-192.png', revision: '5' },
     { url: '/icons/icon-512.png', revision: '5' },
-    { url: '/icons/icon-maskable-192.png', revision: '5' },
-    { url: '/icons/icon-maskable-512.png', revision: '5' }
+    { url: '/icons/icon-maskable-192.png', revision: '6' },
+    { url: '/icons/icon-maskable-512.png', revision: '6' }
   ]);
 
   /* ---------- Runtime caching strategies ---------- */
