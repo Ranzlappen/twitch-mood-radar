@@ -10,10 +10,11 @@
   --calm:#4fc3f7; --angry:#ff1744; --excited:#76ff03;
   --cringe:#e040fb; --wholesome:#ffab40; --confused:#78909c;
 
-  /* Layout rhythm — one place to tune spacing across all sections */
-  --gap:16px;
+  /* Layout rhythm — one place to tune spacing across all sections.
+     Fluid: tightens on phones, full rhythm from ~1150px up. */
+  --gap:clamp(8px,1.4vw,16px);
   --card-radius:14px;
-  --card-pad:18px;
+  --card-pad:clamp(10px,1.8vw,18px);
 
   /* Density & effects — controlled by Options Drawer */
   --crt-opacity:1;

@@ -53,6 +53,20 @@ header {
   letter-spacing:.22em; margin-top:5px;
 }
 
+/* Ko-fi badge — sized here (not inline) so the mobile rule below can shrink it */
+.kofi-badge { border:0; height:36px }
+
+/* Phones: the title row + subtitle otherwise eat ~130px before any
+   data is visible — tighten the whole header block. */
+@media (max-width:600px) {
+  header { margin-bottom:12px }
+  .title { gap:8px }
+  .kofi-badge { height:26px }
+  .bug-report-btn { width:30px; height:30px }
+  .bug-report-btn svg { width:17px; height:17px }
+  .subtitle { font-size:.62em; letter-spacing:.14em; margin-top:3px }
+}
+
 /* ============================================================
    BUG REPORT BUTTON — sits inline with the title and Ko-fi link
    ============================================================ */

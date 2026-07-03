@@ -3,7 +3,9 @@
    ============================================================ */
 .app {
   position:relative; z-index:1;
-  width:100%; max-width:100%; margin:0;
+  /* Cap the dashboard width on ultrawide monitors — full-bleed rows
+     (approval meter, stats) otherwise stretch to unusable widths. */
+  width:100%; max-width:1720px; margin:0 auto;
   padding:clamp(4px,0.8vw,16px) clamp(6px,1vw,14px) 32px;
   background:linear-gradient(180deg, rgba(0,255,229,.018) 0%, transparent 120px);
   border-left:1px solid rgba(0,255,229,.06);
@@ -11,7 +13,9 @@
   min-height:100dvh;
   /* Viewport-adaptive grid */
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  /* auto-fit (not auto-fill): collapses empty tracks when cards are
+     hidden via Card Visibility so the remaining cards grow to fill. */
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap:var(--gap);
   align-content:start;
   grid-auto-flow:dense;

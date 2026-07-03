@@ -8,8 +8,9 @@
 .feed-card {
   background:var(--panel); border:1px solid var(--border);
   border-radius:var(--card-radius); padding:14px;
-  max-height:200px; overflow-y:auto;
-  margin-bottom:var(--gap);
+  /* Match --timeline-height so feed cards fill their grid row instead
+     of leaving a hole next to 320px chart neighbors. */
+  max-height:var(--timeline-height,320px); overflow-y:auto;
 }
 .feed-title { font-family:'Orbitron',sans-serif; font-size:.58em; letter-spacing:.2em; color:var(--muted); margin-bottom:7px; display:flex; align-items:center; gap:4px }
 .feed-item { font-size:.72em; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); display:grid; grid-template-columns:8px auto 1fr 62px 44px; gap:0 6px; align-items:baseline; animation:fadeIn .2s ease }

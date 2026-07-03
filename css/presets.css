@@ -85,6 +85,13 @@ body.preset-custom .bubble-card { padding:0; padding-top:var(--card-pad) }
   .app > .timeline-card { grid-column:span 2 }
 }
 
+/* On very wide grids (4-5 columns) a 2-column timeline is a sliver —
+   let time-series cards take 3 tracks so rows don't end up half empty. */
+@media (min-width:1600px) {
+  .app > .bubble-card   { grid-column:span 3 }
+  .app > .timeline-card { grid-column:span 3 }
+}
+
 /* ============================================================
    CONTAINER QUERIES — card-level micro-adjustments
    ============================================================ */
@@ -97,6 +104,12 @@ body.preset-custom .bubble-card { padding:0; padding-top:var(--card-pad) }
 @container (max-width:280px) {
   .chart-title, .card-title { font-size:.45em }
   .approval-header { flex-direction:column; gap:4px }
+}
+/* Narrow feed cards: drop the approval-number column so the message
+   text gets the ~50px back. */
+@container (max-width:340px) {
+  .feed-item { grid-template-columns:8px auto 1fr 62px }
+  .feed-item .feed-apv { display:none }
 }
 
 /* ============================================================
@@ -127,7 +140,7 @@ body.preset-dense {
 }
 body.preset-dense .app {
   padding:4px clamp(4px,0.5vw,8px) 16px;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 }
 body.preset-dense .app::before { display:none }
 body.preset-dense header { margin-bottom:2px }
