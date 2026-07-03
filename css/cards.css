@@ -42,7 +42,10 @@
   color:var(--muted); margin-bottom:12px; align-self:flex-start;
   display:flex; align-items:center; gap:4px;
 }
-.chart-wrap { width:100%; max-width:100%; aspect-ratio:1; position:relative }
+/* Square, but capped — in wide grid columns an uncapped 1:1 chart
+   inflates the whole grid row. Charts use maintainAspectRatio:false
+   so they fill whatever box this resolves to. */
+.chart-wrap { width:100%; max-width:100%; aspect-ratio:1; max-height:min(380px,60vh); margin-inline:auto; position:relative }
 
 /* ============================================================
    BUBBLE CARD
@@ -50,7 +53,6 @@
 .bubble-card {
   background:var(--panel); border:1px solid var(--border);
   border-radius:var(--card-radius); padding:var(--card-pad);
-  margin-bottom:var(--gap);
   overflow:hidden;
 }
 #bubbleCanvas { width:100%; height:var(--bubble-height, 260px); display:block; cursor:default; border-radius:8px; min-height:60px; max-width:100%; max-height:100% }
@@ -66,7 +68,6 @@
   border:1px solid rgba(0,255,229,.18);
   border-radius:var(--card-radius);
   padding:20px var(--card-pad);
-  margin-bottom:var(--gap);
   position:relative;
   /* Subtle outer glow to draw the eye */
   box-shadow:0 0 0 1px rgba(0,255,229,.04), inset 0 1px 0 rgba(0,255,229,.06);
@@ -147,7 +148,6 @@
   border:1px solid rgba(145,70,255,.22);
   border-radius:var(--card-radius);
   padding:var(--card-pad);
-  margin-bottom:var(--gap);
   box-shadow:0 0 0 1px rgba(145,70,255,.05), inset 0 1px 0 rgba(145,70,255,.06);
 }
 .poll-list { display:flex; flex-direction:column; gap:14px; }
@@ -283,7 +283,6 @@
   border:1px solid rgba(56,122,255,.20);
   border-radius:var(--card-radius);
   padding:var(--card-pad);
-  margin-bottom:var(--gap);
   box-shadow:0 0 0 1px rgba(56,122,255,.05), inset 0 1px 0 rgba(56,122,255,.06);
 }
 .prediction-item {
@@ -438,7 +437,6 @@
 .timeline-card {
   background:var(--panel); border:1px solid var(--border);
   border-radius:var(--card-radius); padding:var(--card-pad);
-  margin-bottom:var(--gap);
 }
 .timeline-wrap { width:100%; height:var(--timeline-height, 320px) }
 .timeline-controls {

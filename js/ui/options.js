@@ -106,16 +106,24 @@ export function setOptDensity(val) {
 
 export function setOptGap(v) {
   state.drawerOptions.gap = parseInt(v);
-  document.documentElement.style.setProperty('--gap', v + 'px');
+  applySpacingVar('--gap', state.drawerOptions.gap, DEFAULT_OPTIONS.gap);
   document.getElementById('optGapVal').textContent = v + 'px';
   saveOptions();
 }
 
 export function setOptCardPad(v) {
   state.drawerOptions.cardPad = parseInt(v);
-  document.documentElement.style.setProperty('--card-pad', v + 'px');
+  applySpacingVar('--card-pad', state.drawerOptions.cardPad, DEFAULT_OPTIONS.cardPad);
   document.getElementById('optCardPadVal').textContent = v + 'px';
   saveOptions();
+}
+
+/* At the default slider value the fluid clamp() in tokens.css must win,
+   so the inline override is removed instead of pinned to a fixed px. */
+function applySpacingVar(name, value, defaultValue) {
+  const root = document.documentElement.style;
+  if (value === defaultValue) root.removeProperty(name);
+  else root.setProperty(name, value + 'px');
 }
 
 export function setOptFontScale(v) {
@@ -524,8 +532,8 @@ export function applyAllOptions() {
   if (densityEl) densityEl.value = o.density;
   // CSS variables
   const root = document.documentElement.style;
-  root.setProperty('--gap', o.gap + 'px');
-  root.setProperty('--card-pad', o.cardPad + 'px');
+  applySpacingVar('--gap', o.gap, DEFAULT_OPTIONS.gap);
+  applySpacingVar('--card-pad', o.cardPad, DEFAULT_OPTIONS.cardPad);
   root.setProperty('--font-scale', o.fontScale);
   root.setProperty('--crt-opacity', o.crtOpacity);
   root.setProperty('--grid-opacity', o.gridOpacity);

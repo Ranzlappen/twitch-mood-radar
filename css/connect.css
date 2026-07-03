@@ -84,7 +84,7 @@
 input[type=text] {
   background:#080814; border:1px solid var(--border); border-radius:8px;
   color:var(--text); font-family:'Share Tech Mono',monospace; font-size:1em;
-  padding:9px 13px 9px 28px; width:200px; outline:none;
+  padding:9px 13px 9px 28px; width:min(200px,100%); outline:none;
   transition:border-color .2s,box-shadow .2s;
 }
 input[type=text]:focus { border-color:var(--accent); box-shadow:0 0 10px rgba(0,255,229,.2) }
@@ -637,6 +637,13 @@ body:not(.disconnected) {
 .stat-box { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:9px 14px; text-align:center; min-width:80px }
 .stat-val { font-family:'Orbitron',sans-serif; font-size:1.4em; font-weight:700; color:var(--accent) }
 .stat-label { font-size:.6em; letter-spacing:.15em; color:var(--muted); margin-top:2px }
+/* Phones: let stat boxes grow to share each wrapped row evenly
+   instead of piling up as ragged centered fragments. */
+@media (max-width:600px) {
+  .stats-row { gap:6px }
+  .stat-box { flex:1 1 calc(25% - 6px); min-width:64px; padding:7px 8px }
+  .stat-val { font-size:1.15em }
+}
 
 .throughput-bar-wrap { display:flex; align-items:center; gap:9px; font-size:.66em; color:var(--muted); margin-bottom:14px; justify-content:center }
 .tbar { flex:1; max-width:260px; height:5px; background:var(--border); border-radius:3px; overflow:hidden }
