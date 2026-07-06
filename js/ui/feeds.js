@@ -80,12 +80,22 @@ export function buildFeedItemEl({ user, msg, mood, botScore = 0, approvalVote = 
   userSpan.tabIndex = 0;
   userSpan.textContent = safeUser;
   userWrap.appendChild(userSpan);
-  el.appendChild(userWrap);
+
+  const contentWrap = document.createElement('div');
+  contentWrap.className = 'feed-content';
+  contentWrap.appendChild(userWrap);
+
+  const sep = document.createElement('span');
+  sep.className = 'feed-separator';
+  sep.textContent = ': ';
+  contentWrap.appendChild(sep);
 
   const msgSpan = document.createElement('span');
   msgSpan.className = 'feed-msg';
   appendMessageSegments(msgSpan, safeMsg);
-  el.appendChild(msgSpan);
+  contentWrap.appendChild(msgSpan);
+
+  el.appendChild(contentWrap);
 
   const moodSpan = document.createElement('span');
   if (isBot) {

@@ -1,0 +1,2842 @@
+npm warn exec The following package was not found and will be installed: serve@14.2.6
+ INFO  Accepting connections at http://localhost:3000
+ HTTP  7/4/2026 9:51:10 PM ::1 GET /
+ HTTP  7/4/2026 9:51:10 PM ::1 Returned 200 in 362 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 14 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 14 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 15 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 14 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:11 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:51:11 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 12 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 12 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:12 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:51:12 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 301 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /index
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 301 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:13 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:51:13 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:51:14 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:51:14 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 11 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:52:08 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:08 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /index
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:09 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:52:09 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:52:10 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:52:10 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 14 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:04 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:53:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /index
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:05 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:53:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:53:06 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:53:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:22 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:55:22 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /index
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:23 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:55:23 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:24 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:55:24 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:55:24 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:55:24 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:55:24 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:55:24 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:17 PM ::1 GET /
+ HTTP  7/4/2026 9:56:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 14 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 16 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 301 in 3 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /index
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:18 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:56:18 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:19 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:56:19 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:56 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:56:56 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /index
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:56:57 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:56:57 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 12 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 11 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 12 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /index
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:16 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:57:16 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:57:17 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:57:17 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:02 PM ::1 GET /
+ HTTP  7/4/2026 9:58:02 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 12 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 11 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 13 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /index
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:03 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:58:03 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:04 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:58:04 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:05 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:58:05 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 9 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /index
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 301 in 0 ms
+ HTTP  7/4/2026 9:58:34 PM ::1 GET /
+ HTTP  7/4/2026 9:58:34 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:58:35 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:58:35 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:58:36 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:58:36 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:58:36 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:58:36 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:58:36 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:58:36 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /install-prompt.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/settings.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/moduleDrawers.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 10 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/infoDrawer.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/ui/modal.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:06 PM ::1 GET /service-worker.js
+ HTTP  7/4/2026 9:59:06 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /index.html
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /index
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 301 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/main.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/tokens.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/layout.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/header.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/connect.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/cards.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/feeds.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/modal.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/filter-modal.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/layout-mgr.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/presets.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/options-drawer.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/chat-input.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/emote-modal.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/link-modal.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /css/top-words.css
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/app.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/config.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/state.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/processing.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/dom.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 7 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/color.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 3 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/storage.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/cors.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 2 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/CircularBuffer.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/utils/urlSafety.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/sentiment.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/approval.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/botDetector.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/ewma.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/stopwords.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 4 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/analysis/topWords.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/PlatformAdapter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/TwitchAdapter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/TwitchPubSub.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/KickAdapter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/YouTubeAdapter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/RumbleAdapter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/ConnectionManager.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/platform/emotes.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/history/historyDb.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/history/justlogClient.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/charts.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/bubbles.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/feeds.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/approval-meter.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/options.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/polls.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/predictions.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/settings.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/layout.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/help.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/wake-lock.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/userHistoryModal.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/filterBuilder.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/chipInput.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/emoteModal.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/linkModal.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/bugReportModal.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/topWords.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /js/ui/stopwordsModal.js
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 8 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /manifest.json
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:07 PM ::1 GET /icons/favicon.ico
+ HTTP  7/4/2026 9:59:07 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/favicon-16x16.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/favicon-32x32.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/apple-touch-icon.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 5 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/icon-192.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 6 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/icon-512.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 0 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/icon-maskable-192.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 1 ms
+ HTTP  7/4/2026 9:59:08 PM ::1 GET /icons/icon-maskable-512.png
+ HTTP  7/4/2026 9:59:08 PM ::1 Returned 200 in 1 ms
