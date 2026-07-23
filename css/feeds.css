@@ -24,7 +24,7 @@
 .feed-user-wrap { display:inline-flex; align-items:center; gap:2px; vertical-align:middle; margin-bottom:1px }
 .feed-user { color:var(--accent); font-weight:bold }
 .feed-separator { color:var(--muted) }
-.feed-msg { color:#6a6a8e; word-break:break-word; white-space:normal; display:inline }
+.feed-msg { color:#c2c2e8; word-break:break-word; white-space:normal; display:inline }
 .chat-emote { display:inline-block; height:1.5em; vertical-align:middle; margin:0 1px; }
 .feed-badge { height:1em; width:1em; flex-shrink:0; vertical-align:-0.15em; image-rendering:-webkit-optimize-contrast; }
 .feed-meta { display:flex; align-items:center; gap:5px; flex-shrink:0 }
@@ -42,7 +42,7 @@
 .mood-cringe    { background:rgba(224,64,251,.12); color:var(--cringe) }
 .mood-wholesome { background:rgba(255,171,64,.12); color:var(--wholesome) }
 .mood-confused  { background:rgba(120,144,156,.18);color:var(--confused) }
-.mood-neutral   { background:rgba(46,61,94,.35);   color:#4a6688 }
+.mood-neutral   { background:rgba(46,61,94,.35);   color:#8ba7cf }
 .feed-card::-webkit-scrollbar { width:3px }
 .feed-card::-webkit-scrollbar-thumb { background:var(--border) }
 .feed-bot { opacity:.35 }

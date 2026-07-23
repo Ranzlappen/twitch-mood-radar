@@ -242,7 +242,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   align-items: baseline;
 }
 .user-history-stat-label {
-  color: #5a5a8a;
+  color: #9090c4;
   text-transform: uppercase;
   letter-spacing: .08em;
   font-size: .85em;
@@ -333,7 +333,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 }
 .user-history-channel  { color: var(--text); word-break: break-all; }
 .user-history-platform { color: var(--muted); text-transform: lowercase; }
-.uh-conn               { color: #5a5a8a; font-size: .9em; }
+.uh-conn               { color: #9090c4; font-size: .9em; }
 .user-history-meta-right {
   display: inline-flex;
   align-items: baseline;
@@ -351,7 +351,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 .user-history-body {
   display: block;
   width: 100%;
-  color: #6a6a8e;
+  color: #c2c2e8;
   word-break: break-word;
   white-space: normal;
   line-height: 1.35;
