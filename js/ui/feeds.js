@@ -313,12 +313,12 @@ export class FeedRenderer {
 
 /* ── feed instances ──────────────────────────────────── */
 
-export const mainFeed = new FeedRenderer('feedList', { maxItems: 60 });
+export const mainFeed = new FeedRenderer('feedList', { maxItems: 150 });
 
-export const outlierFeed = new FeedRenderer('outlierFeedList', { maxItems: 40 });
+export const outlierFeed = new FeedRenderer('outlierFeedList', { maxItems: 100 });
 
 export const filteredFeed = new FeedRenderer('filteredFeedList', {
-  maxItems: 60,
+  maxItems: 150,
   filterFn: (user, msg) => {
     const rx = state.filteredFeedRegex;
     const uq = state.filteredFeedUserQuery;

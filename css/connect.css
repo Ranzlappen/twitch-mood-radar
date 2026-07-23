@@ -138,7 +138,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   max-height:80vh; overflow-y:auto;
 }
 .help-modal h3 { font-family:'Orbitron',sans-serif; font-size:.8em; letter-spacing:.2em; color:var(--accent); margin-bottom:14px }
-.help-modal p,.help-modal li { font-size:.8em; color:#9898c8; line-height:1.7; margin-bottom:8px }
+.help-modal p,.help-modal li { font-size:.8em; color:#c0c0e6; line-height:1.7; margin-bottom:8px }
 .help-modal ul { padding-left:16px; margin-bottom:8px }
 .help-modal li { margin-bottom:4px }
 .help-modal strong { color:var(--text) }
@@ -242,7 +242,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   align-items: baseline;
 }
 .user-history-stat-label {
-  color: #9090c4;
+  color: #b4b4e2;
   text-transform: uppercase;
   letter-spacing: .08em;
   font-size: .85em;
@@ -254,7 +254,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   gap: 12px;
   align-items: center;
   font-size: .72em;
-  color: #9898c8;
+  color: #c0c0e6;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   padding: 8px 0;
@@ -333,7 +333,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 }
 .user-history-channel  { color: var(--text); word-break: break-all; }
 .user-history-platform { color: var(--muted); text-transform: lowercase; }
-.uh-conn               { color: #9090c4; font-size: .9em; }
+.uh-conn               { color: #b4b4e2; font-size: .9em; }
 .user-history-meta-right {
   display: inline-flex;
   align-items: baseline;
@@ -351,7 +351,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
 .user-history-body {
   display: block;
   width: 100%;
-  color: #c2c2e8;
+  color: #e0e0f8;
   word-break: break-word;
   white-space: normal;
   line-height: 1.35;
@@ -415,7 +415,7 @@ input[type=range]:focus-visible { outline:2px solid var(--accent); outline-offse
   border-bottom: 1px solid var(--border);
   margin-bottom: 8px;
   font-size: .72em;
-  color: #9898c8;
+  color: #c0c0e6;
 }
 .uh-sources[hidden] { display: none; }
 .uh-sources-row {
