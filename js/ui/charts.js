@@ -70,7 +70,7 @@ const approvalMidlinePlugin = {
 export function initCharts() {
   if (state.chartsReady) return;
   state.chartsReady = true;
-  Chart.defaults.color = '#4a4a7a';
+  Chart.defaults.color = '#b4b4e2';
   Chart.defaults.font.family = 'Share Tech Mono';
 
   state.pieChart = new Chart(document.getElementById('pieChart'), {
@@ -128,11 +128,11 @@ export function initCharts() {
       responsive: true, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#2e2e58', maxRotation: 0, font: { size: 8 } } },
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#a4a4d6', maxRotation: 0, font: { size: 8 } } },
         y: {
           type: 'linear', min: 0, max: 10,
           grid: { color: 'rgba(255,255,255,.04)' },
-          ticks: { color: '#2e2e58', font: { size: 8 }, callback: v => v + '%' }
+          ticks: { color: '#a4a4d6', font: { size: 8 }, callback: v => v + '%' }
         }
       },
       plugins: {
@@ -149,12 +149,12 @@ export function initCharts() {
       responsive: true, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#2e2e58', maxRotation: 0, font: { size: 8 } } },
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#a4a4d6', maxRotation: 0, font: { size: 8 } } },
         y: {
           type: 'logarithmic', min: 0.5, max: 100,
           grid: { color: 'rgba(255,255,255,.04)' },
           ticks: {
-            color: '#2e2e58', font: { size: 8 },
+            color: '#a4a4d6', font: { size: 8 },
             callback(v) {
               if (v === 0.5) return '<1%';
               if ([1, 2, 5, 10, 20, 50, 100].includes(v)) return v + '%';
@@ -183,11 +183,11 @@ export function initCharts() {
       responsive: true, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#2e2e58', maxRotation: 0, font: { size: 8 } } },
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#a4a4d6', maxRotation: 0, font: { size: 8 } } },
         y: {
           type: 'linear', min: 0, max: 100,
           grid: { color: 'rgba(255,255,255,.04)' },
-          ticks: { color: '#2e2e58', font: { size: 8 }, callback: function(v) {
+          ticks: { color: '#a4a4d6', font: { size: 8 }, callback: function(v) {
             if (v === 0) return 'DISSENT';
             if (v === 50) return 'NEUTRAL';
             if (v === 100) return 'APPROVAL';
@@ -214,11 +214,11 @@ export function initCharts() {
       responsive: true, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#2e2e58', maxRotation: 0, font: { size: 8 } } },
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#a4a4d6', maxRotation: 0, font: { size: 8 } } },
         y: {
           type: 'linear', min: 0,
           grid: { color: 'rgba(255,255,255,.04)' },
-          ticks: { color: '#2e2e58', font: { size: 8 }, callback: function(v) { return v + ' msg/s'; } }
+          ticks: { color: '#a4a4d6', font: { size: 8 }, callback: function(v) { return v + ' msg/s'; } }
         }
       },
       plugins: {

@@ -117,7 +117,7 @@ function _approvalParts(vote) {
   let color;
   if (vote > 1) color = '#00ffe5';
   else if (vote < -1) color = '#ff4800';
-  else color = '#4a4a7a';
+  else color = '#9a9ad0';
   const num = vote > 0 ? '+' + vote.toFixed(1) : vote.toFixed(1);
   return { color, num };
 }
@@ -313,7 +313,7 @@ export class FeedRenderer {
 
 /* ── feed instances ──────────────────────────────────── */
 
-export const mainFeed = new FeedRenderer('feedList', { maxItems: 150 });
+export const mainFeed = new FeedRenderer('feedList', { maxItems: 250 });
 
 export const outlierFeed = new FeedRenderer('outlierFeedList', { maxItems: 100 });
 
