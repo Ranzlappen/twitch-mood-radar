@@ -202,6 +202,72 @@ export class ConnectionManager {
     if (this._onAllDisconnected) this._onAllDisconnected();
   }
 
+  // --- URL-driven auto-connect ---
+
+  /**
+   * Parse the current location's query string for platform→channel pairs and
+   * connect to each on page load. Supports the standard `&` separator as well
+   * as a repeated `?` (e.g. `?twitch=zackrawrr?kick=asmongold`), and repeated
+   * keys for multiple channels on one platform (`?twitch=a&twitch=b`).
+   *
+   * @param {string} [search] — query string incl. leading '?'. Defaults to
+   *   window.location.search.
+   * @returns {number} count of channels queued for connection.
+   */
+  autoConnectFromURL(search) {
+    const raw = (search != null ? search : (typeof window !== 'undefined' ? window.location.search : '')) || '';
+    const pairs = raw.replace(/^\?/, '').split(/[?&]/).filter(Boolean);
+    /** @type {{platform:string, channel:string}[]} */
+    const requests = [];
+    for (const pair of pairs) {
+      const eq = pair.indexOf('=');
+      if (eq === -1) continue;
+      let key, val;
+      try {
+        key = decodeURIComponent(pair.slice(0, eq)).trim().toLowerCase();
+        val = decodeURIComponent(pair.slice(eq + 1)).replace(/\+/g, ' ').trim();
+      } catch { continue; }
+      if (!val) continue;
+      if (!ADAPTER_FACTORIES[key]) continue; // ignore unknown / non-platform params
+      requests.push({ platform: key, channel: val });
+    }
+    if (!requests.length) return 0;
+
+    // Assign each request to a slot: reuse the first (always present) slot for
+    // request #0, spin up fresh slots for the rest (capped at MAX_FEEDS).
+    let queued = 0;
+    requests.forEach((req, i) => {
+      let slot;
+      if (i === 0) {
+        slot = this._slots[0];
+      } else {
+        if (this._slots.length >= MAX_FEEDS) return;
+        this._addSlotInternal();
+        slot = this._slots[this._slots.length - 1];
+      }
+      if (!slot) return;
+      if (slot.platform !== req.platform) {
+        slot.platform = req.platform;
+        slot.adapter = ADAPTER_FACTORIES[req.platform]();
+        this._wireAdapter(slot);
+      }
+      slot._pendingChannel = req.channel;
+      queued++;
+    });
+
+    // Render so the slot inputs/selects exist in the DOM, then fill each input
+    // and connect (connectSlot reads the channel name from its DOM input).
+    this.renderAllSlots();
+    for (const slot of this._slots) {
+      if (!slot._pendingChannel) continue;
+      const input = document.getElementById('channelInput_' + slot.id);
+      if (input) input.value = slot._pendingChannel;
+      delete slot._pendingChannel;
+      this.connectSlot(slot.id);
+    }
+    return queued;
+  }
+
   // --- Channel history (shared across all slots) ---
 
   loadChannelHistory() { return load(CHANNEL_HISTORY_KEY, []); }
