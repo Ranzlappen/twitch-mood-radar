@@ -585,6 +585,10 @@ window.onload = function () {
   loadYouTubeApiKey();
   refreshYoutubeQuotaDisplay();
 
+  // Auto-connect from URL query params, e.g. ?twitch=zackrawrr&kick=asmongold
+  // Prefills the feed slots and connects to each live chat on page load.
+  try { connMgr.autoConnectFromURL(); } catch (e) { console.warn('[MoodRadar] URL auto-connect failed:', e); }
+
   // Re-acquire wake lock when tab becomes visible again
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && state.drawerOptions.wakeLockEnabled) {
